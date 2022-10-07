@@ -1,0 +1,4 @@
+---
+title: LupBook Sample Page
+...
+
