@@ -1,0 +1,39 @@
+id: complex-example-multifile
+title: ""
+skeleton:
+  - filename: list.c
+    data: !raw_include complex_example/list_skel.c
+    readonly:
+      except:
+        - from: 26
+          to: 29
+  - filename: list.h
+    readonly: true
+    data: !raw_include complex_example/list.h
+  - filename: main.c
+    hidden: true
+    data: !raw_include complex_example/main.c
+tests:
+  - name: Build
+    fatal: true
+    cmds:
+      - gcc -o exmp_list main.c list.c
+  - name: Ascending items
+    cmds:
+      - ./exmp_list push 1 2 3 4 5 6 7 8 9 10
+    checks:
+      - output: stdout
+        content: " 10 9 8 7 6 5 4 3 2 1\n"
+
+  - name: Handle NULL list argument
+    cmds:
+      - ./exmp_list err_null_list
+    checks:
+      - output: stdout
+        content: "list_push_front returned -1\n"
+  - name: Handle NULL node argument
+    cmds:
+      - ./exmp_list err_null_node
+    checks:
+      - output: stdout
+        content: "list_push_front returned -1\n"
