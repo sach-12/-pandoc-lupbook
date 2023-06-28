@@ -44,13 +44,11 @@ build-book: build-dir $(MODULE_DEPS)
             --template template.html *.md --filter $(abs_filter)
 
 # External Resources
+deps: build-codemirror build-xtermjs
 
-ext/codemirror/lib/codemirror.js: build-codemirror
-ext/codemirror/lib/codemirror.css: build-codemirror
 build-codemirror:
 	cd ext/codemirror && npm install
 
-ext/xtermjs/lib/xterm.js: build-xtermjs
 build-xtermjs:
 	cd ext/xtermjs && npm install && npm run package
 
