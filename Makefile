@@ -10,7 +10,7 @@ all: build-book
 
 # Binaries
 PANDOC ?= pandoc
-FILTER = pandoc/pandoc-lupbook.py
+FILTER = pandoc/lupbook.py
 
 abs_filter = $(realpath $(FILTER))
 
