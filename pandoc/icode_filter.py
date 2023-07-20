@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 """
 Pandoc filter to process fenced divs with class "ICode" into interactive code
 elements.
@@ -7,28 +5,19 @@ elements.
 Depends on dominate
 """
 
+import dominate
+import json
 import os
 import sys
-from pandocfilters import toJSONFilter, RawBlock
-import dominate
-from dominate.tags import *
-import json
 import yaml
+
+import pandocfilters
+
+from dominate.tags import *
+
 from icode_schema import icode_validator
 
-class Loader(yaml.SafeLoader):
-    def include(self, node):
-        fname = os.path.join(os.path.curdir, self.construct_scalar(node))
-        with open(fname, 'r') as fin:
-            return yaml.load(fin, Loader)
-
-    def raw_include(self, node):
-        fname = os.path.join(os.path.curdir, self.construct_scalar(node))
-        with open(fname, 'rb') as fin:
-            return fin.read().decode('utf-8')
-
-Loader.add_constructor('!include', Loader.include)
-Loader.add_constructor('!raw_include', Loader.raw_include)
+from utils import LupbookLoader
 
 def encode_html_attr(obj):
     str = json.dumps(obj)
@@ -213,7 +202,7 @@ def ICode(key, value, format, meta):
     if not "icode" in classes:
         return
 
-    icode_args = yaml.load(data, Loader)
+    icode_args = yaml.load(data, LupbookLoader)
     try:
         icode_validator.validate(icode_args)
     except:
@@ -229,7 +218,5 @@ def ICode(key, value, format, meta):
         feedback(icode_args)
         div(cls = "card-footer text-muted")
 
-    return RawBlock("html", root.render())
+    return pandocfilters.RawBlock("html", root.render())
 
-if __name__ == "__main__":
-    toJSONFilter(ICode)
