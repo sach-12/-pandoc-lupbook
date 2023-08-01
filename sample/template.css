@@ -1,0 +1,11 @@
+code {
+    font-family: "Courier New", monospace;
+    background-color: #f2f2f2;
+    padding: 2px 4px;
+    border-radius: 3px;
+}
+
+.line-break {
+    flex-basis: 100%;
+    height: 0;
+}
