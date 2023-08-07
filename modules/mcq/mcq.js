@@ -79,8 +79,9 @@ class MCQ_One {
     }
     label = 'A';
     for (let i = 0; i < this.feedbacks.length; i++) {
-      let tempFeedback = label + ". " + this.feedbacks[i].textContent;
-      this.feedbacks[i].textContent = tempFeedback;
+      let feedback = this.feedbacks[i];
+      let label_node = document.createTextNode(label+". ");
+      feedback.insertBefore(label_node, feedback.firstChild);
       label = nextChar(label);
     }
   }
@@ -186,8 +187,9 @@ class MCQ_Many {
     }
     label = 'A';
     for (let i = 0; i < this.feedbacks.length; i++) {
-      let tempFeedback = label + ". " + this.feedbacks[i].textContent;
-      this.feedbacks[i].textContent = tempFeedback;
+      let feedback = this.feedbacks[i];
+      let label_node = document.createTextNode(label+". ");
+      feedback.insertBefore(label_node, feedback.firstChild);
       label = nextChar(label);
     }
   }
