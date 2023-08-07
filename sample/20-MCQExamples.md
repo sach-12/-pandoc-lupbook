@@ -17,23 +17,23 @@ stem: |
       We covered this in `Section 1`.
 answers: 
   - id: choice1
-    text: $$r$$
+    text: $r$
     feedback: | 
       The radius only refers to the distance from the 
       center to any edge of the circle, not the 
       circumference itself
   - id: choice2
-    text: $$2\pi^2$$
+    text: $2\pi^2$
     feedback: |
       That’s right! The circumference of a circle is                      
-      given by $$2\pi^2$$.
+      given by $2\pi^2$.
 key:
    - choice2   
 ```
 
 This is a simple example where only one of the choices is correct. Let us define some of the elements of this configuration. Firstly, we have the `type`. The `type` key specifies the type of the question; `one` indicates that there is only one correct answer. 
 
-Notice the use of $$ signs in the example above. This is the syntax used in Markdown to style mathematical expressions with the appropriate format and symbols.
+Notice the use of $ signs in the example above. This is the syntax used in Markdown to style mathematical expressions with the appropriate format and symbols.
 
 ### Randomizing answer choices
 
@@ -52,16 +52,16 @@ stem: |
       We covered this in `Section 1`.
 answers: 
   - id: choice1
-    text: r
+    text: $r$
     feedback: | 
       The radius only refers to the distance from the 
       center to any edge of the circle, not the 
       circumference itself
   - id: choice2
-    text: 2pi^2
+    text: $2\pi^2$
     feedback: |
       That’s right! The circumference of a circle is                      
-      given by 2𝛑r^2.
+      given by $2\pi r^2$.
 key:
    - choice2   
 ```
