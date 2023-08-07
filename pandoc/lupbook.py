@@ -3,15 +3,13 @@
 import os
 import yaml
 
-import pandocfilters
+import panflute as pf
 
 import icode_filter
 import mcq_filter
 import fia_filter
 
+
 if __name__ == "__main__":
-    pandocfilters.toJSONFilters([
-        icode_filter.ICode,
-        mcq_filter.MCQ,
-        fia_filter.fia,
-        ])
+    actions = [icode_filter.ICode, mcq_filter.MCQ, fia_filter.FIA]
+    pf.toJSONFilters(actions=actions)

@@ -11,7 +11,7 @@ import os
 import sys
 import yaml
 
-import pandocfilters
+import panflute as pf
 
 from dominate.tags import *
 
@@ -191,26 +191,24 @@ def feedback(args):
 
         accord_div += accord_item_div
 
+
 # TODO: separate generation for with and without bootstrap
-def ICode(key, value, format, meta):
-    if key != "CodeBlock" or format != "html":
+def ICode(element, doc):
+    if type(element)!= pf.CodeBlock or not "icode" in element.classes or not doc.format == "html":
         return
+    
+    # get CodeBlock content
+    icode_args = yaml.load(element.text, LupbookLoader)
 
-    # unpack pandoc object
-    [[ident, classes, keyvals], data] = value
-
-    if not "icode" in classes:
-        return
-
-    icode_args = yaml.load(data, LupbookLoader)
+    # validate arguments
     try:
         icode_validator.validate(icode_args)
     except:
-        sys.stderr.write("Validation error in icode element:\n{}\n".format(data))
+        sys.stderr.write("Validation error in icode element.\n")
         raise
 
+    # generate HTML
     root = div(id = icode_args["id"], cls = "card my-3 ic-l-container")
-
     with root:
         header(icode_args)
         body(icode_args)
@@ -218,5 +216,5 @@ def ICode(key, value, format, meta):
         feedback(icode_args)
         div(cls = "card-footer text-muted")
 
-    return pandocfilters.RawBlock("html", root.render())
+    return pf.RawBlock(text=root.render(), format='html')
 
