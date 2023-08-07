@@ -2,7 +2,8 @@
 
 ### Simple Example
 
-Write any MCQ you want, select your answer(s) and click on run to see the answer.
+Write any MCQ you want, select your answer(s) and click on run to see the
+answer.
 
 ``` mcq
 id: circum
@@ -15,29 +16,34 @@ stem: |
       What is the formula for the **circumference of a circle**?
 
       We covered this in `Section 1`.
-answers: 
+answers:
   - id: choice1
     text: $r$
-    feedback: | 
-      The radius only refers to the distance from the 
-      center to any edge of the circle, not the 
-      circumference itself
+    feedback: |
+      The radius only refers to the distance from the center to any edge of the
+      circle, not the circumference itself.
   - id: choice2
     text: $2\pi^2$
     feedback: |
-      That’s right! The circumference of a circle is                      
-      given by $2\pi^2$.
+      That’s right! The circumference of a circle is given by $2\pi^2$.
 key:
-   - choice2   
+   - choice2
 ```
 
-This is a simple example where only one of the choices is correct. Let us define some of the elements of this configuration. Firstly, we have the `type`. The `type` key specifies the type of the question; `one` indicates that there is only one correct answer. 
+This is a simple example where only one of the choices is correct. Let us define
+some of the elements of this configuration. Firstly, we have the `type`. The
+`type` key specifies the type of the question; `one` indicates that there is
+only one correct answer.
 
-Notice the use of $ signs in the example above. This is the syntax used in Markdown to style mathematical expressions with the appropriate format and symbols.
+Notice the use of $ signs in the example above. This is the syntax used in
+Markdown to style mathematical expressions with the appropriate format and
+symbols.
 
 ### Randomizing answer choices
 
-One can specify whether the choices to each question are randomized using the `random` key. Set `random: true` to enable randomization. This is an optional key; its default value is `false`.
+One can specify whether the choices to each question are randomized using the
+`random` key. Set `random: true` to enable randomization. This is an optional
+key; its default value is `false`.
 
 ``` mcq
 id: circumference
@@ -50,27 +56,27 @@ stem: |
       What is the formula for the **circumference of a circle**?
 
       We covered this in `Section 1`.
-answers: 
+answers:
   - id: choice1
     text: $r$
-    feedback: | 
-      The radius only refers to the distance from the 
-      center to any edge of the circle, not the 
-      circumference itself
+    feedback: |
+      The radius only refers to the distance from the center to any edge of the
+      circle, not the circumference itself.
   - id: choice2
     text: $2\pi^2$
     feedback: |
-      That’s right! The circumference of a circle is                      
-      given by $2\pi r^2$.
+      That’s right! The circumference of a circle is given by $2\pi r^2$.
 key:
-   - choice2   
+   - choice2
 ```
 
-Notice that each choice is given its own unique id. This id is referred to in the `key` when listing which choice(s) are correct.
+Notice that each choice is given its own unique id. This id is referred to in
+the `key` when listing which choice(s) are correct.
 
 ### One-to-many MCQs
 
-With the `type: many` key, one can specify multiple correct answers to a question.
+With the `type: many` key, one can specify multiple correct answers to a
+question.
 
 ``` mcq
 id: c-native-types
@@ -79,10 +85,10 @@ type: many
 random: true
 stem: |
       Which of the following are **native C data types**?
-answers: 
+answers:
   - id: choice1
     text: int
-    feedback: | 
+    feedback: |
       Yes, 'int' is a type for holding integers.
   - id: choice2
     text: let
