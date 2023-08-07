@@ -11,7 +11,6 @@ import os
 import sys
 import yaml
 
-import pandocfilters
 import panflute as pf
 
 from dominate.tags import *
@@ -42,7 +41,8 @@ def body(args):
                 parts = paragraph.split("|blank|")
                 for index_part, part in enumerate(parts):
                     if part != "":
-                        formatted_text = pf.convert_text(text=part, output_format='html')
+                        formatted_text = pf.convert_text(
+                            text=part, output_format='html')
                         div(raw(formatted_text), cls="p-2 align-items-center")
                     # If there is blank spaces behind, generate input HTML
                     if index_part + 1 < len(parts):
@@ -81,30 +81,28 @@ def feedback(args):
                     cls="fia-l-check fia-l-check-pass d-none")
 
                 for i, answer in enumerate(args["answers"]):
-                    formatted_text = pf.convert_text(text=answer["feedback"], output_format='html')
+                    formatted_text = pf.convert_text(
+                        text=answer["feedback"], output_format='html')
                     div(raw(formatted_text), cls="fia-l-check" + " " +
                         "fia-l-check-error" + " " + "d-none", id=f"{args['id']}-input-{i}-fb")
 
 
-def fia(key, value, format, meta):
-    if key != "CodeBlock" or format != "html":
+def FIA(element, doc):
+    if type(element) != pf.CodeBlock or not "fia" in element.classes or not doc.format == "html":
         return
 
-    # unpack pandoc object
-    [[ident, classes, keyvals], data] = value
+    # get CodeBlock content
+    fia_args = yaml.load(element.text, LupbookLoader)
 
-    if not "fia" in classes:
-        return
-
-    fia_args = yaml.load(data, LupbookLoader)
+    # validate arguments
     try:
         fia_validator.validate(fia_args)
     except:
-        sys.stderr.write("Validation error in fia element:\n{}\n".format(data))
+        sys.stderr.write("Validation error in fia element.\n")
         raise
 
+    # generate HTML
     root = div(id=fia_args["id"], cls="card my-3 " + " " + "fia-l-container")
-
     with root:
         header(fia_args)
         body(fia_args)
@@ -112,4 +110,4 @@ def fia(key, value, format, meta):
         feedback(fia_args)
         div(cls="card-footer text-muted")
 
-    return pandocfilters.RawBlock("html", root.render())
+    return pf.RawBlock(text=root.render(), format='html')

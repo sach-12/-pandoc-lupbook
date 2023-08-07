@@ -11,9 +11,10 @@ import os
 import sys
 import yaml
 
-import pandocfilters
+import panflute as pf
 
 from dominate.tags import *
+from dominate.util import raw
 
 from mcq_schema import mcq_validator
 
@@ -23,7 +24,8 @@ def header(args):
     with div(cls = "card-header"):
         h5(args["title"], cls = "card-title")
     with div(cls = "px-2 m-0 card-body mcq-l-stem"):
-        p(args["stem"])
+        formatted_text = pf.convert_text(text=args["stem"], output_format='html')
+        raw(formatted_text)
 
 def body(args):
     with div(cls = "p-2 m-0 card-body mcq-l-form"):
@@ -37,9 +39,10 @@ def body(args):
                     type = "checkbox"
                 input_(cls = "form-check-input" + " " + input_type, type = type,
                        name = f"{args['id']}-choice", id = f"{args['id']}-choice-{i}", data_correct = "true")
-                with label(cls = "form-check-label"):
+                with label(cls = "form-check-label d-flex"):
                     span(cls = "mcq-l-spans")
-                    span(answer["text"])
+                    formatted_text = pf.convert_text(text=answer["text"], output_format='html')
+                    raw(formatted_text)
     hr(cls = "m-0")
 
 def controls(args):
@@ -63,29 +66,28 @@ def feedback(args):
                     div(cls = "mcq-l-num-correct d-none", id = f"{args['id']}-num-correct")
                 for i, answer in enumerate(args["answers"]):
                     div_type = "mcq-l-check-pass" if (answer["id"] in args["key"]) else "mcq-l-check-error"
-                    div(answer["feedback"], cls = "mcq-l-check" + " " + div_type + " " + "d-none", id = f"{args['id']}-choice-{i}-fb")
+                    formatted_text = pf.convert_text(answer["feedback"], output_format='html')
+                    div(raw(formatted_text), cls = "mcq-l-check" + " " + div_type + " " + "d-none" + " "+ "d-flex", id = f"{args['id']}-choice-{i}-fb")
+
 
 # TODO: separate generation for with and without bootstrap
-def MCQ(key, value, format, meta):
-    if key != "CodeBlock" or format != "html":
+def MCQ(element, doc):
+    if type(element)!= pf.CodeBlock or not "mcq" in element.classes or not doc.format == "html":
         return
+    
+    # get CodeBlock content
+    mcq_args = yaml.load(element.text, LupbookLoader)
 
-    # unpack pandoc object
-    [[ident, classes, keyvals], data] = value
-
-    if not "mcq" in classes:
-        return
-
-    mcq_args = yaml.load(data, LupbookLoader)
+    # validate arguments
     try:
         mcq_validator.validate(mcq_args)
     except:
-        sys.stderr.write("Validation error in mcq element:\n{}\n".format(data))
+        sys.stderr.write("Validation error in mcq element.\n")
         raise
 
+    # generate HTML
     mcq_type = "mcq-l-container-one" if (mcq_args["type"] == "one") else "mcq-l-container-many"
     root = div(id = mcq_args["id"], cls = "card my-3 " + " " + mcq_type)
-
     with root:
         header(mcq_args)
         body(mcq_args)
@@ -93,5 +95,5 @@ def MCQ(key, value, format, meta):
         feedback(mcq_args)
         div(cls = "card-footer text-muted")
 
-    return pandocfilters.RawBlock("html", root.render())
+    return pf.RawBlock(text=root.render(), format='html')
 
