@@ -1,4 +1,3 @@
-
 /*
   Variables
 */
@@ -66,4 +65,8 @@
   background-color: var(--mcq-cl-num-correct);
   padding: .5rem;
   margin-bottom: 20px;
+}
+
+.mcq-l-spans {
+  margin-right: 0.5ch;
 }
