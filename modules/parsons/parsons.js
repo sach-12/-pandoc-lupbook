@@ -13,7 +13,7 @@ class Parsons {
         this.feedback_elt = elt.getElementsByClassName("parsons-l-feedback")[0];
         this.feedback_coll = new bootstrap.Collapse(this.feedback_elt, { toggle: false });
         this.pass_feedback = elt.getElementsByClassName("parsons-l-check-pass")[0];
-        this.error_feedback = Array.from(elt.getElementsByClassName("parsons-l-check-error"))[0];
+        this.error_feedbacks = Array.from(elt.getElementsByClassName("parsons-l-check-error"));
         this.blocks = Array.from(elt.getElementsByClassName("parsons-l-block"));
         this.or_blocks = Array.from(elt.getElementsByClassName("parsons-l-or-blocks"));
         this.source = elt.getElementsByClassName("parsons-l-source")[0];
@@ -28,7 +28,15 @@ class Parsons {
                     this.feedback_coll.hide();
 
                     this.pass_feedback.classList.add("d-none");
-                    this.error_feedback.classList.add("d-none");
+                    this.error_feedbacks.forEach((error_feedback) => {
+                        error_feedback.classList.add("d-none");
+                    })
+
+                    // Remove error blocks' color
+                    this.blocks.forEach((block) => {
+                        block.classList.toggle("parsons-c-block-error", false);
+                        block.classList.toggle("parsons-c-block-relative-correct", false);
+                    })
 
                     // Reset submit button
                     this.submit_btn.style.backgroundColor = "#0B5ED7";
@@ -42,23 +50,83 @@ class Parsons {
         this.submit_btn.addEventListener('click', () => {
             this.submit_btn.disabled = true;
 
-            let all_blocks_in_correct_order = true;
-            let blocks_in_answer = this.answer.children;
-            if (blocks_in_answer.length === 0) {
-                all_blocks_in_correct_order = false;
-            }
-            for (let i = 0; i < blocks_in_answer.length; i++) {
-                const block = blocks_in_answer[i];
-                const correct_order = parseInt(block.dataset.correctOrder);
-                if (i + 1 !== correct_order) {
-                    all_blocks_in_correct_order = false;
-                    break;
-                }
-            }
+            let answer_length = this.answer.children.length;
+            let correct_length = getAnswerLength(this.blocks);
 
-            // Toggle feedback visibility
-            this.pass_feedback.classList.toggle("d-none", !all_blocks_in_correct_order);
-            this.error_feedback.classList.toggle("d-none", all_blocks_in_correct_order);
+            let all_blocks_in_correct_order = true;
+            if (answer_length < correct_length) {
+                all_blocks_in_correct_order = false;
+                this.error_feedbacks[0].classList.toggle("d-none", false);
+            } else if (answer_length > correct_length) {
+                all_blocks_in_correct_order = false;
+                this.error_feedbacks[1].classList.toggle("d-none", false);
+            } else {
+                let blocks_in_answer = this.answer.children;
+                let max_correct_sequence_length = 0;
+                let current_correct_sequence_length = 0;
+                let longest_sequence_start = 0;
+
+                // Find the longest correct sequence
+                for (let i = 0; i < blocks_in_answer.length; i++) {
+                    const block = blocks_in_answer[i];
+                    const correct_order = parseInt(block.dataset.correctOrder);
+
+                    // Get the previous block's information
+                    let block_before;
+                    let correct_order_before;
+                    if (i !== 0) {
+                        block_before = blocks_in_answer[i - 1];
+                        correct_order_before = parseInt(block_before.dataset.correctOrder);
+                    }
+
+                    if (correct_order === -1) {
+                        // Handle decoy blocks
+                        current_correct_sequence_length = 0;
+                    } else {
+                        if (current_correct_sequence_length === 0) {
+                            current_correct_sequence_length = 1;
+                        } else {
+                            if (block_before && correct_order === correct_order_before + 1) {
+                                current_correct_sequence_length++;
+                                if (current_correct_sequence_length > max_correct_sequence_length) {
+                                    max_correct_sequence_length = current_correct_sequence_length;
+                                    longest_sequence_start = i - current_correct_sequence_length + 1;
+                                }
+                            } else {
+                                current_correct_sequence_length = 1;
+                            }
+                        }
+                    }
+                }
+
+                // Label the blocks
+                for (let i = 0; i < blocks_in_answer.length; i++) {
+                    const block = blocks_in_answer[i];
+                    const correct_order = parseInt(block.dataset.correctOrder);
+
+                    if (correct_order === -1) {
+                        all_blocks_in_correct_order = false;
+                        block.classList.add("parsons-c-block-error");
+                    } else {
+                        if (i === correct_order - 1) {
+                            continue;
+                        } else {
+                            all_blocks_in_correct_order = false;
+
+                            // Check if the block is in the longest correct sequence
+                            if (max_correct_sequence_length > 1 && i >= longest_sequence_start && i < longest_sequence_start + max_correct_sequence_length) {
+                                block.classList.add("parsons-c-block-relative-correct");
+                            } else {
+                                block.classList.add("parsons-c-block-error");
+                            }
+                        }
+                    }
+                }
+
+                // Toggle feedback visibility
+                this.pass_feedback.classList.toggle("d-none", !all_blocks_in_correct_order);
+                this.error_feedbacks[2].classList.toggle("d-none", all_blocks_in_correct_order);
+            }
 
             // Set submit button color based on correctness
             this.submit_btn.style.backgroundColor = all_blocks_in_correct_order ? "#198754" : "#e35d6a";
@@ -80,6 +148,12 @@ class Parsons {
                 placeholder.remove();
             })
 
+            // Remove error blocks' color
+            this.blocks.forEach((block) => {
+                block.classList.toggle("parsons-c-block-error", false);
+                block.classList.toggle("parsons-c-block-relative-correct", false);
+            })
+
             // Reset blocks
             this.blocks.forEach((block) => {
                 if (block.classList.contains("parsons-l-or-block")) {
@@ -96,7 +170,7 @@ class Parsons {
             })
 
             this.pass_feedback.classList.add("d-none");
-            Array.from(this.error_feedback).forEach((error_feedback) => {
+            Array.from(this.error_feedbacks).forEach((error_feedback) => {
                 error_feedback.classList.add("d-none")
             })
 
@@ -130,6 +204,19 @@ function setContainersHeight() {
     for (const parsons_elt of document.getElementsByClassName("parsons-l-container")) {
         setContainerHeight(parsons_elt);
     }
+}
+
+function getAnswerLength(blocks) {
+    let length = Number.NEGATIVE_INFINITY;
+
+    for (const block of blocks) {
+        const correctOrder = parseInt(block.dataset.correctOrder, 10);
+        if (!isNaN(correctOrder)) {
+            length = Math.max(length, correctOrder);
+        }
+    }
+
+    return length;
 }
 
 window.addEventListener('DOMContentLoaded', (evt) => {

@@ -143,7 +143,12 @@ def feedback(args):
             with div(id=f"{args['id']}-fb-check"):
                 div("You got it right! Congratulations!",
                     cls="parsons-l-check parsons-l-check-pass d-none")
-                div("Try it again!", cls="parsons-l-check parsons-l-check-error d-none")
+                div("Your answer is too short. Add more blocks.",
+                    cls="parsons-l-check parsons-l-check-error d-none")
+                div("Your answer is too long. Remove some blocks.",
+                    cls="parsons-l-check parsons-l-check-error d-none")
+                div("The red blocks indicate that each block's position is incorrect. If there are several adjacent yellow blocks, it signifies that the relative positions of those blocks are correct, but their absolute positions are still wrong. This issue can be resolved by rearranging, removing, or replacing the highlighted blocks.",
+                    cls="parsons-l-check parsons-l-check-error d-none")
 
 
 def Parsons(element, doc):
