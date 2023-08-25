@@ -42,6 +42,14 @@
     transform: rotate(0);
 }
 
+.parsons-c-block-error {
+    background-color: #ffcccc;
+}
+
+.parsons-c-block-relative-correct {
+    background-color: lightyellow;
+}
+
 .parsons-l-check {
     border: 0px solid;
     border-left-width: .5rem;
