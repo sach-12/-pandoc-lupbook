@@ -66,7 +66,6 @@ icode_schema = {
     "id": {
       "type": "string",
       "format": "unique_html5_id",
-      "default": lambda inst: "icode-{:x}".format(id(inst))
     },
     "title": { "type": "string" },
     "skeleton": {

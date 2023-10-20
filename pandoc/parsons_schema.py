@@ -57,7 +57,6 @@ parsons_schema = {
         "id": {
             "type": "string",
             "format": "unique_html5_id",
-            "default": lambda inst: "parsons-{:x}".format(id(inst))
         },
         "random": {
             "type": "boolean",

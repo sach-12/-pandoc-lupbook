@@ -66,7 +66,6 @@ mcq_schema = {
     "id": {
       "type": "string",
       "format": "unique_html5_id",
-      "default": lambda inst: "mcq-{:x}".format(id(inst))
     },
     "title":{
       "type": "string",
