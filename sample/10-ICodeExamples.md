@@ -6,6 +6,8 @@
 Write any program you want, and run it to see its output.
 
 ``` icode
+id: write-any-program
+
 skeleton:
   - filename: main.c
 tests:
