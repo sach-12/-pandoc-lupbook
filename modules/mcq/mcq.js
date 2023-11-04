@@ -17,6 +17,9 @@ class MCQ_One {
 
     this.choices = elt.getElementsByClassName("mcq-l-radio");
     for (let choice of this.choices) {
+      // reset the Radio buttons on page reload
+      choice.checked = false;
+
       choice.addEventListener('click', () => {
         this.submit_btn.disabled = false;
         this.reset_btn.disabled = false;
@@ -102,6 +105,9 @@ class MCQ_Many {
 
     this.choices = elt.getElementsByClassName("mcq-l-checkbox");
     for (let choice of this.choices) {
+      // reset the check boxes on page reload
+      choice.checked = false;
+
       choice.addEventListener('click', () => {
         this.submit_btn.disabled = false;
         this.reset_btn.disabled = false;
