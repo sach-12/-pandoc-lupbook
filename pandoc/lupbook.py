@@ -9,8 +9,9 @@ import icode_filter
 import mcq_filter
 import fia_filter
 import parsons_filter
+import matching_filter
 
 
 if __name__ == "__main__":
-    actions = [icode_filter.ICode, mcq_filter.MCQ, fia_filter.FIA, parsons_filter.Parsons]
+    actions = [icode_filter.ICode, mcq_filter.MCQ, fia_filter.FIA, parsons_filter.Parsons, matching_filter.Matching]
     pf.toJSONFilters(actions=actions)
