@@ -6,16 +6,6 @@
 var icodes = {};
 const use_codemirror = typeof CodeMirror !== undefined;
 
-var term_settings = {
-  cols: 80,
-  rows: 30,
-  scrollback: 10000,
-  fontSize: 15,
-  cursorBlink: true
-};
-var term = null;
-
-
 /*
   Utility Functions
 */
@@ -566,21 +556,48 @@ class ICode {
 
 window.addEventListener('DOMContentLoaded', evt => {
 
-  /* set up the terminal */
-  term = new Terminal(term_settings);
-  term_el = document.getElementById("lbvm-terminal");
-  if (term_el) {
-    term.open(term_el);
-    term.write("Loading...\r\n");
-  }
+  /*
+   * Set up terminal
+   */
+  /* Creation */
+  const term = new Terminal({
+    scrollback: 10000,
+    fontSize: 15,
+    cursorBlink: true
+  });
+  const fitAddon = new FitAddon.FitAddon();
+  term.loadAddon(fitAddon);
+
+  /* Attach to container */
+  const term_el = document.getElementById("lbvm-terminal");
+  term.open(term_el);
+  fitAddon.fit();
+
+  /* Automatically resize when modal is shown (otherwise there's a weird bug
+   * where the scrollbar doesn't appear when the modal is shown for the first
+   * time because output was added to a non-visible terminal) */
+  const term_mod_el = document.getElementById('lbvm-terminal-modal')
+  term_mod_el.addEventListener('shown.bs.modal', () => { fitAddon.fit() });
+
+  /* Automatically resize if the window gets resized */
+  window.onresize = () => { fitAddon.fit(); };
+
+  /* Bind terminal input to VM */
   term.onKey(ev => {
     LupBookVM.on_console_queue(ev.key.charCodeAt(0));
   });
 
+  /*
+   * icode activites
+   */
   for (const icode_elt of document.getElementsByClassName("ic-l-container")) {
     icodes[icode_elt.id] = new ICode(icode_elt);
   }
 
+  /*
+   * VM
+   */
+  term.write("Loading virtual machine...\r\n");
   LupBookVM.start({
     on_init: () => {
       Object.keys(icodes).forEach((icode_id, i) => {
@@ -588,5 +605,6 @@ window.addEventListener('DOMContentLoaded', evt => {
       })
     },
     on_error: () => { console.log("VM Error!"); },
-    console_debug_write: c => { term.write(c); }});
+    console_debug_write: c => { term.write(c); }
+  });
 });
