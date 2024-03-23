@@ -26,6 +26,7 @@ $endif$
   <script src="../build/lupbookvm.js"></script>
   <!-- terminal -->
   <script src="../ext/xtermjs/lib/xterm.js"></script>
+  <script src="../ext/xtermjs/addons/xterm-addon-fit/lib/xterm-addon-fit.js"></script>
   <link rel="stylesheet" href="../ext/xtermjs/css/xterm.css"/>
   <!-- icode -->
   <script src="../modules/icode/icode.js"></script>
@@ -63,13 +64,17 @@ $for(include-before)$
 $include-before$
 $endfor$
 <header>
-<div class="offcanvas offcanvas-end bg-dark text-light" tabindex="-1" id="lbvm-terminal-canvas" aria-labelledby="lbvm-terminal-label">
-  <div class="offcanvas-header">
-    <h5 id="lbvm-terminal-label">LupBookVM Terminal</h5>
-    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
-  </div>
-  <div class="offcanvas-body">
-    <div id="lbvm-terminal"></div>
+<div class="modal fade" id="lbvm-terminal-modal" tabindex="-1" aria-labelledby="lbvm-terminal-label" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+      <div class="modal-content">
+          <div class="modal-header">
+              <h5 class="modal-title" id="lbvm-terminal-label">LupBookVM Terminal</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body lbvm-terminal-container">
+              <div id="lbvm-terminal"></div>
+          </div>
+      </div>
   </div>
 </div>
 
@@ -77,7 +82,7 @@ $endfor$
   <div class="container-fluid">
     <div class="me-auto"></div>
     <div class="me-0">
-      <button class="btn btn-dark mt-auto" type="button" data-bs-toggle="offcanvas" data-bs-target="#lbvm-terminal-canvas" aria-controls="lbvm-terminal-canvas">
+      <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#lbvm-terminal-modal">
         <span class="terminal-toggler-icon"></span>
       </button>
     </div>

@@ -23,10 +23,6 @@
   Terminal
 */
 
-#lbvm-terminal-canvas {
-  width: 775px; /* TODO: make this responsive, use xterm.js auto-fit */
-}
-
 .terminal-toggler-icon {
   flex-shrink: 0;
   display: flex;
