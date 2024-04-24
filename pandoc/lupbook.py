@@ -1,17 +1,26 @@
 #!/usr/bin/env python3
 
+# Copyright (c) 2021 LupLab
+# SPDX-License-Identifier: AGPL-3.0-only
+
 import os
 import yaml
 
-import panflute as pf
+import panflute
 
-import icode_filter
-import mcq_filter
 import fia_filter
-import parsons_filter
+import icode_filter
 import matching_filter
+import mcq_filter
+import parsons_filter
 
 
 if __name__ == "__main__":
-    actions = [icode_filter.ICode, mcq_filter.MCQ, fia_filter.FIA, parsons_filter.Parsons, matching_filter.Matching]
-    pf.toJSONFilters(actions=actions)
+    actions = [
+            fia_filter.FIA,
+            icode_filter.ICode,
+            matching_filter.Matching,
+            mcq_filter.MCQ,
+            parsons_filter.Parsons,
+            ]
+    panflute.run_filters(actions)
