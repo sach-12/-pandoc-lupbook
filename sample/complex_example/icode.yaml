@@ -1,5 +1,8 @@
 id: complex-example-multifile
-title: ""
+title: API completion
+stem: >
+  A simple list API is defined in `list.h`. Finish the incomplete function in
+  `list.c` to complete the exercise.
 skeleton:
   - filename: list.c
     data: !raw_include complex_example/list_skel.c

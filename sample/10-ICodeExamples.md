@@ -3,11 +3,12 @@
 
 ### Simplest Example
 
-Write any program you want, and run it to see its output.
+Example with program from scratch and no output checking.
 
 ``` icode
 id: write-any-program
-
+title: Free writing
+stem: Write any program you want, and run it to see its output.
 skeleton:
   - filename: main.c
 tests:
@@ -22,15 +23,17 @@ tests:
 
 ### Starter code and output checking
 
-Finish the program so that it outputs the following to stdout:
-
-```
-Hello World!
-```
+Example with started code that students need to complete. We check the program's
+output.
 
 ``` icode
 id: simple-example-skel
-
+title: Hello world
+stem: >
+    Finish the program below so that it outputs the following to stdout:
+    ```
+    Hello World!
+    ```
 skeleton:
   - filename: main.c
     data: |
@@ -62,13 +65,12 @@ tests:
 
 A test can also check the contents of files created by the interactive code.
 
-Finish the program so that it outputs the text `Hello World`, both to stdout and
-the file `message.txt`:
-
-
 ``` icode
 id: write-file
-
+title: File output
+stem: >
+    Finish the program so that it outputs the text `Hello World`, both to stdout
+    and the file `message.txt`.
 skeleton:
   - filename: main.c
     data: |
@@ -84,7 +86,6 @@ skeleton:
 
           return 0;
       }
-
 tests:
   - name: build
     fatal: true
@@ -112,9 +113,6 @@ cases without necessarily exposing this code as part of the exercise.
 
 It is also possible to make input files readonly, or restrict editing to certain
 lines.
-
-In this example, a simple list API is defined in `list.h`; finish the incomplete
-function in `list.c` to complete the exercise.
 
 ``` icode
 !include complex_example/icode.yaml
