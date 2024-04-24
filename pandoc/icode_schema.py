@@ -1,45 +1,7 @@
-from jsonschema import Draft4Validator, validators, FormatChecker
-import re
-import sys
+# Copyright (c) 2021 LupLab
+# SPDX-License-Identifier: AGPL-3.0-only
 
-# https://python-jsonschema.readthedocs.io/en/latest/faq/#why-doesn-t-my-schema-s-default-property-set-the-default-on-my-instance
-def extend_with_default(validator_class):
-    validate_properties = validator_class.VALIDATORS["properties"]
-
-    def set_defaults(validator, properties, instance, schema):
-        for property, subschema in properties.items():
-            if "default" in subschema:
-                if type(instance) != dict:
-                    continue
-                if callable(subschema["default"]):
-                    instance.setdefault(property, subschema["default"](instance))
-                else:
-                    instance.setdefault(property, subschema["default"])
-
-        for error in validate_properties(
-            validator, properties, instance, schema,
-        ):
-            yield error
-
-    return validators.extend(
-        validator_class, {"properties" : set_defaults},
-    )
-
-icode_format_checker = FormatChecker()
-
-all_ids = set()
-@icode_format_checker.checks('unique_html5_id')
-def is_unique_html5_id(value):
-    if not re.fullmatch("[\S]+", value) or value in all_ids:
-        return False
-    all_ids.add(value)
-    return True
-
-@icode_format_checker.checks('nonzero')
-def is_nonzero(value):
-    return value != 0
-
-DefaultValidatingDraft4Validator = extend_with_default(Draft4Validator)
+import lupbook_schema
 
 range_list_item = {
   "type": ["integer", "object"],
@@ -65,7 +27,7 @@ icode_schema = {
   "properties": {
     "id": {
       "type": "string",
-      "format": "unique_html5_id",
+      "format": "lupbook_id",
     },
     "title": { "type": "string" },
     "skeleton": {
@@ -190,5 +152,6 @@ icode_schema = {
   "additionalProperties": False
 }
 
-icode_validator = DefaultValidatingDraft4Validator(icode_schema,
-    format_checker = icode_format_checker)
+icode_validator = lupbook_schema.LupbookValidator(
+        icode_schema,
+        format_checker = lupbook_schema.lupbook_format_checker)
