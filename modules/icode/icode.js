@@ -55,7 +55,7 @@ class ICodeTest {
 
   constructor(elt, icode) {
     /* read test parameters from the DOM */
-    Object.assign(this, JSON.parse(decodeURIComponent(elt.dataset.params)));
+    Object.assign(this, JSON.parse(atob(elt.dataset.params)));
 
     this.elt = elt;
     this.body_elt = this.elt.getElementsByClassName("accordion-body")[0];
@@ -386,7 +386,7 @@ class ICode {
           cm_args["readOnly"] = "nocursor";
           cm_args["theme"] = "default readonly";
         } else {
-          src_file.readonly = JSON.parse(inp_elt.dataset.readonly);
+          src_file.readonly = JSON.parse(atob(inp_elt.dataset.readonly));
         }
       }
 
