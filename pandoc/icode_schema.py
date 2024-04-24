@@ -3,33 +3,46 @@
 
 import lupbook_schema
 
-range_list_item = {
+# Range of lines to define readonly sections in a source code file
+# The properties from and to can be either positive or negative, but not 0
+_range_list_item = {
   "type": ["integer", "object"],
   "properties": {
     "from": {
       "type": "integer",
-      "format": "nonzero",
+      "oneOf": [
+          {"type": "integer", "maximum": -1},
+          {"type": "integer", "minimum": 1}
+          ],
       "default": 1
     },
     "to": {
       "type": "integer",
-      "format": "nonzero",
+      "oneOf": [
+          {"type": "integer", "maximum": -1},
+          {"type": "integer", "minimum": 1}
+          ],
       "default": -1
     }
   },
   "additionalProperties": False
 }
 
-icode_schema = {
-  "title": "ICode",
-  "description": "The specification for an interactive code element",
+_icode_schema = {
+  "title": "Lupbook icode",
+  "description": "Schema for Lupbook's icode interactive component",
   "type": "object",
   "properties": {
     "id": {
       "type": "string",
       "format": "lupbook_id",
     },
-    "title": { "type": "string" },
+    "title": {
+        "type": "string"
+    },
+    "stem": {
+      "type": "string"
+    },
     "skeleton": {
       "description": "one or more source files",
       "type": "array",
@@ -57,10 +70,10 @@ icode_schema = {
             "properties": {
               "except": {
                 "type": "array",
-                "items": range_list_item
+                "items": _range_list_item
               }
             },
-            "items": range_list_item,
+            "items": _range_list_item,
             "additionalProperties": False,
             "default": False
           }
@@ -148,10 +161,10 @@ icode_schema = {
       }
     }
   },
-  "required": [ "skeleton", "tests" ],
+  "required": [ "id", "title", "stem", "skeleton", "tests" ],
   "additionalProperties": False
 }
 
 icode_validator = lupbook_schema.LupbookValidator(
-        icode_schema,
+        _icode_schema,
         format_checker = lupbook_schema.lupbook_format_checker)
