@@ -40,7 +40,7 @@ _icode_schema = {
     "title": {
         "type": "string"
     },
-    "stem": {
+    "prompt": {
       "type": "string"
     },
     "skeleton": {
@@ -161,7 +161,7 @@ _icode_schema = {
       }
     }
   },
-  "required": [ "id", "title", "stem", "skeleton", "tests" ],
+  "required": [ "id", "title", "prompt", "skeleton", "tests" ],
   "additionalProperties": False
 }
 

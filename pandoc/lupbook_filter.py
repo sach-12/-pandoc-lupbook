@@ -94,9 +94,9 @@ class LupbookComponent:
     def _gen_description(self):
         with div(cls = "card-body"):
             h5(self.args["title"], cls = "card-title")
-            formatted_text = panflute.convert_text(self.args["stem"],
+            formatted_text = panflute.convert_text(self.args["prompt"],
                                                    output_format='html')
-            p(raw(formatted_text), cls = "card-text")
+            div(raw(formatted_text), cls = "card-text")
 
     def _gen_activity(self):
         raise NotImplementedError

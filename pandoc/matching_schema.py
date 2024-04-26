@@ -63,7 +63,7 @@ matching_schema = {
         "title":{
             "type": "string"
         },
-        "stem": {
+        "prompt": {
             "type": "string",
         },
         "random": {
@@ -109,7 +109,7 @@ matching_schema = {
             }
         }
     },
-    "required": ["id", "title", "stem", "choices", "answers"],
+    "required": ["id", "title", "prompt", "choices", "answers"],
     "additionalProperties": False
 }
 

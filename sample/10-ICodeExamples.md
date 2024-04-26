@@ -8,7 +8,7 @@ Example with program from scratch and no output checking.
 ``` icode
 id: write-any-program
 title: Free writing
-stem: Write any program you want, and run it to see its output.
+prompt: Write any program you want, and run it to see its output.
 skeleton:
   - filename: main.c
 tests:
@@ -29,7 +29,7 @@ output.
 ``` icode
 id: simple-example-skel
 title: Hello world
-stem: >
+prompt: >
     Finish the program below so that it outputs the following to stdout:
     ```
     Hello World!
@@ -68,7 +68,7 @@ A test can also check the contents of files created by the interactive code.
 ``` icode
 id: write-file
 title: File output
-stem: >
+prompt: >
     Finish the program so that it outputs the text `Hello World`, both to stdout
     and the file `message.txt`.
 skeleton:

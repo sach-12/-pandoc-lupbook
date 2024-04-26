@@ -6,7 +6,7 @@
 id: college-year
 title: Match College Year to Term
 random: false
-stem: |
+prompt: |
       Match the term to each college year.
 choices:
   - id: choice1

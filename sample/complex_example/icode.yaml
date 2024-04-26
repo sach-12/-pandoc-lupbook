@@ -1,6 +1,6 @@
 id: complex-example-multifile
 title: API completion
-stem: >
+prompt: >
   A simple list API is defined in `list.h`. Finish the incomplete function in
   `list.c` to complete the exercise.
 skeleton:
