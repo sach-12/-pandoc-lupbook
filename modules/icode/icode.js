@@ -590,7 +590,7 @@ window.addEventListener('DOMContentLoaded', evt => {
   /*
    * icode activites
    */
-  for (const icode_elt of document.getElementsByClassName("ic-l-container")) {
+  for (const icode_elt of document.getElementsByClassName("icode-container")) {
     icodes[icode_elt.id] = new ICode(icode_elt);
   }
 
