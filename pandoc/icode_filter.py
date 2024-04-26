@@ -102,7 +102,8 @@ def _encode_rdonly(yaml_ro, file_data):
 #
 
 class LupbookICode(lupbook_filter.LupbookComponent):
-    def _yaml_validator(self):
+    @staticmethod
+    def _yaml_validator():
         return icode_schema.icode_validator
 
     @staticmethod

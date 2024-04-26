@@ -14,7 +14,8 @@ import panflute
 #
 
 class LupbookMatching(lupbook_filter.LupbookComponent):
-    def _yaml_validator(self):
+    @staticmethod
+    def _yaml_validator():
         return matching_schema.matching_validator
 
     @staticmethod

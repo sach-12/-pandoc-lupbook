@@ -52,27 +52,14 @@ def validate_element(cls, element, doc):
 
 class LupbookComponent:
     def __init__(self, yaml_config):
-        self.yaml_config = yaml_config
-        self.args = None
-
-    @staticmethod
-    def activity_id():
-        raise NotImplementedError
-
-    def _activity_name(self):
-        raise NotImplementedError
-
-    def _yaml_validator(self):
-        raise NotImplementedError
-
-    def _load_yaml(self):
+        # Load YAML config
         try:
-            self.args = yaml.load(self.yaml_config, LupbookLoader)
+            self.args = yaml.load(yaml_config, LupbookLoader)
         except yaml.YAMLError as error:
             sys.stderr.write("Error loading YAML configuration: ", error)
             raise
 
-    def _validate_yaml(self):
+        # Validate YAML against schema
         try:
             self._yaml_validator().validate(self.args)
 
@@ -87,6 +74,17 @@ class LupbookComponent:
             # Other errors potentially because of us, fail
             sys.stderr.write("Internal error: {}.\n".format(e))
             raise
+
+    @staticmethod
+    def activity_id():
+        raise NotImplementedError
+
+    def _activity_name(self):
+        raise NotImplementedError
+
+    @staticmethod
+    def _yaml_validator():
+        raise NotImplementedError
 
     def _gen_header(self):
         with div(cls = "card-header"):
@@ -126,7 +124,5 @@ class LupbookComponent:
         return panflute.RawBlock(text=root.render(), format='html')
 
     def process(self):
-        self._load_yaml();
-        self._validate_yaml();
         return self._generate_html();
 
