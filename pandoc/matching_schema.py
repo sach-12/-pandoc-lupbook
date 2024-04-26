@@ -63,12 +63,12 @@ matching_schema = {
         "title":{
             "type": "string"
         },
+        "stem": {
+            "type": "string",
+        },
         "random": {
             "type": "boolean",
             "default": False
-        },
-        "text": {
-            "type": "string",
         },
         "choices": {
             "type": "array",
@@ -109,7 +109,7 @@ matching_schema = {
             }
         }
     },
-    "required": ["title", "text", "choices", "answers"],
+    "required": ["id", "title", "stem", "choices", "answers"],
     "additionalProperties": False
 }
 

@@ -172,7 +172,7 @@ function matching_init(elt) {
  * Initialize "matching" interactive components after page loading
  */
 window.addEventListener('DOMContentLoaded', () => {
-  for (const e of document.getElementsByClassName("matching-l-container")) {
+  for (const e of document.getElementsByClassName("matching-container")) {
     matching_init(e);
   }
 });
