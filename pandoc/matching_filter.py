@@ -27,7 +27,7 @@ class LupbookMatching(lupbook_filter.LupbookComponent):
 
     def _gen_choice_block(self, choice):
         div_attrs = {
-            "id": f"matching-{self.args['id']}-choice-{choice['id']}",
+            "id": f"matching-{self.conf['id']}-choice-{choice['id']}",
             "cls": "matching-c-choice border rounded m-2 p-2 d-flex",
             "data-match": f"{choice['match']}"
         }
@@ -41,7 +41,7 @@ class LupbookMatching(lupbook_filter.LupbookComponent):
 
     def _gen_answer_block(self, answer):
         div_attrs = {
-            "id": f"matching-{self.args['id']}-answer-{answer['id']}",
+            "id": f"matching-{self.conf['id']}-answer-{answer['id']}",
             "cls": "matching-c-answer border rounded m-2 p-2 d-flex flex-column",
         }
         with div(**div_attrs):
@@ -57,17 +57,17 @@ class LupbookMatching(lupbook_filter.LupbookComponent):
             with div(cls = "col"):
                 div("Drag items from here...",
                     cls = "small fst-italic text-secondary")
-                with div(id = f"matching-{self.args['id']}-choices",
+                with div(id = f"matching-{self.conf['id']}-choices",
                          cls = "matching-l-choices border"):
-                    for i, block in enumerate(self.args["choices"]):
+                    for i, block in enumerate(self.conf["choices"]):
                         self._gen_choice_block(block)
 
             with div(cls = "col"):
                 div("...and drop them here (click to remove)",
                     cls = "small fst-italic text-secondary")
-                with div(id = f"matching-{self.args['id']}-answers",
+                with div(id = f"matching-{self.conf['id']}-answers",
                          cls = "matching-l-answers border"):
-                    for i, block in enumerate(self.args['answers']):
+                    for i, block in enumerate(self.conf['answers']):
                         self._gen_answer_block(block)
 
     def _gen_controls(self):
@@ -75,29 +75,29 @@ class LupbookMatching(lupbook_filter.LupbookComponent):
             with div(cls = "d-flex align-items-center"):
                 with div(cls = "px-1"):
                     button("Submit",
-                           id = f"matching-{self.args['id']}-submit",
+                           id = f"matching-{self.conf['id']}-submit",
                            cls = "btn btn-primary")
                     button("Reset",
-                           id = f"matching-{self.args['id']}-reset",
+                           id = f"matching-{self.conf['id']}-reset",
                            cls = "btn btn-secondary")
 
                 with div(cls = "px-1 flex-grow-1"):
                     div(cls = "d-none")
 
                 with div(cls = "px-1"):
-                    button(id = f"matching-{self.args['id']}-feedback-btn",
+                    button(id = f"matching-{self.conf['id']}-feedback-btn",
                            cls = "matching-c-feedback__toggle collapsed d-none",
-                           data_bs_target = f"#matching-{self.args['id']}-feedback",
+                           data_bs_target = f"#matching-{self.conf['id']}-feedback",
                            data_bs_toggle = "collapse", type = "button")
 
     def _gen_feedback(self):
-        with div(id = f"matching-{self.args['id']}-feedback", cls = "collapse"):
+        with div(id = f"matching-{self.conf['id']}-feedback", cls = "collapse"):
             with div(cls = "card-body border-top"):
-                div(id = f"matching-{self.args['id']}-correct",
+                div(id = f"matching-{self.conf['id']}-correct",
                     cls = "matching-c-feedback-correct d-none")
-                for i, choice in enumerate(self.args["choices"]):
+                for i, choice in enumerate(self.conf["choices"]):
                     formatted_text = panflute.convert_text(
                             choice["feedback"], output_format = 'html')
                     div(raw(formatted_text),
-                        id = f"matching-{self.args['id']}-feedback-{choice['id']}",
+                        id = f"matching-{self.conf['id']}-feedback-{choice['id']}",
                         cls = "matching-c-feedback-item d-none")

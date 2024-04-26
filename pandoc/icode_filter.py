@@ -119,13 +119,13 @@ class LupbookICode(lupbook_filter.LupbookComponent):
         with div(cls = "card-body p-2 m-0"):
             # Tab buttons
             with ul(cls = "nav nav-tabs", role = "tablist"):
-                for src_file in self.args["skeleton"]:
+                for src_file in self.conf["skeleton"]:
                     # Don't show tab for hidden files
                     if src_file["hidden"]:
                         continue
 
                     file_name = src_file["filename"]
-                    file_uid = "{}-{:x}".format(self.args["id"], id(src_file))
+                    file_uid = "{}-{:x}".format(self.conf["id"], id(src_file))
 
                     if active_tab is None:
                         active_tab = file_name
@@ -141,10 +141,10 @@ class LupbookICode(lupbook_filter.LupbookComponent):
 
             # Tab contents
             with div(cls = "border border-top-0 tab-content"):
-                for src_file in self.args["skeleton"]:
+                for src_file in self.conf["skeleton"]:
 
                     file_name = src_file["filename"]
-                    file_uid = "{}-{:x}".format(self.args["id"], id(src_file))
+                    file_uid = "{}-{:x}".format(self.conf["id"], id(src_file))
 
                     # Prep textarea for CodeMirror
                     textarea_args = {
@@ -162,7 +162,7 @@ class LupbookICode(lupbook_filter.LupbookComponent):
                         textarea(src_file["data"], **textarea_args)
 
     def _gen_controls(self):
-        feedback_id = "{}-fb".format(self.args["id"])
+        feedback_id = "{}-fb".format(self.conf["id"])
 
         with div(cls = "card-body border-top ic-l-controls"):
             with div(cls = "d-flex align-items-center"):
@@ -180,15 +180,15 @@ class LupbookICode(lupbook_filter.LupbookComponent):
                         data_bs_target = "#{}".format(feedback_id))
 
     def _gen_feedback(self):
-        feedback_id = "{}-fb".format(self.args["id"])
+        feedback_id = "{}-fb".format(self.conf["id"])
 
         with div(id = feedback_id, cls = "collapse"):
             with div(cls = "card-body border-top ic-l-feedback"):
                 accord_div = div(cls = "accordion accordion-flush")
 
-        for idx, test in enumerate(self.args["tests"]):
-            test_id = "{}-t{:d}".format(self.args["id"], idx)
-            header_id = "{}-h{:d}".format(self.args["id"], idx)
+        for idx, test in enumerate(self.conf["tests"]):
+            test_id = "{}-t{:d}".format(self.conf["id"], idx)
+            header_id = "{}-h{:d}".format(self.conf["id"], idx)
 
             accord_item_div = div(cls = "accordion-item ic-l-test",
                 data_params = _encode_html_attr(test))

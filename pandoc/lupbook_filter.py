@@ -54,14 +54,14 @@ class LupbookComponent:
     def __init__(self, yaml_config):
         # Load YAML config
         try:
-            self.args = yaml.load(yaml_config, LupbookLoader)
+            self.conf = yaml.load(yaml_config, LupbookLoader)
         except yaml.YAMLError as error:
             sys.stderr.write("Error loading YAML configuration: ", error)
             raise
 
         # Validate YAML against schema
         try:
-            self._yaml_validator().validate(self.args)
+            self._yaml_validator().validate(self.conf)
 
         except jsonschema.exceptions.ValidationError as error:
             # User error in their YAML description
@@ -92,10 +92,10 @@ class LupbookComponent:
 
     def _gen_description(self):
         with div(cls = "card-body"):
-            h5(self.args["title"], cls = "card-title")
-            formatted_text = panflute.convert_text(self.args["prompt"],
-                                                   output_format='html')
-            div(raw(formatted_text), cls = "card-text")
+            h5(self.conf["title"], cls = "card-title")
+            prompt_html = panflute.convert_text(self.conf["prompt"],
+                                                output_format='html')
+            div(raw(prompt_html), cls = "card-text")
 
     def _gen_activity(self):
         raise NotImplementedError
@@ -108,10 +108,10 @@ class LupbookComponent:
 
     def _gen_footer(self):
         with div(cls = "card-footer"):
-            div(self.args["id"], cls = "text-end text-secondary small")
+            div(self.conf["id"], cls = "text-end text-secondary small")
 
     def _generate_html(self):
-        root = div(id = self.args["id"],
+        root = div(id = self.conf["id"],
                    cls = "card my-3 {}-container".format(self.activity_id()))
         with root:
             self._gen_header()
