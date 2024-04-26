@@ -110,7 +110,7 @@ function matching_init(elt) {
     // Check each blocks
     choice_blocks.forEach((choice_block) => {
       const choice_id = choice_block.id.split('-').pop();
-      const choice_match = choice_block.getAttribute("matchid");
+      const choice_match = choice_block.dataset.match;
       const containing_box = choice_block.parentNode;
       const feedback_item = document.getElementById(`matching-${id}-feedback-${choice_id}`);
 

@@ -28,7 +28,7 @@ class LupbookMatching(lupbook_filter.LupbookComponent):
         div_attrs = {
             "id": f"matching-{self.args['id']}-choice-{choice['id']}",
             "cls": "matching-c-choice border rounded m-2 p-2 d-flex",
-            "matchid": f"{choice['match_id']}"
+            "data-match": f"{choice['match']}"
         }
         with div(**div_attrs):
             text = choice['text']

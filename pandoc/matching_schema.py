@@ -78,7 +78,7 @@ matching_schema = {
                     "id": {
                         "type": "string"
                     },
-                    "match_id": {
+                    "match": {
                         "type": "string"
                     },
                     "text": {
@@ -88,7 +88,7 @@ matching_schema = {
                         "type": "string"
                     }
                 },
-                "required": ["id", "match_id", "text"],
+                "required": ["id", "match", "text"],
                 "additionalProperties": False
             }
         },
