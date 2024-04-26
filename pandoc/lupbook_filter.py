@@ -55,13 +55,14 @@ class LupbookComponent:
         self.yaml_config = yaml_config
         self.args = None
 
-    def _yaml_validator(self):
-        raise NotImplementedError
-
-    def _activity_id(self):
+    @staticmethod
+    def activity_id():
         raise NotImplementedError
 
     def _activity_name(self):
+        raise NotImplementedError
+
+    def _yaml_validator(self):
         raise NotImplementedError
 
     def _load_yaml(self):
@@ -113,7 +114,7 @@ class LupbookComponent:
 
     def _generate_html(self):
         root = div(id = self.args["id"],
-                   cls = "card my-3 {}-container".format(self._activity_id()))
+                   cls = "card my-3 {}-container".format(self.activity_id()))
         with root:
             self._gen_header()
             self._gen_description()

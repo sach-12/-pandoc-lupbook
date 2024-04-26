@@ -17,7 +17,8 @@ class LupbookMatching(lupbook_filter.LupbookComponent):
     def _yaml_validator(self):
         return matching_schema.matching_validator
 
-    def _activity_id(self):
+    @staticmethod
+    def activity_id():
         return "matching"
 
     def _activity_name(self):
@@ -99,10 +100,3 @@ class LupbookMatching(lupbook_filter.LupbookComponent):
                     div(raw(formatted_text),
                         id = f"matching-{self.args['id']}-feedback-{choice['id']}",
                         cls = "matching-c-feedback-item d-none")
-
-def Matching(element, doc):
-    # Exit early if not our element
-    if not lupbook_filter.validate_element("matching", element, doc):
-        return
-
-    return LupbookMatching(element.text).process()

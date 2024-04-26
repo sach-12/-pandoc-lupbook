@@ -105,7 +105,8 @@ class LupbookICode(lupbook_filter.LupbookComponent):
     def _yaml_validator(self):
         return icode_schema.icode_validator
 
-    def _activity_id(self):
+    @staticmethod
+    def activity_id():
         return "icode"
 
     def _activity_name(self):
@@ -209,10 +210,3 @@ class LupbookICode(lupbook_filter.LupbookComponent):
                     div(cls = "accordion-body", id = "{}-fb".format(test_id))
 
             accord_div += accord_item_div
-
-def ICode(element, doc):
-    # Exit early if not our element
-    if not lupbook_filter.validate_element("icode", element, doc):
-        return
-
-    return LupbookICode(element.text).process()

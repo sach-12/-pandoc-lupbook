@@ -14,12 +14,30 @@ import matching_filter
 import mcq_filter
 import parsons_filter
 
+def _process_lupbook_filters(element, doc):
+    # Quit early when incorrect type of element
+    if (type(element)!= panflute.CodeBlock or not doc.format == "html"):
+        return
+
+    # Find the corresponding lupbook filter if any
+    # NOTE: we only look at the first element class
+    lb_filters = [
+        icode_filter.LupbookICode,
+        matching_filter.LupbookMatching,
+        ]
+    lb_filter_map = { f.activity_id(): f for f in lb_filters }
+    try:
+        lb_filter = lb_filter_map[element.classes[0]]
+    except KeyError:
+        return
+
+    # Found an element we know how to process!
+    return lb_filter(element.text).process()
 
 if __name__ == "__main__":
     actions = [
+            _process_lupbook_filters,
             fia_filter.FIA,
-            icode_filter.ICode,
-            matching_filter.Matching,
             mcq_filter.MCQ,
             parsons_filter.Parsons,
             ]
