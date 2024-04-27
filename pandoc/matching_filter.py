@@ -32,7 +32,7 @@ class LupbookMatching(lupbook_filter.LupbookComponent):
     def _gen_choice_block(self, choice):
         div_attrs = {
             "id": f"{self.prefix_id}-choice-{choice['id']}",
-            "cls": "matching-c-choice border rounded m-2 p-2 d-flex",
+            "cls": "matching-choice bg-white border rounded m-2 p-2 d-flex",
             "data-match": f"{choice['match']}"
         }
         with div(**div_attrs):
@@ -46,7 +46,7 @@ class LupbookMatching(lupbook_filter.LupbookComponent):
     def _gen_answer_block(self, answer):
         div_attrs = {
             "id": f"{self.prefix_id}-answer-{answer['id']}",
-            "cls": "matching-c-answer border rounded m-2 p-2 d-flex flex-column",
+            "cls": "matching-answer bg-light border rounded m-2 p-2 d-flex flex-column",
         }
         with div(**div_attrs):
             text = answer['text']
@@ -62,7 +62,7 @@ class LupbookMatching(lupbook_filter.LupbookComponent):
                 div("Drag items from here...",
                     cls = "small fst-italic text-secondary")
                 with div(id = f"{self.prefix_id}-choices",
-                         cls = "matching-l-choices border"):
+                         cls = "matching-choices border"):
                     for i, block in enumerate(self.conf["choices"]):
                         self._gen_choice_block(block)
 
@@ -98,10 +98,10 @@ class LupbookMatching(lupbook_filter.LupbookComponent):
         with div(id = f"{self.prefix_id}-feedback", cls = "collapse"):
             with div(cls = "card-body border-top"):
                 div(id = f"{self.prefix_id}-feedback-score",
-                    cls = "matching-c-feedback-correct d-none")
+                    cls = "m-2 p-2 rounded d-none")
                 for i, choice in enumerate(self.conf["choices"]):
                     formatted_text = panflute.convert_text(
                             choice["feedback"], output_format = 'html')
                     div(raw(formatted_text),
                         id = f"{self.prefix_id}-feedback-{choice['id']}",
-                        cls = "matching-c-feedback-item d-none")
+                        cls = "matching-feedback-item m-2 p-2 border-start border-5 d-none")

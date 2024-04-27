@@ -6,8 +6,8 @@ function matching_init(elt) {
 
   // Body elements
   const choice_box = document.getElementById(`matching-${id}-choices`);
-  const choice_blocks = Array.from(elt.getElementsByClassName("matching-c-choice"));
-  const answer_blocks = Array.from(elt.getElementsByClassName("matching-c-answer"));
+  const choice_blocks = Array.from(elt.getElementsByClassName("matching-choice"));
+  const answer_blocks = Array.from(elt.getElementsByClassName("matching-answer"));
 
   // Control buttons
   const submit_btn = document.getElementById(`matching-${id}-submit`);
@@ -16,8 +16,8 @@ function matching_init(elt) {
 
   // Feedback section
   const feedback_elt = document.getElementById(`matching-${id}-feedback`);
-  const feedback_correct = document.getElementById(`matching-${id}-correct`);
-  const feedback_items = Array.from(elt.getElementsByClassName("matching-c-feedback-item"));
+  const feedback_score = document.getElementById(`matching-${id}-feedback-score`);
+  const feedback_items = Array.from(elt.getElementsByClassName("matching-feedback-item"));
 
   const feedback_coll = new bootstrap.Collapse(feedback_elt, { toggle: false });
 
@@ -32,11 +32,11 @@ function matching_init(elt) {
       event.dataTransfer.clearData();
       event.dataTransfer.setData("text", event.target.id);
       event.dataTransfer.effectAllowed = "move";
-      event.target.classList.add("matching-c-choice__dragging");
+      event.target.classList.replace("bg-white", "bg-light-subtle");
     };
 
     choice_block.ondragend = (event) => {
-      event.target.classList.remove("matching-c-choice__dragging");
+      event.target.classList.replace("bg-light-subtle", "bg-white");
     };
   });
 
@@ -49,12 +49,12 @@ function matching_init(elt) {
 
     answer_block.ondragenter = (event) => {
       event.preventDefault();
-      event.target.classList.add("bg-light");
+      event.target.classList.replace("bg-light", "bg-secondary-subtle");
     };
 
     answer_block.ondragleave = (event) => {
       event.preventDefault();
-      event.target.classList.remove("bg-light");
+      event.target.classList.replace("bg-secondary-subtle", "bg-light");
     };
 
     answer_block.ondrop = (event) => {
@@ -64,11 +64,11 @@ function matching_init(elt) {
       const dragged = document.getElementById(event.dataTransfer.getData("text"));
 
       // Target container
-      const target = event.target.closest(".matching-c-answer");
+      const target = event.target.closest(".matching-answer");
 
       // Move dragged element to target container
       target.appendChild(dragged);
-      target.classList.remove("bg-light");
+      event.target.classList.replace("bg-secondary-subtle", "bg-light");
 
       softReset();
     };
@@ -115,13 +115,13 @@ function matching_init(elt) {
       const feedback_item = document.getElementById(`matching-${id}-feedback-${choice_id}`);
 
       // Show feedback only if choice block was moved to answer box
-      if (containing_box.classList.contains("matching-c-answer")) {
+      if (containing_box.classList.contains("matching-answer")) {
         // show corresponding feedback item and color it appropriately
         feedback_item.classList.remove("d-none");
         if (containing_box.id != `matching-${id}-answer-${choice_match}`) {
-          feedback_item.classList.add("matching-c-feedback-item__error");
+          feedback_item.classList.add("border-danger");
         } else {
-          feedback_item.classList.add("matching-c-feedback-item__pass");
+          feedback_item.classList.add("border-success");
           correct_count++;
         }
       }
@@ -129,16 +129,16 @@ function matching_init(elt) {
 
     // Configure feedback
     if (correct_count == choice_blocks.length) {
-      submit_btn.classList.replace("btn-primary", "btn-success");
-      feedback_correct.innerHTML = "Congratulations!";
+      feedback_score.innerHTML = "Congratulations!";
+      feedback_score.classList.add("bg-success-subtle");
     } else {
-      submit_btn.classList.replace("btn-primary", "btn-danger");
-      feedback_correct.innerHTML = `You got ${correct_count} out of`
-        + ` ${choice_blocks.length} answers correct.`;
+      feedback_score.innerHTML = `You correctly matched ${correct_count} items`
+        + ` out of ${choice_blocks.length}.`;
+      feedback_score.classList.add("bg-danger-subtle");
     }
 
     // Show feedback
-    feedback_correct.classList.remove("d-none");
+    feedback_score.classList.remove("d-none");
     feedback_btn.classList.remove("d-none");
     feedback_coll.show();
   });
@@ -148,21 +148,21 @@ function matching_init(elt) {
    */
   // A soft reset makes the interactive activity be submittable again
   function softReset () {
-    // Re-enable submit button and reset style
+    // Re-enable submit button
     submit_btn.disabled = false;
-    submit_btn.classList.remove("btn-danger", "btn-success");
-    submit_btn.classList.add("btn-primary");
 
     // Hide feedback section
     feedback_btn.classList.add("d-none");
-    feedback_correct.classList.add("d-none");
     feedback_coll.hide();
+
+    // Reset feedback score
+    feedback_score.classList.remove("bg-success-subtle", "bg-danger-subtle");
+    feedback_score.classList.add("d-none");
 
     // Reset each feedback item
     feedback_items.forEach((item) => {
       item.classList.add("d-none");
-      item.classList.remove("matching-c-feedback-item__error");
-      item.classList.remove("matching-c-feedback-item__pass");
+      item.classList.remove("border-success", "border-danger");
     });
   }
 
