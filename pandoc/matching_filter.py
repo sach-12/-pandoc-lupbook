@@ -14,6 +14,10 @@ import panflute
 #
 
 class LupbookMatching(lupbook_filter.LupbookComponent):
+    def __init__(self, yaml_config):
+        super().__init__(yaml_config)
+        self.prefix_id = f"matching-{self.conf['id']}"
+
     @staticmethod
     def _yaml_validator():
         return matching_schema.matching_validator
@@ -27,7 +31,7 @@ class LupbookMatching(lupbook_filter.LupbookComponent):
 
     def _gen_choice_block(self, choice):
         div_attrs = {
-            "id": f"matching-{self.conf['id']}-choice-{choice['id']}",
+            "id": f"{self.prefix_id}-choice-{choice['id']}",
             "cls": "matching-c-choice border rounded m-2 p-2 d-flex",
             "data-match": f"{choice['match']}"
         }
@@ -41,7 +45,7 @@ class LupbookMatching(lupbook_filter.LupbookComponent):
 
     def _gen_answer_block(self, answer):
         div_attrs = {
-            "id": f"matching-{self.conf['id']}-answer-{answer['id']}",
+            "id": f"{self.prefix_id}-answer-{answer['id']}",
             "cls": "matching-c-answer border rounded m-2 p-2 d-flex flex-column",
         }
         with div(**div_attrs):
@@ -57,7 +61,7 @@ class LupbookMatching(lupbook_filter.LupbookComponent):
             with div(cls = "col"):
                 div("Drag items from here...",
                     cls = "small fst-italic text-secondary")
-                with div(id = f"matching-{self.conf['id']}-choices",
+                with div(id = f"{self.prefix_id}-choices",
                          cls = "matching-l-choices border"):
                     for i, block in enumerate(self.conf["choices"]):
                         self._gen_choice_block(block)
@@ -65,7 +69,7 @@ class LupbookMatching(lupbook_filter.LupbookComponent):
             with div(cls = "col"):
                 div("...and drop them here (click to remove)",
                     cls = "small fst-italic text-secondary")
-                with div(id = f"matching-{self.conf['id']}-answers",
+                with div(id = f"{self.prefix_id}-answers",
                          cls = "matching-l-answers border"):
                     for i, block in enumerate(self.conf['answers']):
                         self._gen_answer_block(block)
@@ -75,29 +79,29 @@ class LupbookMatching(lupbook_filter.LupbookComponent):
             with div(cls = "d-flex align-items-center"):
                 with div(cls = "px-1"):
                     button("Submit",
-                           id = f"matching-{self.conf['id']}-submit",
+                           id = f"{self.prefix_id}-submit",
                            cls = "btn btn-primary")
                     button("Reset",
-                           id = f"matching-{self.conf['id']}-reset",
+                           id = f"{self.prefix_id}-reset",
                            cls = "btn btn-secondary")
 
                 with div(cls = "px-1 flex-grow-1"):
                     div(cls = "d-none")
 
                 with div(cls = "px-1"):
-                    button(id = f"matching-{self.conf['id']}-feedback-btn",
+                    button(id = f"{self.prefix_id}-feedback-btn",
                            cls = "matching-c-feedback__toggle collapsed d-none",
-                           data_bs_target = f"#matching-{self.conf['id']}-feedback",
+                           data_bs_target = f"#{self.prefix_id}-feedback",
                            data_bs_toggle = "collapse", type = "button")
 
     def _gen_feedback(self):
-        with div(id = f"matching-{self.conf['id']}-feedback", cls = "collapse"):
+        with div(id = f"{self.prefix_id}-feedback", cls = "collapse"):
             with div(cls = "card-body border-top"):
-                div(id = f"matching-{self.conf['id']}-correct",
+                div(id = f"{self.prefix_id}-feedback-score",
                     cls = "matching-c-feedback-correct d-none")
                 for i, choice in enumerate(self.conf["choices"]):
                     formatted_text = panflute.convert_text(
                             choice["feedback"], output_format = 'html')
                     div(raw(formatted_text),
-                        id = f"matching-{self.conf['id']}-feedback-{choice['id']}",
+                        id = f"{self.prefix_id}-feedback-{choice['id']}",
                         cls = "matching-c-feedback-item d-none")
