@@ -17,6 +17,7 @@ class LupbookMatching(lupbook_filter.LupbookComponent):
     def __init__(self, yaml_config):
         super().__init__(yaml_config)
         self.prefix_id = f"matching-{self.conf['id']}"
+        self.feedback_cnt = len(self.conf["choices"])
 
     @staticmethod
     def _yaml_validator():
@@ -86,10 +87,10 @@ class LupbookMatching(lupbook_filter.LupbookComponent):
                              style="cursor: pointer;",
                              data_bs_target = f"#{self.prefix_id}-feedback",
                              data_bs_toggle = "collapse"):
-                        for i in range(len(self.conf["choices"])):
+                        for i in range(self.feedback_cnt):
                             with div(cls = "progress", role = "progressbar",
                                      style = "width: {}%"
-                                     .format(100 / len(self.conf["choices"]))):
+                                     .format(100 / self.feedback_cnt)):
                                 div(cls = "progress-bar")
                     with div(id = f"{self.prefix_id}-feedback-resubmission",
                              cls = "progress d-none",
