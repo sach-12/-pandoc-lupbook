@@ -3,63 +3,66 @@ function matching_init(elt) {
    * Collect handles to various elements
    */
   const id = elt.id;
+  const prefix_id = `matching-${id}`;
 
-  // Body elements
-  const choice_box = document.getElementById(`matching-${id}-choices`);
-  const choice_blocks = Array.from(elt.getElementsByClassName("matching-choice"));
-  const answer_blocks = Array.from(elt.getElementsByClassName("matching-answer"));
+  // Activity
+  const choice_box = document.getElementById(`${prefix_id}-choices`);
+  const choice_items = Array.from(choice_box.getElementsByClassName("matching-choice"));
+  const answer_boxes = Array.from(elt.getElementsByClassName("matching-answer"));
 
-  // Control buttons
-  const submit_btn = document.getElementById(`matching-${id}-submit`);
-  const reset_btn = document.getElementById(`matching-${id}-reset`);
-  const feedback_prog = document.getElementById(`matching-${id}-feedback-progress`);
+  // Actions
+  const submit_btn = document.getElementById(`${prefix_id}-submit`);
+  const reset_btn = document.getElementById(`${prefix_id}-reset`);
+
+  // Feedback
+  const feedback_prog = document.getElementById(`${prefix_id}-feedback-progress`);
   const feedback_progs = Array.from(feedback_prog.getElementsByClassName("progress-bar"));
-  const feedback_btn = document.getElementById(`matching-${id}-feedback-btn`);
+  const feedback_btn = document.getElementById(`${prefix_id}-feedback-btn`);
 
-  // Feedback section
-  const feedback_elt = document.getElementById(`matching-${id}-feedback`);
-  const feedback_score = document.getElementById(`matching-${id}-feedback-score`);
-  const feedback_items = Array.from(elt.getElementsByClassName("matching-feedback-item"));
+  const feedback_sect = document.getElementById(`${prefix_id}-feedback`);
+  const feedback_coll = new bootstrap.Collapse(feedback_sect, { toggle: false });
 
-  const feedback_coll = new bootstrap.Collapse(feedback_elt, { toggle: false });
+  const feedback_score = document.getElementById(`${prefix_id}-feedback-score`);
+  const feedback_items = Array.from(feedback_sect.getElementsByClassName("matching-feedback-item"));
+
 
   /*
    * Dragging feature
    */
-  // Attach "source" dragging functions to choice blocks
-  choice_blocks.forEach((choice_block) => {
-    choice_block.draggable = true;
+  // Attach "source" dragging functions to choice items
+  choice_items.forEach((choice_item) => {
+    choice_item.draggable = true;
 
-    choice_block.ondragstart = (event) => {
+    choice_item.ondragstart = (event) => {
       event.dataTransfer.clearData();
       event.dataTransfer.setData("text", event.target.id);
       event.dataTransfer.effectAllowed = "move";
       event.target.classList.replace("bg-white", "bg-light-subtle");
     };
 
-    choice_block.ondragend = (event) => {
+    choice_item.ondragend = (event) => {
       event.target.classList.replace("bg-light-subtle", "bg-white");
     };
   });
 
-  // Attach "target" dragging functions to answer blocks
-  answer_blocks.forEach((answer_block) => {
-    answer_block.ondragover = (event) => {
+  // Attach "target" dragging functions to answer boxes
+  answer_boxes.forEach((answer_box) => {
+    answer_box.ondragover = (event) => {
       event.preventDefault();
       event.dataTransfer.dropEffect = "move";
     };
 
-    answer_block.ondragenter = (event) => {
+    answer_box.ondragenter = (event) => {
       event.preventDefault();
       event.target.classList.replace("bg-light", "bg-secondary-subtle");
     };
 
-    answer_block.ondragleave = (event) => {
+    answer_box.ondragleave = (event) => {
       event.preventDefault();
       event.target.classList.replace("bg-secondary-subtle", "bg-light");
     };
 
-    answer_block.ondrop = (event) => {
+    answer_box.ondrop = (event) => {
       event.preventDefault();
 
       // Dragged element
@@ -82,20 +85,19 @@ function matching_init(elt) {
    */
   // Reset button click event
   reset_btn.addEventListener('click', () => {
-    softReset();
-
-    // Move all choice blocks back to choice box
-    choice_blocks.forEach((choice_block) => {
-      choice_box.appendChild(choice_block);
+    // Move all choice items back to choice box
+    choice_items.forEach((choice_item) => {
+      choice_box.appendChild(choice_item);
     })
+    softReset();
   });
 
-  // Choice blocks click events
-  choice_blocks.forEach((choice_block) => {
-    choice_block.addEventListener('click', (event) => {
-      /* Move choice blocks back to choice box in one click */
-      if (choice_block.parentNode != choice_box) {
-        choice_box.appendChild(choice_block);
+  // Choice items click events
+  choice_items.forEach((choice_item) => {
+    choice_item.addEventListener('click', (event) => {
+      /* Move choice items back to choice box in one click */
+      if (choice_item.parentNode != choice_box) {
+        choice_box.appendChild(choice_item);
         if (submit_btn.disabled)
           softReset();
       }
@@ -109,18 +111,18 @@ function matching_init(elt) {
     // Prevent submitting again if nothing has changed
     submit_btn.disabled = true;
 
-    // Check each blocks
-    choice_blocks.forEach((choice_block) => {
-      const choice_id = choice_block.id.split('-').pop();
-      const choice_match = choice_block.dataset.match;
-      const containing_box = choice_block.parentNode;
-      const feedback_item = document.getElementById(`matching-${id}-feedback-${choice_id}`);
+    // Check each items
+    choice_items.forEach((choice_item) => {
+      const choice_id = choice_item.id.split('-').pop();
+      const choice_match = choice_item.dataset.match;
+      const containing_box = choice_item.parentNode;
+      const feedback_item = document.getElementById(`${prefix_id}-feedback-${choice_id}`);
 
-      // Show feedback only if choice block was moved to answer box
+      // Show feedback only if choice item was moved to answer box
       if (containing_box.classList.contains("matching-answer")) {
         // show corresponding feedback item and color it appropriately
         feedback_item.classList.remove("d-none");
-        if (containing_box.id != `matching-${id}-answer-${choice_match}`) {
+        if (containing_box.id != `${prefix_id}-answer-${choice_match}`) {
           feedback_item.classList.add("border-danger");
         } else {
           feedback_item.classList.add("border-success");
@@ -139,12 +141,12 @@ function matching_init(elt) {
     });
 
     // Configure feedback
-    if (correct_count == choice_blocks.length) {
+    if (correct_count == choice_items.length) {
       feedback_score.innerHTML = "Congratulations!";
       feedback_score.classList.add("bg-success-subtle");
     } else {
       feedback_score.innerHTML = `You correctly matched ${correct_count} items`
-        + ` out of ${choice_blocks.length}.`;
+        + ` out of ${choice_items.length}.`;
       feedback_score.classList.add("bg-danger-subtle");
     }
 
@@ -173,10 +175,10 @@ function matching_init(elt) {
     });
 
     // Reset feedback score
-    feedback_score.classList.remove("bg-success-subtle", "bg-danger-subtle");
     feedback_score.classList.add("d-none");
+    feedback_score.classList.remove("bg-success-subtle", "bg-danger-subtle");
 
-    // Reset each feedback item
+    // Reset feedback items
     feedback_items.forEach((item) => {
       item.classList.add("d-none");
       item.classList.remove("border-success", "border-danger");
