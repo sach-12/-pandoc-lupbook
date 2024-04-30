@@ -107,10 +107,10 @@ class LupbookMatching(lupbook_filter.LupbookComponent):
         with div(id = f"{self.prefix_id}-feedback", cls = "collapse"):
             with div(cls = "card-body border-top"):
                 div(id = f"{self.prefix_id}-feedback-score",
-                    cls = "m-2 p-2 rounded d-none")
+                    cls = "m-1 p-2 rounded d-none")
                 for i, choice in enumerate(self.conf["choices"]):
                     formatted_text = panflute.convert_text(
                             choice["feedback"], output_format = 'html')
                     div(raw(formatted_text),
                         id = f"{self.prefix_id}-feedback-{choice['id']}",
-                        cls = "matching-feedback-item m-2 p-2 border-start border-5 d-none")
+                        cls = "matching-feedback-item m-1 p-2 border-start border-5 d-none")
