@@ -95,7 +95,7 @@ class LupbookComponent:
             h5(self.conf["title"], cls = "card-title")
             prompt_html = panflute.convert_text(self.conf["prompt"],
                                                 output_format='html')
-            div(raw(prompt_html), cls = "card-text")
+            div(raw(prompt_html), cls = "card-text lupbook-description")
 
     def _gen_activity(self):
         raise NotImplementedError
