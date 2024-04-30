@@ -52,3 +52,10 @@
 .matching-c-feedback__toggle.collapsed {
     transform: rotate(0);
 }
+
+/*
+ * Feedback
+ */
+.matching-feedback-item > p:last-child {
+    margin-bottom: 0;
+}
