@@ -1,3 +1,12 @@
+const SubmitState = {
+  /* First submission after reset */
+  SUBMISSION: 1,
+  /* Feedback corresponds to submission */
+  SUBMITTED: 2,
+  /* Submission modified, feedback possibly outdated */
+  RESUBMISSION: 3,
+};
+
 function matching_init(elt) {
   /*
    * Collect handles to various elements
@@ -15,6 +24,7 @@ function matching_init(elt) {
   const reset_btn = document.getElementById(`${prefix_id}-reset`);
 
   // Feedback
+  const feedback_resub = document.getElementById(`${prefix_id}-feedback-resubmission`);
   const feedback_prog = document.getElementById(`${prefix_id}-feedback-progress`);
   const feedback_progs = Array.from(feedback_prog.getElementsByClassName("progress-bar"));
   const feedback_btn = document.getElementById(`${prefix_id}-feedback-btn`);
@@ -75,7 +85,7 @@ function matching_init(elt) {
       target.appendChild(dragged);
       event.target.classList.replace("bg-secondary-subtle", "bg-light");
 
-      softReset();
+      modified();
     };
   });
 
@@ -89,7 +99,7 @@ function matching_init(elt) {
     choice_items.forEach((choice_item) => {
       choice_box.appendChild(choice_item);
     })
-    softReset();
+    reset();
   });
 
   // Choice items click events
@@ -98,18 +108,19 @@ function matching_init(elt) {
       /* Move choice items back to choice box in one click */
       if (choice_item.parentNode != choice_box) {
         choice_box.appendChild(choice_item);
-        if (submit_btn.disabled)
-          softReset();
+        modified();
       }
     })
   });
 
   // Submit button click event
   submit_btn.addEventListener('click', () => {
-    let correct_count = 0;
 
-    // Prevent submitting again if nothing has changed
-    submit_btn.disabled = true;
+    // Nothing to do if activity hasn't changed since previous submission
+    if (submit_btn.dataset.state == SubmitState.SUBMITTED)
+      return;
+
+    let correct_count = 0;
 
     // Check each items
     choice_items.forEach((choice_item) => {
@@ -128,10 +139,13 @@ function matching_init(elt) {
           feedback_item.classList.add("border-success");
           correct_count++;
         }
+      } else {
+        feedback_item.classList.add("d-none");
       }
     });
 
     // Set up progress bar
+    feedback_resub.classList.add("d-none");
     feedback_prog.classList.remove("d-none");
     feedback_progs.forEach((item, index) => {
       if (index < correct_count)
@@ -151,20 +165,46 @@ function matching_init(elt) {
     }
 
     // Show feedback
+    feedback_sect.classList.remove("opacity-50");
     feedback_score.classList.remove("d-none");
     feedback_btn.classList.remove("d-none");
     feedback_coll.show();
+
+    submit_btn.dataset.state = SubmitState.SUBMITTED;
   });
 
   /*
-   * Helper functions
+   * State management
    */
-  // A soft reset makes the interactive activity be submittable again
-  function softReset () {
-    // Re-enable submit button
-    submit_btn.disabled = false;
+  // Initial
+  submit_btn.dataset.state = SubmitState.SUBMISSION;
 
-    // Hide feedback section
+  // Handles modifications in activity
+  function modified() {
+    // Nothing to do if activity hasn't been submitted once yet, or if we're
+    // already in an outdated state
+    if (submit_btn.dataset.state != SubmitState.SUBMITTED)
+      return;
+
+    // Mark feedback as outdated
+    feedback_prog.classList.add("d-none");
+    feedback_progs.forEach((item) => {
+        item.classList.remove("bg-success", "bg-danger");
+    });
+    feedback_sect.classList.add("opacity-50");
+    feedback_resub.classList.remove("d-none");
+
+    submit_btn.dataset.state = SubmitState.RESUBMISSION;
+  }
+
+  // Reset activity
+  function reset() {
+    // Nothing to do if activity hasn't been submitted once yet
+    if (submit_btn.dataset.state == SubmitState.SUBMISSION)
+      return;
+
+    // Reset feedback section
+    feedback_sect.classList.remove("opacity-50");
     feedback_btn.classList.add("d-none");
     feedback_coll.hide();
 
@@ -173,6 +213,7 @@ function matching_init(elt) {
     feedback_progs.forEach((item) => {
         item.classList.remove("bg-success", "bg-danger");
     });
+    feedback_resub.classList.add("d-none");
 
     // Reset feedback score
     feedback_score.classList.add("d-none");
@@ -183,8 +224,9 @@ function matching_init(elt) {
       item.classList.add("d-none");
       item.classList.remove("border-success", "border-danger");
     });
-  }
 
+    submit_btn.dataset.state = SubmitState.SUBMISSION;
+  }
 }
 
 /*

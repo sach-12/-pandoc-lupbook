@@ -96,6 +96,13 @@ class LupbookMatching(lupbook_filter.LupbookComponent):
                                      style = "width: {}%"
                                      .format(100 / len(self.conf["choices"]))):
                                 div(cls = "progress-bar")
+                    with div(id = f"{self.prefix_id}-feedback-resubmission",
+                             cls = "progress d-none",
+                             style="cursor: pointer;",
+                             data_bs_target = f"#{self.prefix_id}-feedback",
+                             data_bs_toggle = "collapse"):
+                        div("Activity modified -- feedback is outdated until resubmission",
+                            cls = "progress-bar bg-warning", style = "width: 100%")
 
                 with div(cls = "px-1"):
                     button(id = f"{self.prefix_id}-feedback-btn",
