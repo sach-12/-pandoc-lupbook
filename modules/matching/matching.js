@@ -12,6 +12,8 @@ function matching_init(elt) {
   // Control buttons
   const submit_btn = document.getElementById(`matching-${id}-submit`);
   const reset_btn = document.getElementById(`matching-${id}-reset`);
+  const feedback_prog = document.getElementById(`matching-${id}-feedback-progress`);
+  const feedback_progs = Array.from(feedback_prog.getElementsByClassName("progress-bar"));
   const feedback_btn = document.getElementById(`matching-${id}-feedback-btn`);
 
   // Feedback section
@@ -127,6 +129,15 @@ function matching_init(elt) {
       }
     });
 
+    // Set up progress bar
+    feedback_prog.classList.remove("d-none");
+    feedback_progs.forEach((item, index) => {
+      if (index < correct_count)
+        item.classList.add("bg-success");
+      else
+        item.classList.add("bg-danger");
+    });
+
     // Configure feedback
     if (correct_count == choice_blocks.length) {
       feedback_score.innerHTML = "Congratulations!";
@@ -154,6 +165,12 @@ function matching_init(elt) {
     // Hide feedback section
     feedback_btn.classList.add("d-none");
     feedback_coll.hide();
+
+    // Reset progress bar
+    feedback_prog.classList.add("d-none");
+    feedback_progs.forEach((item) => {
+        item.classList.remove("bg-success", "bg-danger");
+    });
 
     // Reset feedback score
     feedback_score.classList.remove("bg-success-subtle", "bg-danger-subtle");

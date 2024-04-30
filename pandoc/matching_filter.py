@@ -86,7 +86,16 @@ class LupbookMatching(lupbook_filter.LupbookComponent):
                            cls = "btn btn-secondary")
 
                 with div(cls = "px-1 flex-grow-1"):
-                    div(cls = "d-none")
+                    with div(id = f"{self.prefix_id}-feedback-progress",
+                             cls = "progress-stacked d-none",
+                             style="cursor: pointer;",
+                             data_bs_target = f"#{self.prefix_id}-feedback",
+                             data_bs_toggle = "collapse"):
+                        for i in range(len(self.conf["choices"])):
+                            with div(cls = "progress", role = "progressbar",
+                                     style = "width: {}%"
+                                     .format(100 / len(self.conf["choices"]))):
+                                div(cls = "progress-bar")
 
                 with div(cls = "px-1"):
                     button(id = f"{self.prefix_id}-feedback-btn",
