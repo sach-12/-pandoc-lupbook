@@ -14,6 +14,13 @@
     min-height: 3rem;
 }
 
+.matching-choice > p:last-child {
+    margin-bottom: 0;
+}
+.matching-answer > p:last-of-type {
+    margin-bottom: 0;
+}
+
 .matching-choice {
     cursor: grab;
 }

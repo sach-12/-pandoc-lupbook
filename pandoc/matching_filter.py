@@ -32,28 +32,23 @@ class LupbookMatching(lupbook_filter.LupbookComponent):
     def _gen_choice_block(self, choice):
         div_attrs = {
             "id": f"{self.prefix_id}-choice-{choice['id']}",
-            "cls": "matching-choice bg-white border rounded m-2 p-2 d-flex",
+            "cls": "matching-choice bg-white border rounded m-2 mb-0 p-2 d-flex",
             "data-match": f"{choice['match']}"
         }
         with div(**div_attrs):
             text = choice['text']
             formatted_text = panflute.convert_text(text, output_format = 'html')
-            # TODO: fix this in CSS (the last paragraph of the parent div should
-            # not have a bottom margin)
-            modified_text = formatted_text.replace('<p>', '<p class = "m-1">')
-            raw(modified_text)
+            raw(formatted_text)
 
     def _gen_answer_block(self, answer):
         div_attrs = {
             "id": f"{self.prefix_id}-answer-{answer['id']}",
-            "cls": "matching-answer bg-light border rounded m-2 p-2 d-flex flex-column",
+            "cls": "matching-answer bg-light border rounded m-2 mb-0 p-2 d-flex flex-column",
         }
         with div(**div_attrs):
             text = answer['text']
             formatted_text = panflute.convert_text(text, output_format = 'html')
-            # TODO: see above
-            modified_text = formatted_text.replace('<p>', '<p class = "m-1">')
-            raw(modified_text)
+            raw(formatted_text)
 
     def _gen_activity(self):
         # Generate containers and blocks
@@ -62,7 +57,7 @@ class LupbookMatching(lupbook_filter.LupbookComponent):
                 div("Drag items from here...",
                     cls = "small fst-italic text-secondary")
                 with div(id = f"{self.prefix_id}-choices",
-                         cls = "matching-choices border"):
+                         cls = "matching-choices border pb-2"):
                     for i, block in enumerate(self.conf["choices"]):
                         self._gen_choice_block(block)
 
@@ -70,7 +65,7 @@ class LupbookMatching(lupbook_filter.LupbookComponent):
                 div("...and drop them here (click to remove)",
                     cls = "small fst-italic text-secondary")
                 with div(id = f"{self.prefix_id}-answers",
-                         cls = "matching-l-answers border"):
+                         cls = "matching-l-answers border pb-2"):
                     for i, block in enumerate(self.conf['answers']):
                         self._gen_answer_block(block)
 
@@ -101,8 +96,8 @@ class LupbookMatching(lupbook_filter.LupbookComponent):
                              style="cursor: pointer;",
                              data_bs_target = f"#{self.prefix_id}-feedback",
                              data_bs_toggle = "collapse"):
-                        div("Activity modified -- feedback is outdated until resubmission",
-                            cls = "progress-bar bg-warning", style = "width: 100%")
+                        div("Activity modified -- feedback below may be outdated until resubmission",
+                            cls = "progress-bar text-dark bg-light", style = "width: 100%")
 
                 with div(cls = "px-1"):
                     button(id = f"{self.prefix_id}-feedback-btn",
