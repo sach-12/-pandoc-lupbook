@@ -169,6 +169,9 @@ function matching_init(elt) {
     feedback_score.classList.remove("d-none");
     feedback_btn.classList.remove("d-none");
     feedback_coll.show();
+    feedback_sect.addEventListener("shown.bs.collapse", () => {
+      feedback_sect.scrollIntoView();
+    }, { once: true });
 
     submit_btn.dataset.state = SubmitState.SUBMITTED;
   });
