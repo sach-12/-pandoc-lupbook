@@ -110,7 +110,7 @@ class LupbookMatching(lupbook_filter.LupbookComponent):
         with div(id = f"{self.prefix_id}-feedback", cls = "collapse"):
             with div(cls = "card-body border-top"):
                 div(id = f"{self.prefix_id}-feedback-score",
-                    cls = "m-1 p-2 rounded d-none")
+                    cls = "alert d-none")
                 for i, choice in enumerate(self.conf["choices"]):
                     formatted_text = panflute.convert_text(
                             choice["feedback"], output_format = 'html')

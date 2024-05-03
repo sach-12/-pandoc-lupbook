@@ -159,11 +159,11 @@ function matching_init(elt) {
     // Configure feedback
     if (correct_count == choice_items.length) {
       feedback_score.innerHTML = "Congratulations!";
-      feedback_score.classList.add("bg-success-subtle");
+      feedback_score.classList.add("alert-success");
     } else {
       feedback_score.innerHTML = `You correctly matched ${correct_count} items`
         + ` out of ${choice_items.length}.`;
-      feedback_score.classList.add("bg-danger-subtle");
+      feedback_score.classList.add("alert-danger");
     }
 
     // Show feedback
@@ -201,7 +201,7 @@ function matching_init(elt) {
   // Upon reset or upon resubmission
   function softReset() {
     feedback_sect.classList.remove("opacity-50");
-    feedback_score.classList.remove("bg-success-subtle", "bg-danger-subtle");
+    feedback_score.classList.remove("alert-success", "alert-danger");
     feedback_items.forEach((item) => {
       item.classList.remove("border-success", "border-danger");
     });
