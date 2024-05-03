@@ -1,11 +1,3 @@
-
-/*
-  Globals
-*/
-
-var icodes = {};
-const use_codemirror = typeof CodeMirror !== undefined;
-
 /*
   Utility Functions
 */
@@ -320,16 +312,7 @@ class ICodeTest {
 }
 
 
-/*
-  Class ICode
-
-  Represents a single interactive code element.
-
-  Manages source files, interaction with the VM, and displaying feedback.
-*/
-
 class ICode {
-
   constructor(elt) {
     this.id = elt.id;
     this.session = LupBookVM.session_open();
@@ -364,9 +347,6 @@ class ICode {
     for (var inp_elt of elt.getElementsByClassName("ic-c-srcfile")) {
       const filename = inp_elt.dataset.filename;
       const src_file = {};
-
-      if (!use_codemirror)
-        continue; /* TODO */
 
       const cm_args = {
         lineNumbers: true,
@@ -547,17 +527,12 @@ class ICode {
 
 
 /*
-  Initialization
-
-  Each icode must be initialized immediately after DOMContentLoaded to prevent
-  the code editors from briefly being displayed as unstyled <textarea> elements,
-  but the source code cannot be uploaded until the VM is initialized later on.
-*/
-
-window.addEventListener('DOMContentLoaded', evt => {
+ * Initialization of icode activities after DOM loading
+ */
+window.addEventListener('DOMContentLoaded', () => {
 
   /*
-   * Set up terminal
+   * Set up terminal once
    */
   /* Creation */
   const term = new Terminal({
@@ -590,19 +565,22 @@ window.addEventListener('DOMContentLoaded', evt => {
   /*
    * icode activites
    */
-  for (const icode_elt of document.getElementsByClassName("icode-container")) {
-    icodes[icode_elt.id] = new ICode(icode_elt);
+  let icodes = [];
+  for (const e of document.getElementsByClassName("icode-container")) {
+    icodes.push(new ICode(e));
   }
 
   /*
-   * VM
+   * Virtual Machine
    */
   term.write("Loading virtual machine...\r\n");
   LupBookVM.start({
     on_init: () => {
-      Object.keys(icodes).forEach((icode_id, i) => {
-        icodes[icode_id].upload(true);
-      })
+      /* Once the VM is up and ready, upload the skeleton code for each
+       * activity. XXX: this should be done dynamically the first done an icode
+       * is run (with an internal state we can maintain). This callback could be
+       * used to enable the Submit buttons instead? */
+      icodes.forEach(icode => icode.upload(true));
     },
     on_error: () => { console.log("VM Error!"); },
     console_debug_write: c => { term.write(c); }
