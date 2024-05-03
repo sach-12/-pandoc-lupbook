@@ -122,6 +122,8 @@ function matching_init(elt) {
 
     let correct_count = 0;
 
+    softReset();
+
     // Check each items
     choice_items.forEach((choice_item) => {
       const choice_id = choice_item.id.split('-').pop();
@@ -165,7 +167,6 @@ function matching_init(elt) {
     }
 
     // Show feedback
-    feedback_sect.classList.remove("opacity-50");
     feedback_score.classList.remove("d-none");
     feedback_btn.classList.remove("d-none");
     feedback_coll.show();
@@ -191,13 +192,22 @@ function matching_init(elt) {
 
     // Mark feedback as outdated
     feedback_prog.classList.add("d-none");
+    feedback_resub.classList.remove("d-none");
+    feedback_sect.classList.add("opacity-50");
+
+    submit_btn.dataset.state = SubmitState.RESUBMISSION;
+  }
+
+  // Upon reset or upon resubmission
+  function softReset() {
+    feedback_sect.classList.remove("opacity-50");
+    feedback_score.classList.remove("bg-success-subtle", "bg-danger-subtle");
+    feedback_items.forEach((item) => {
+      item.classList.remove("border-success", "border-danger");
+    });
     feedback_progs.forEach((item) => {
         item.classList.remove("bg-success", "bg-danger");
     });
-    feedback_sect.classList.add("opacity-50");
-    feedback_resub.classList.remove("d-none");
-
-    submit_btn.dataset.state = SubmitState.RESUBMISSION;
   }
 
   // Reset activity
@@ -206,26 +216,22 @@ function matching_init(elt) {
     if (submit_btn.dataset.state == SubmitState.SUBMISSION)
       return;
 
-    // Reset feedback section
-    feedback_sect.classList.remove("opacity-50");
+    softReset();
+
+    // Hide feedback section
     feedback_btn.classList.add("d-none");
     feedback_coll.hide();
 
-    // Reset progress bar
+    // Hide progress bars
     feedback_prog.classList.add("d-none");
-    feedback_progs.forEach((item) => {
-        item.classList.remove("bg-success", "bg-danger");
-    });
     feedback_resub.classList.add("d-none");
 
-    // Reset feedback score
+    // Hide feedback score
     feedback_score.classList.add("d-none");
-    feedback_score.classList.remove("bg-success-subtle", "bg-danger-subtle");
 
-    // Reset feedback items
+    // Hide feedback items
     feedback_items.forEach((item) => {
       item.classList.add("d-none");
-      item.classList.remove("border-success", "border-danger");
     });
 
     submit_btn.dataset.state = SubmitState.SUBMISSION;
