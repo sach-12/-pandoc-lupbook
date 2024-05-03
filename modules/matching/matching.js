@@ -24,16 +24,16 @@ function matching_init(elt) {
   const reset_btn = document.getElementById(`${prefix_id}-reset`);
 
   // Feedback
-  const feedback_resub = document.getElementById(`${prefix_id}-feedback-resubmission`);
-  const feedback_prog = document.getElementById(`${prefix_id}-feedback-progress`);
-  const feedback_progs = Array.from(feedback_prog.getElementsByClassName("progress-bar"));
-  const feedback_btn = document.getElementById(`${prefix_id}-feedback-btn`);
+  const fb_resubmission = document.getElementById(`${prefix_id}-feedback-resubmission`);
+  const fb_progress = document.getElementById(`${prefix_id}-feedback-progress`);
+  const fb_progressbars = Array.from(fb_progress.getElementsByClassName("progress-bar"));
+  const fb_btn = document.getElementById(`${prefix_id}-feedback-btn`);
 
-  const feedback_sect = document.getElementById(`${prefix_id}-feedback`);
-  const feedback_coll = new bootstrap.Collapse(feedback_sect, { toggle: false });
+  const fb_div = document.getElementById(`${prefix_id}-feedback`);
+  const fb_div_collapse = new bootstrap.Collapse(fb_div, { toggle: false });
 
-  const feedback_score = document.getElementById(`${prefix_id}-feedback-score`);
-  const feedback_items = Array.from(feedback_sect.getElementsByClassName("matching-feedback-item"));
+  const fb_score = document.getElementById(`${prefix_id}-feedback-score`);
+  const fb_items = Array.from(fb_div.getElementsByClassName("matching-feedback-item"));
 
 
   /*
@@ -129,27 +129,27 @@ function matching_init(elt) {
       const choice_id = choice_item.id.split('-').pop();
       const choice_match = choice_item.dataset.match;
       const containing_box = choice_item.parentNode;
-      const feedback_item = document.getElementById(`${prefix_id}-feedback-${choice_id}`);
+      const fb_item = document.getElementById(`${prefix_id}-feedback-${choice_id}`);
 
       // Show feedback only if choice item was moved to answer box
       if (containing_box.classList.contains("matching-answer")) {
         // show corresponding feedback item and color it appropriately
-        feedback_item.classList.remove("d-none");
+        fb_item.classList.remove("d-none");
         if (containing_box.id != `${prefix_id}-answer-${choice_match}`) {
-          feedback_item.classList.add("border-danger");
+          fb_item.classList.add("border-danger");
         } else {
-          feedback_item.classList.add("border-success");
+          fb_item.classList.add("border-success");
           correct_count++;
         }
       } else {
-        feedback_item.classList.add("d-none");
+        fb_item.classList.add("d-none");
       }
     });
 
     // Set up progress bar
-    feedback_resub.classList.add("d-none");
-    feedback_prog.classList.remove("d-none");
-    feedback_progs.forEach((item, index) => {
+    fb_resubmission.classList.add("d-none");
+    fb_progress.classList.remove("d-none");
+    fb_progressbars.forEach((item, index) => {
       if (index < correct_count)
         item.classList.add("bg-success");
       else
@@ -158,20 +158,20 @@ function matching_init(elt) {
 
     // Configure feedback
     if (correct_count == choice_items.length) {
-      feedback_score.innerHTML = "Congratulations!";
-      feedback_score.classList.add("alert-success");
+      fb_score.innerHTML = "Congratulations!";
+      fb_score.classList.add("alert-success");
     } else {
-      feedback_score.innerHTML = `You correctly matched ${correct_count} items`
+      fb_score.innerHTML = `You correctly matched ${correct_count} items`
         + ` out of ${choice_items.length}.`;
-      feedback_score.classList.add("alert-danger");
+      fb_score.classList.add("alert-danger");
     }
 
     // Show feedback
-    feedback_score.classList.remove("d-none");
-    feedback_btn.classList.remove("d-none");
-    feedback_coll.show();
-    feedback_sect.addEventListener("shown.bs.collapse", () => {
-      feedback_sect.scrollIntoView();
+    fb_score.classList.remove("d-none");
+    fb_btn.classList.remove("d-none");
+    fb_div_collapse.show();
+    fb_div.addEventListener("shown.bs.collapse", () => {
+      fb_div.scrollIntoView();
     }, { once: true });
 
     submit_btn.dataset.state = SubmitState.SUBMITTED;
@@ -191,21 +191,21 @@ function matching_init(elt) {
       return;
 
     // Mark feedback as outdated
-    feedback_prog.classList.add("d-none");
-    feedback_resub.classList.remove("d-none");
-    feedback_sect.classList.add("opacity-50");
+    fb_progress.classList.add("d-none");
+    fb_resubmission.classList.remove("d-none");
+    fb_div.classList.add("opacity-50");
 
     submit_btn.dataset.state = SubmitState.RESUBMISSION;
   }
 
   // Upon reset or upon resubmission
   function softReset() {
-    feedback_sect.classList.remove("opacity-50");
-    feedback_score.classList.remove("alert-success", "alert-danger");
-    feedback_items.forEach((item) => {
+    fb_div.classList.remove("opacity-50");
+    fb_score.classList.remove("alert-success", "alert-danger");
+    fb_items.forEach((item) => {
       item.classList.remove("border-success", "border-danger");
     });
-    feedback_progs.forEach((item) => {
+    fb_progressbars.forEach((item) => {
         item.classList.remove("bg-success", "bg-danger");
     });
   }
@@ -219,18 +219,18 @@ function matching_init(elt) {
     softReset();
 
     // Hide feedback section
-    feedback_btn.classList.add("d-none");
-    feedback_coll.hide();
+    fb_btn.classList.add("d-none");
+    fb_div_collapse.hide();
 
     // Hide progress bars
-    feedback_prog.classList.add("d-none");
-    feedback_resub.classList.add("d-none");
+    fb_progress.classList.add("d-none");
+    fb_resubmission.classList.add("d-none");
 
     // Hide feedback score
-    feedback_score.classList.add("d-none");
+    fb_score.classList.add("d-none");
 
     // Hide feedback items
-    feedback_items.forEach((item) => {
+    fb_items.forEach((item) => {
       item.classList.add("d-none");
     });
 
