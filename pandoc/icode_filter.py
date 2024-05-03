@@ -115,17 +115,22 @@ class LupbookICode(lupbook_filter.LupbookComponent):
 
     def _gen_activity(self):
         active_tab = None
+        tab_data = []
 
         with div(cls = "card-body p-2 m-0"):
             # Tab buttons
             with ul(cls = "nav nav-tabs", role = "tablist"):
                 for src_file in self.conf["skeleton"]:
-                    # Don't show tab for hidden files
-                    if src_file["hidden"]:
-                        continue
 
                     file_name = src_file["filename"]
                     file_uid = "{}-{:x}".format(self.conf["id"], id(src_file))
+
+                    # Store tab data for next loop which needs the same info
+                    tab_data.append((src_file, file_name, file_uid))
+
+                    # Don't show nav tab for hidden files
+                    if src_file["hidden"]:
+                        continue
 
                     if active_tab is None:
                         active_tab = file_name
@@ -141,10 +146,7 @@ class LupbookICode(lupbook_filter.LupbookComponent):
 
             # Tab contents
             with div(cls = "border border-top-0 tab-content"):
-                for src_file in self.conf["skeleton"]:
-
-                    file_name = src_file["filename"]
-                    file_uid = "{}-{:x}".format(self.conf["id"], id(src_file))
+                for src_file, file_name, file_uid in tab_data:
 
                     # Prep textarea for CodeMirror
                     textarea_args = {
