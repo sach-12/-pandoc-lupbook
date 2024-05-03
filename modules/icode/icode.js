@@ -45,14 +45,15 @@ class ICodeTest {
     POSTCMDS: "POSTCMDS"
   });
 
-  constructor(elt, icode) {
+  constructor(idx, elt, icode) {
     /* read test parameters from the DOM */
     Object.assign(this, JSON.parse(atob(elt.dataset.params)));
 
-    this.elt = elt;
-    this.body_elt = this.elt.getElementsByClassName("accordion-body")[0];
-    this.btn_coll_elt = this.elt.getElementsByClassName("accordion-button")[0];
-    const coll_elt = this.elt.getElementsByClassName("accordion-collapse")[0];
+    const test_id = `${icode.prefix_id}-test-${idx}`;
+
+    this.btn_coll_elt = document.getElementById(`${test_id}-btn`);
+    this.body_elt = document.getElementById(`${test_id}-feedback`);
+    const coll_elt = document.getElementById(`${test_id}`);
     this.collapse = new bootstrap.Collapse(coll_elt, { toggle: false });
 
     this.icode = icode;
@@ -315,12 +316,14 @@ class ICodeTest {
 class ICode {
   constructor(elt) {
     this.id = elt.id;
+    this.prefix_id = `icode-${this.id}`;
+
     this.session = LupBookVM.session_open();
     this.src_files = {};
 
     /* initialize tests */
 
-    this.progress_elt = elt.getElementsByClassName("ic-c-progress")[0];
+    this.progress_elt = document.getElementById(`${this.prefix_id}-feedback-progress`);
 
     /* while the tests are still running there are increments for all commands,
        to maximize visual indication that progress is occurring. */
@@ -331,8 +334,8 @@ class ICode {
        visually consistent with the colored feedback provided in the collapse */
     this.results_divisor = 0;
     this.tests = [];
-    for (var test_elt of elt.getElementsByClassName("ic-l-test")) {
-      var test = new ICodeTest(test_elt, this);
+    for (const [idx, test_elt] of Array.from(elt.getElementsByClassName("icode-test")).entries()) {
+      var test = new ICodeTest(idx, test_elt, this);
       this.tests.push(test);
       /* It is critical that the test call on_progress() during run() as many
          times as are accounted for here in progress_divisor.
@@ -344,7 +347,7 @@ class ICode {
     }
 
     /* initialize source file editors */
-    for (var inp_elt of elt.getElementsByClassName("ic-c-srcfile")) {
+    for (var inp_elt of elt.getElementsByClassName("icode-srcfile")) {
       const filename = inp_elt.dataset.filename;
       const src_file = {};
 
@@ -399,10 +402,10 @@ class ICode {
       this.src_files[filename] = src_file;
     }
 
-    this.btn_run_elt = elt.getElementsByClassName("ic-c-button__run")[0];
-    this.btn_run_elt.onclick = evt => { this.on_run_clicked(evt) };
+    this.submit_btn = document.getElementById(`${this.prefix_id}-submit`);
+    this.submit_btn.onclick = evt => { this.on_run_clicked(evt) };
 
-    this.feedback_elt = document.getElementById(`${elt.id}-fb`);
+    this.feedback_elt = document.getElementById(`${this.prefix_id}-feedback`);
     this.feedback_coll = new bootstrap.Collapse(this.feedback_elt, {
       toggle: false
     });
@@ -434,7 +437,7 @@ class ICode {
   }
 
   on_run_complete() {
-    this.btn_run_elt.disabled = false;
+    this.submit_btn.disabled = false;
     for (var test of this.tests) {
       if (test.result !== false)
         continue;
@@ -478,7 +481,7 @@ class ICode {
   }
 
   init() {
-    this.btn_run_elt.disabled = true;
+    this.submit_btn.disabled = true;
     this.upload();
 
     /* reset feedback */

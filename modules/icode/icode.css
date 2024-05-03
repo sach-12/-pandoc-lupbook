@@ -57,7 +57,7 @@
 */
 
 /* The element that expands/collapses the feedback section when clicked */
-.ic-c-tests__toggle {
+.icode-feedback-toggle {
   border: none;
   width: 68px;
   height: 32px;
@@ -67,12 +67,12 @@
   background-color: transparent;
 }
 
-.ic-c-tests__toggle:hover {
+.icode-feedback-toggle:hover {
   border: none;
   background-color: transparent;
 }
 
-.ic-c-tests__toggle::after {
+.icode-feedback-toggle::after {
   display: inline-block;
   position: relative;
   left: 20px;
@@ -86,7 +86,7 @@
   transform: rotate(-180deg);
 }
 
-.ic-c-tests__toggle.collapsed::after {
+.icode-feedback-toggle.collapsed::after {
   transform: rotate(0);
 }
 

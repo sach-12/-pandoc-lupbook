@@ -102,6 +102,10 @@ def _encode_rdonly(yaml_ro, file_data):
 #
 
 class LupbookICode(lupbook_filter.LupbookComponent):
+    def __init__(self, yaml_config):
+        super().__init__(yaml_config)
+        self.feedback_cnt = len(self.conf["tests"])
+
     @staticmethod
     def _yaml_validator():
         return icode_schema.icode_validator
@@ -123,7 +127,7 @@ class LupbookICode(lupbook_filter.LupbookComponent):
                 for src_file in self.conf["skeleton"]:
 
                     file_name = src_file["filename"]
-                    file_uid = "{}-{:x}".format(self.conf["id"], id(src_file))
+                    file_uid = f"{self.prefix_id}-{id(src_file):x}"
 
                     # Store tab data for next loop which needs the same info
                     tab_data.append((src_file, file_name, file_uid))
@@ -140,7 +144,7 @@ class LupbookICode(lupbook_filter.LupbookComponent):
                                cls = "nav-link" + (
                                    " active" if active_tab == file_name else ""),
                                data_bs_toggle = "tab",
-                               data_bs_target = "#{}".format(file_uid),
+                               data_bs_target = f"#{file_uid}",
                                type = "button",
                                role = "tab")
 
@@ -151,7 +155,7 @@ class LupbookICode(lupbook_filter.LupbookComponent):
                     # Prep textarea for CodeMirror
                     textarea_args = {
                         "data_filename": file_name,
-                        "cls": "ic-c-srcfile"
+                        "cls": "icode-srcfile"
                     }
                     if src_file["readonly"]:
                         textarea_args["data_readonly"] = _encode_rdonly(
@@ -166,50 +170,49 @@ class LupbookICode(lupbook_filter.LupbookComponent):
     def _gen_controls(self):
         feedback_id = "{}-fb".format(self.conf["id"])
 
-        with div(cls = "card-body border-top ic-l-controls"):
+        with div(cls = "card-body border-top"):
             with div(cls = "d-flex align-items-center"):
                 with div(cls = "px-1"):
-                    button("Run",
-                        cls = "btn btn-primary ic-c-button ic-c-button__run")
+                    button("Submit",
+                           id = f"{self.prefix_id}-submit",
+                           cls = "btn btn-primary")
 
                 with div(cls = "px-1 flex-grow-1"):
-                    with div(cls = "progress ic-c-progress d-none"):
-                        div(cls = "progress-bar", role = "progressbar")
+                    with div(id = f"{self.prefix_id}-feedback-progress",
+                             cls = "progress d-none", role = "progressbar"):
+                        div(cls = "progress-bar")
 
                 with div(cls = "px-1"):
-                    button(cls = "ic-c-tests__toggle collapsed", type = "button",
-                        data_bs_toggle = "collapse",
-                        data_bs_target = "#{}".format(feedback_id))
+                    button(id = f"{self.prefix_id}-feedback-btn",
+                           cls = "icode-feedback-toggle collapsed",
+                           data_bs_target = f"#{self.prefix_id}-feedback",
+                           data_bs_toggle = "collapse", type = "button")
 
     def _gen_feedback(self):
-        feedback_id = "{}-fb".format(self.conf["id"])
-
-        with div(id = feedback_id, cls = "collapse"):
-            with div(cls = "card-body border-top ic-l-feedback"):
+        with div(id = f"{self.prefix_id}-feedback", cls = "collapse"):
+            with div(cls = "card-body border-top"):
                 accord_div = div(cls = "accordion accordion-flush")
 
         for idx, test in enumerate(self.conf["tests"]):
-            test_id = "{}-t{:d}".format(self.conf["id"], idx)
-            header_id = "{}-h{:d}".format(self.conf["id"], idx)
+            test_id = f"{self.prefix_id}-test-{idx:d}"
 
-            accord_item_div = div(cls = "accordion-item ic-l-test",
+            accord_item_div = div(cls = "accordion-item icode-test",
                 data_params = _encode_html_attr(test))
             with accord_item_div:
-                with div(cls = "accordion-header", id = header_id):
+                with div(cls = "accordion-header"):
                     accord_btn = button(
-                        cls = "accordion-button collapsed ic-c-test__hdr",
-                        type = "button",
-                        disabled = True,
-                        data_bs_toggle = "collapse",
-                        data_bs_target = "#{}".format(test_id))
-                    accord_btn["aria-expanded"] = "false"
-                    accord_btn["aria-controls"] = test_id
+                            id = f"{test_id}-btn",
+                            cls = "accordion-button collapsed ic-c-test__hdr",
+                            type = "button",
+                            disabled = True,
+                            data_bs_toggle = "collapse",
+                            data_bs_target = "#{}".format(test_id))
                     with accord_btn:
                         div(test["name"])
 
-                accord_body = div(cls = "accordion-collapse collapse", id = test_id)
-                accord_body["aria-labelledby"] = header_id
+                accord_body = div(id = test_id,
+                                  cls = "accordion-collapse collapse")
                 with accord_body:
-                    div(cls = "accordion-body", id = "{}-fb".format(test_id))
+                    div(id = f"{test_id}-feedback", cls = "accordion-body")
 
             accord_div += accord_item_div
