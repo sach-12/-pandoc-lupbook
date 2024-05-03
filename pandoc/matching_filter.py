@@ -88,8 +88,7 @@ class LupbookMatching(lupbook_filter.LupbookComponent):
                              data_bs_toggle = "collapse"):
                         for i in range(self.feedback_cnt):
                             with div(cls = "progress", role = "progressbar",
-                                     style = "width: {}%"
-                                     .format(100 / self.feedback_cnt)):
+                                     style = f"width: {100 / self.feedback_cnt}%"):
                                 div(cls = "progress-bar")
                     with div(id = f"{self.prefix_id}-feedback-resubmission",
                              cls = "progress d-none",
