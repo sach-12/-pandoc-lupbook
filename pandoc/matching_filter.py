@@ -16,7 +16,6 @@ import panflute
 class LupbookMatching(lupbook_filter.LupbookComponent):
     def __init__(self, yaml_config):
         super().__init__(yaml_config)
-        self.prefix_id = f"matching-{self.conf['id']}"
         self.feedback_cnt = len(self.conf["choices"])
 
     @staticmethod

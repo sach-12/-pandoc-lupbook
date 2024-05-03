@@ -75,6 +75,8 @@ class LupbookComponent:
             sys.stderr.write("Internal error: {}.\n".format(e))
             raise
 
+        self.prefix_id = f"{self.activity_id()}-{self.conf['id']}"
+
     @staticmethod
     def activity_id():
         raise NotImplementedError
