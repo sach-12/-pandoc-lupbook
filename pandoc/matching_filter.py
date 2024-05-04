@@ -58,7 +58,7 @@ class LupbookMatching(lupbook_filter.LupbookComponent):
                     cls = "small fst-italic text-secondary")
                 with div(id = f"{self.prefix_id}-choices",
                          cls = "matching-choices border pb-2"):
-                    for i, block in enumerate(self.conf["choices"]):
+                    for block in self.conf["choices"]:
                         self._gen_choice_block(block)
 
             with div(cls = "col"):
@@ -66,7 +66,7 @@ class LupbookMatching(lupbook_filter.LupbookComponent):
                     cls = "small fst-italic text-secondary")
                 with div(id = f"{self.prefix_id}-answers",
                          cls = "matching-l-answers border pb-2"):
-                    for i, block in enumerate(self.conf['answers']):
+                    for block in self.conf['answers']:
                         self._gen_answer_block(block)
 
     def _gen_controls(self):
@@ -86,7 +86,7 @@ class LupbookMatching(lupbook_filter.LupbookComponent):
                              style="cursor: pointer;",
                              data_bs_target = f"#{self.prefix_id}-feedback",
                              data_bs_toggle = "collapse"):
-                        for i in range(self.feedback_cnt):
+                        for _ in range(self.feedback_cnt):
                             with div(cls = "progress", role = "progressbar",
                                      style = f"width: {100 / self.feedback_cnt}%"):
                                 div(cls = "progress-bar")
@@ -109,7 +109,7 @@ class LupbookMatching(lupbook_filter.LupbookComponent):
             with div(cls = "card-body border-top"):
                 div(id = f"{self.prefix_id}-feedback-score",
                     cls = "alert d-none")
-                for i, choice in enumerate(self.conf["choices"]):
+                for choice in self.conf["choices"]:
                     formatted_text = panflute.convert_text(
                             choice["feedback"], output_format = 'html')
                     div(raw(formatted_text),
