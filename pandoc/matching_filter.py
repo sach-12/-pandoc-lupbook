@@ -99,10 +99,11 @@ class LupbookMatching(lupbook_filter.LupbookComponent):
                             cls = "progress-bar text-dark bg-light", style = "width: 100%")
 
                 with div(cls = "px-1"):
-                    button(id = f"{self.prefix_id}-feedback-btn",
-                           cls = "matching-c-feedback__toggle collapsed d-none",
-                           data_bs_target = f"#{self.prefix_id}-feedback",
-                           data_bs_toggle = "collapse", type = "button")
+                    with button(id = f"{self.prefix_id}-feedback-btn",
+                                cls = "matching-feedback-btn btn btn-light collapsed d-none",
+                                data_bs_target = f"#{self.prefix_id}-feedback",
+                                data_bs_toggle = "collapse", type = "button"):
+                        i(cls = "bi bi-chevron-up")
 
     def _gen_feedback(self):
         with div(id = f"{self.prefix_id}-feedback", cls = "collapse"):

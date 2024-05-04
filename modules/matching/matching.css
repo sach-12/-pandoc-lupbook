@@ -1,12 +1,4 @@
 /*
- * Global variables
- */
-:root {
-    /* icons - variables can't be within url(), so some colors are duplicated */
-    --bi-chevron-down: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="black" class="bi bi-chevron-down" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z"/></svg>');
-}
-
-/*
  * Body elements
  */
 .matching-choices {
@@ -35,29 +27,17 @@
     pointer-events: none;
 }
 
-
 /*
  * Control elements
  */
 
 /* Feedback collapsing chevron */
-.matching-c-feedback__toggle {
-    border: none;
-    width: 32px;
-    height: 32px;
-    background-image: var(--bi-chevron-down);
-    background-repeat: no-repeat;
-    background-size: 32px;
-    background-color: transparent;
-    transition: all 0.2s;
+.matching-feedback-btn > i {
+    display: inline-block;
+    transition: transform 0.2s;
+}
+.matching-feedback-btn.collapsed > i {
     transform: rotate(-180deg);
-}
-.matching-c-feedback__toggle:hover {
-    border: none;
-    background-color: transparent;
-}
-.matching-c-feedback__toggle.collapsed {
-    transform: rotate(0);
 }
 
 /*
