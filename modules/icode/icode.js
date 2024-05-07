@@ -389,7 +389,7 @@ class ICode {
               inclusiveRight: ro_range[1] == cm.lineCount()
             });
           cm.eachLine(ro_range[0] - 1, ro_range[1], line => {
-            cm.addLineClass(line, "background", "readonly");
+            cm.addLineClass(line, "background", "bg-body-secondary");
           });
         }
       }

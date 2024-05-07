@@ -4,7 +4,6 @@
 */
 
 :root {
-  --ic-cl-bg-readonly: #bdbdbd45;
   --ic-cl-pass: #198754;
   --ic-cl-error: #e35d6a;
   --ic-cl-warning: #f0ad4e;
@@ -33,18 +32,10 @@
 }
 
 
-/*
-  ICode - text editor
-*/
-
-.readonly.CodeMirror-linebackground {
-  /* Applies to specific lines within files that are partially editable */
-  background: var(--ic-cl-bg-readonly);
-}
-
+/* Text editor (CodeMirror) */
 .CodeMirror.cm-s-readonly {
   /* Applies when an entire file is readonly */
-  background: var(--ic-cl-bg-readonly);
+  background: var(--bs-secondary-bg);
 }
 
 
