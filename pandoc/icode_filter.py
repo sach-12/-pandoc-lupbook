@@ -183,10 +183,11 @@ class LupbookICode(lupbook_filter.LupbookComponent):
                         div(cls = "progress-bar")
 
                 with div(cls = "px-1"):
-                    button(id = f"{self.prefix_id}-feedback-btn",
-                           cls = "icode-feedback-toggle collapsed",
-                           data_bs_target = f"#{self.prefix_id}-feedback",
-                           data_bs_toggle = "collapse", type = "button")
+                    with button(id = f"{self.prefix_id}-feedback-btn",
+                                cls = "icode-feedback-btn btn btn-light collapsed",
+                                data_bs_target = f"#{self.prefix_id}-feedback",
+                                data_bs_toggle = "collapse", type = "button"):
+                        i(cls = "bi bi-chevron-up")
 
     def _gen_feedback(self):
         with div(id = f"{self.prefix_id}-feedback", cls = "collapse"):
