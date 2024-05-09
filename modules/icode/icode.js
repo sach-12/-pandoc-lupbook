@@ -9,7 +9,7 @@
 
 /* Transform a string for displaying in a <pre> tag, such that visually similar
  * multi-line strings are distinguishable */
-function render_printable(str) {
+function str_render_printable(str) {
   const NUL_code = "\u2370";
   const TAB = "\u27F6";
   const LF = "\u21B2\n";
@@ -179,7 +179,7 @@ class ICodeTest {
     } else if (check.type == "exact") {
         expect_elt = document.createElement("pre");
         expect_elt.classList.add("ic-l-code");
-        expect_elt.textContent = render_printable(check.content);
+        expect_elt.textContent = str_render_printable(check.content);
     }
 
     /* describe the result of the check */
@@ -205,7 +205,7 @@ class ICodeTest {
 
     var output_elt = document.createElement("pre");
     output_elt.classList.add("ic-l-code");
-    output_elt.textContent = render_printable(output_data);
+    output_elt.textContent = str_render_printable(output_data);
 
     if (check.type == "regex") {
       dest_elt.append(`Output ${output_desc} does not match regular expression`);
@@ -264,7 +264,7 @@ class ICodeTest {
            (avoid duplicate rendering of the same output) */
         const output = document.createElement('pre');
         output.classList.add("ic-l-code");
-        output.append(render_printable(this.prev_output.stdout));
+        output.append(str_render_printable(this.prev_output.stdout));
         result_elt.append(output);
       }
     } else if (this.result === false) {
@@ -280,7 +280,7 @@ class ICodeTest {
 
         const output = document.createElement('pre');
         output.classList.add("ic-l-code");
-        output.append(render_printable(this.prev_output.stderr));
+        output.append(str_render_printable(this.prev_output.stderr));
         result_elt.append(output);
       }
     }
