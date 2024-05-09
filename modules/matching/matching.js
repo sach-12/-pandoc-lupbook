@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2023 LupLab
+ * SPDX-License-Identifier: AGPL-3.0-only
+ */
+
 const SubmitState = {
   /* First submission after reset */
   SUBMISSION: 1,
