@@ -1,9 +1,14 @@
 /*
-  Utility Functions
-*/
+ * Copyright (c) 2021 LupLab
+ * SPDX-License-Identifier: AGPL-3.0-only
+ */
 
-/* transform a string for displaying in a <pre> tag,
-   such that visually similar multi-line strings are distinguishable */
+/*
+ * Helper functions
+ */
+
+/* Transform a string for displaying in a <pre> tag, such that visually similar
+ * multi-line strings are distinguishable */
 function render_printable(str) {
   const NUL_code = "\u2370";
   const TAB = "\u27F6";
@@ -29,13 +34,12 @@ function render_printable(str) {
 
 
 /*
-  Class ICodeTest
-
-  Represents a series of commands that should involve the contents of the
-  associated ICode element, as well as subsequent checks against the output of
-  those commands.
-*/
-
+ * Class ICodeTest
+ *
+ * Represents a series of commands that should invoke the contents of the
+ * associated ICode element, as well as subsequent checks against the output of
+ * those commands.
+ */
 class ICodeTest {
 
   states = Object.freeze({
@@ -323,7 +327,11 @@ class ICodeTest {
   }
 }
 
-
+/*
+ * Class ICode
+ *
+ * There is one object per icode activity.
+ */
 class ICode {
   constructor(elt) {
     this.id = elt.id;

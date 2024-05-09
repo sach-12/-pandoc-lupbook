@@ -1,8 +1,11 @@
+/*
+ * Copyright (c) 2021 LupLab
+ * SPDX-License-Identifier: AGPL-3.0-only
+ */
 
 /*
-  Variables
-*/
-
+ * Global variables
+ */
 :root {
   --ic-cl-pass: #198754;
   --ic-cl-error: #e35d6a;
@@ -12,11 +15,9 @@
   --bi-terminal-fill: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="darkgreen" class="bi bi-terminal-fill" viewBox="0 0 16 16"><path d="M0 3a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3zm9.5 5.5h-3a.5.5 0 0 0 0 1h3a.5.5 0 0 0 0-1zm-6.354-.354a.5.5 0 1 0 .708.708l2-2a.5.5 0 0 0 0-.708l-2-2a.5.5 0 1 0-.708.708L4.793 6.5 3.146 8.146z"/></svg>');
 }
 
-
 /*
-  Terminal
-*/
-
+ * Terminal
+ */
 .terminal-toggler-icon {
   flex-shrink: 0;
   display: flex;
@@ -28,8 +29,9 @@
   background-size: 32px;
 }
 
-
-/* Text editor (CodeMirror) */
+/*
+ * Text editor (CodeMirror)
+ */
 .CodeMirror.cm-s-readonly {
   /* Applies when an entire file is readonly */
   background: var(--bs-secondary-bg);
@@ -37,10 +39,8 @@
 
 
 /*
-  ICode - feedback
-
-  A collapsible list of tests, each with a collapsible details section
-*/
+ * Control elements
+ */
 
 /* Feedback collapsing chevron */
 .icode-feedback-btn > i {
@@ -51,6 +51,9 @@
   transform: rotate(-180deg);
 }
 
+/*
+ * Feedback
+ */
 .ic-l-check {
   border: 0px solid;
   border-left-width: .5rem;
