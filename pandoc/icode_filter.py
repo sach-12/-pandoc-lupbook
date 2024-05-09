@@ -197,23 +197,21 @@ class LupbookICode(lupbook_filter.LupbookComponent):
         for idx, test in enumerate(self.conf["tests"]):
             test_id = f"{self.prefix_id}-test-{idx:d}"
 
+            # One accordion item per test to run
             accord_item_div = div(cls = "accordion-item icode-test",
                 data_params = _encode_html_attr(test))
             with accord_item_div:
+                # Accordion header
                 with div(cls = "accordion-header"):
-                    accord_btn = button(
-                            id = f"{test_id}-btn",
-                            cls = "accordion-button collapsed ic-c-test__hdr",
-                            type = "button",
-                            disabled = True,
-                            data_bs_toggle = "collapse",
-                            data_bs_target = "#{}".format(test_id))
-                    with accord_btn:
+                    with button(id = f"{test_id}-btn",
+                                cls = "accordion-button collapsed",
+                                type = "button",
+                                data_bs_toggle = "collapse",
+                                data_bs_target = "#{}".format(test_id)):
+                        i(cls = "bi bi-dash-circle-fill text-secondary me-1")
                         div(test["name"])
-
-                accord_body = div(id = test_id,
-                                  cls = "accordion-collapse collapse")
-                with accord_body:
+                # Accordion body
+                with div(id = test_id, cls = "accordion-collapse collapse"):
                     div(id = f"{test_id}-feedback", cls = "accordion-body")
 
             accord_div += accord_item_div

@@ -60,6 +60,8 @@ class ICodeTest {
     this.state = this.states.IDLE;
     this.result = null;
 
+    this.btn_coll_elt.disabled = true;
+
     for (var check of this.checks)
       if (check.type == "regex")
         check.re = new RegExp(check.content);
@@ -82,8 +84,12 @@ class ICodeTest {
     /* clear any visually displayed results */
     this.body_elt.textContent = "";
     this.btn_coll_elt.disabled = true;
-    this.btn_coll_elt.classList.remove("ic-c-test__hdr--pass");
-    this.btn_coll_elt.classList.remove("ic-c-test__hdr--error");
+    this.btn_coll_elt.firstElementChild.classList
+      .remove("bi-check-circle-fill", "text-success");
+    this.btn_coll_elt.firstElementChild.classList
+      .remove("bi-x-circle-fill", "text-danger");
+    this.btn_coll_elt.firstElementChild.classList
+      .add("bi-dash-circle-fill", "text-secondary");
 
     /* reset the state */
     this.state = this.states.IDLE;
@@ -239,9 +245,13 @@ class ICodeTest {
     hdr.append("Command", cmd);
     result_elt.append(hdr);
 
+    this.btn_coll_elt.firstElementChild.classList
+      .remove("bi-dash-circle-fill", "text-secondary");
+
     /* describe the overall result */
     if (this.result === true) {
-      this.btn_coll_elt.classList.add("ic-c-test__hdr--pass");
+      this.btn_coll_elt.firstElementChild.classList
+        .add("bi-check-circle-fill", "text-success");
       result_elt.classList.add("ic-l-check-pass");
       hdr.append("succeeded.");
 
@@ -254,7 +264,8 @@ class ICodeTest {
         result_elt.append(output);
       }
     } else if (this.result === false) {
-      this.btn_coll_elt.classList.add("ic-c-test__hdr--error");
+      this.btn_coll_elt.firstElementChild.classList
+        .add("bi-x-circle-fill", "text-danger");
 
       if (this.prev_output.return_code == 0) {
         result_elt.classList.add("ic-l-check-warning");
