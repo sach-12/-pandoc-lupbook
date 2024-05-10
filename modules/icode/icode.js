@@ -162,9 +162,6 @@ class ICodeTest {
   }
 
   render_check(dest_elt, check, output_data, result) {
-    /* update the overall progress bar for the parent ICode element */
-    this.icode.on_progress(result === false ? "error" : "success");
-
     dest_elt.classList.add("ic-l-check");
 
     /* describe what is being checked */
@@ -233,7 +230,7 @@ class ICodeTest {
 
   render() {
     /* update the overall progress bar for the parent ICode element */
-    this.icode.on_progress(this.result === false ? "error" : "success");
+    this.icode.on_progress(this.result);
 
     /* create a check to represent the overall result of the test, and add it
        before all other rendered checks (if any) */
@@ -299,8 +296,6 @@ class ICodeTest {
   }
 
   on_cmd_complete(output) {
-    this.icode.on_progress();
-
     if (this.state === this.states.POSTCMDS) {
       this.run();
       return;
@@ -340,32 +335,21 @@ class ICode {
     this.session = LupBookVM.session_open();
     this.src_files = {};
 
-    /* initialize tests */
+    /* Handles on progress bars */
+    this.fb_progress = document.getElementById(`${this.prefix_id}-feedback-progress`);
+    this.fb_progressbars = Array.from(
+      this.fb_progress.getElementsByClassName("progress-bar"));
 
-    this.progress_elt = document.getElementById(`${this.prefix_id}-feedback-progress`);
-
-    /* while the tests are still running there are increments for all commands,
-       to maximize visual indication that progress is occurring. */
-    this.progress_divisor = 0;
-    /* when the test is complete, the results are summarized by colored segments
-       within the progress bar. This display has as many increments as the
-       number of tests plus the number of checks across all tests, so that it is
-       visually consistent with the colored feedback provided in the collapse */
-    this.results_divisor = 0;
+    /* Initialize test objects */
     this.tests = [];
-    for (const [idx, test_elt] of Array.from(elt.getElementsByClassName("icode-test")).entries()) {
+    for (const [idx, test_elt] of
+      Array.from(elt.getElementsByClassName("icode-test")).entries()
+    ) {
       var test = new ICodeTest(idx, test_elt, this);
       this.tests.push(test);
-      /* It is critical that the test call on_progress() during run() as many
-         times as are accounted for here in progress_divisor.
-         Whenever such a call should contribute to results_divisor, it must pass
-         a value for the result argument. */
-      this.progress_divisor += 1 + test.precmds.length + test.cmds.length +
-        test.checks.length + test.postcmds.length;
-      this.results_divisor += 1 + test.checks.length;
     }
 
-    /* initialize source file editors */
+    /* Initialize source file editors */
     for (var inp_elt of elt.getElementsByClassName("icode-srcfile")) {
       const filename = inp_elt.dataset.filename;
       const src_file = {};
@@ -473,59 +457,37 @@ class ICode {
       }
       break;
     }
-
-    /* reset the progress bar and rebuild its contents based on the test results */
-    this.progress_elt.textContent = "";
-    const bar_success_elt = document.createElement("div");
-    const bar_error_elt = document.createElement("div");
-    bar_success_elt.classList.add("progress-bar");
-    bar_success_elt.classList.add("bg-success");
-    bar_error_elt.classList.add("progress-bar");
-    bar_error_elt.classList.add("bg-danger");
-
-    bar_success_elt.style.width =
-      `${(this.progress_results.success / this.results_divisor) * 100}%`;
-    bar_error_elt.style.width =
-      `${(this.progress_results.error / this.results_divisor) * 100}%`;
-
-    this.progress_elt.append(bar_success_elt, bar_error_elt);
   }
 
   on_progress(result_type) {
-    this.progress_dividend += 1;
-    if (typeof result_type !== "undefined")
-      this.progress_results[result_type] += 1;
-    this.progress_elt.childNodes[0].style.width =
-      `${(this.progress_dividend / this.progress_divisor) * 100}%`;
+    /* Show test result in progress bar */
+    this.fb_progressbars[this.fb_idx].classList.remove(
+      "progress-bar-striped", "progress-bar-animated");
+    if (result_type === true)
+      this.fb_progressbars[this.fb_idx].classList.add("bg-success");
+    else
+      this.fb_progressbars[this.fb_idx].classList.add("bg-danger");
   }
 
   init() {
+    /* Prevent user from submitting again until all the tests have completed */
     this.submit_btn.disabled = true;
+
+    /* Upload the files to the VM */
     this.upload();
 
-    /* reset feedback */
+    /* Reset progress bar */
+    this.fb_progressbars.forEach((item) => {
+        item.classList.remove("bg-success", "bg-danger");
+        item.classList.add("bg-light");
+    });
+    this.fb_progress.classList.remove("d-none");
+
+    /* Init all the tests */
     for (var test of this.tests)
       test.init();
 
-    /* reset progress tracking, progress bar */
-    this.progress_dividend = 0;
-    this.progress_results = {
-      success: 0,
-      error: 0
-    };
-    this.progress_elt.textContent = "";
-    const bar_elt = document.createElement("div");
-    bar_elt.classList.add("progress-bar");
-    bar_elt.classList.add("progress-bar-striped");
-    bar_elt.classList.add("progress-bar-animated");
-    bar_elt.setAttribute("role", "progress");
-    this.progress_elt.append(bar_elt);
-    /* a positive initial value shows the animated bar, providing a visual
-       indication that the test is running */
-    bar_elt.style.width = "1%";
-    this.progress_elt.classList.remove("d-none");
-
-    /* track which test is currently being run */
+    /* Track which test is currently being run */
     this.test_it = this.tests[Symbol.iterator]();
     this.test_prev = null;
   }
@@ -537,10 +499,21 @@ class ICode {
       return;
     }
 
+    if (this.test_prev === null)
+      this.fb_idx = 0;
+    else
+      this.fb_idx++;
+
     var next = this.test_it.next();
     if (next.done) {
       this.on_run_complete();
     } else {
+      /* Show ongoing test in progress bar */
+      this.fb_progressbars[this.fb_idx].classList.remove("bg-light");
+      this.fb_progressbars[this.fb_idx].classList.add(
+        "progress-bar-striped", "progress-bar-animated");
+
+      /* Run next test */
       this.test_prev = next.value;
       next.value.run();
     }

@@ -179,8 +179,14 @@ class LupbookICode(lupbook_filter.LupbookComponent):
 
                 with div(cls = "px-1 flex-grow-1"):
                     with div(id = f"{self.prefix_id}-feedback-progress",
-                             cls = "progress d-none", role = "progressbar"):
-                        div(cls = "progress-bar")
+                             cls = "progress-stacked d-none",
+                             style="cursor: pointer;",
+                             data_bs_target = f"#{self.prefix_id}-feedback",
+                             data_bs_toggle = "collapse"):
+                        for _ in range(self.feedback_cnt):
+                            with div(cls = "progress", role = "progressbar",
+                                     style = f"width: {100 / self.feedback_cnt}%"):
+                                div(cls = "progress-bar")
 
                 with div(cls = "px-1"):
                     with button(id = f"{self.prefix_id}-feedback-btn",
