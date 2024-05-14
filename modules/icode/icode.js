@@ -41,7 +41,7 @@ function str_render_printable(str) {
  * those commands.
  */
 class ICodeTest {
-
+  /* Class members */
   states = Object.freeze({
     IDLE: "IDLE",
     PRECMDS: "PRECMDS",
@@ -49,167 +49,185 @@ class ICodeTest {
     POSTCMDS: "POSTCMDS"
   });
 
+  state = this.states.IDLE;
+  icode;
+
+  /* Class constructor */
   constructor(idx, elt, icode) {
-    /* read test parameters from the DOM */
+    /* Read array of test objects from the DOM and transform them into object
+     * attributes. */
     Object.assign(this, JSON.parse(atob(elt.dataset.params)));
 
-    const test_id = `${icode.prefixID}-test-${idx}`;
+    const testID = `${icode.prefixID}-test-${idx}`;
 
-    this.btn_coll_elt = document.getElementById(`${test_id}-btn`);
-    this.body_elt = document.getElementById(`${test_id}-feedback`);
-    const coll_elt = document.getElementById(`${test_id}`);
-    this.collapse = new bootstrap.Collapse(coll_elt, { toggle: false });
+    this.feedbackDivBtn = document.getElementById(`${testID}-btn`);
+    this.feedbackDivBody = document.getElementById(`${testID}-feedback`);
+    const feedbackDiv = document.getElementById(`${testID}`);
+    this.feedbackDivCollapse = new bootstrap.Collapse(
+      feedbackDiv, { toggle: false });
 
     this.icode = icode;
-    this.state = this.states.IDLE;
-    this.result = null;
 
-    this.btn_coll_elt.disabled = true;
+    this.feedbackDivBtn.disabled = true;
 
-    for (var check of this.checks)
+    this.checks.forEach((check) => {
       if (check.type == "regex")
         check.re = new RegExp(check.content);
+    });
 
-    /* each step of the test is either a command that should be run on the VM
-       (represented as a string) or a function. */
+    /* Each step of the test is either a command that should be run on the VM
+     * (represented as a string) or a function. */
     this.steps = [
-      () => { this.state = this.states.PRECMDS; this.run(); },
+      () => { this.state = this.states.PRECMDS; this.runNextStep(); },
       ...this.precmds,
-      () => { this.state = this.states.CMDS; this.run(); },
+      () => { this.state = this.states.CMDS; this.runNextStep(); },
       ...this.cmds,
-      () => { this.do_checks(); },
-      () => { this.state = this.states.POSTCMDS; this.run(); },
+      () => { this.runChecks(); },
+      () => { this.state = this.states.POSTCMDS; this.runNextStep(); },
       ...this.postcmds,
-      () => { this.render(); this.icode.activityRun(); }
+      () => { this.completeTest(); this.icode.runNextTest(); }
     ]
+
   }
 
-  init() {
-    /* clear any visually displayed results */
-    this.body_elt.textContent = "";
-    this.btn_coll_elt.disabled = true;
-    this.btn_coll_elt.firstElementChild.classList
+  /* Called prior to running the test's various steps */
+  initTest() {
+    /* Clear any visually displayed results */
+    this.feedbackDivBody.textContent = "";
+    this.feedbackDivBtn.disabled = true;
+    this.feedbackDivBtn.firstElementChild.classList
       .remove("bi-check-circle-fill", "text-success");
-    this.btn_coll_elt.firstElementChild.classList
+    this.feedbackDivBtn.firstElementChild.classList
       .remove("bi-x-circle-fill", "text-danger");
-    this.btn_coll_elt.firstElementChild.classList
+    this.feedbackDivBtn.firstElementChild.classList
       .add("bi-dash-circle-fill", "text-secondary");
+    this.feedbackDivCollapse.hide();
 
-    /* reset the state */
+    /* Reset the state */
     this.state = this.states.IDLE;
-    this.result = null;
+    this.stepRunFailed = false;
+    this.stepCheckFailed = false;
 
-    this.steps_it = this.steps[Symbol.iterator]();
-    this.collapse.hide();
+    this.stepIterator = this.steps[Symbol.iterator]();
   }
 
-  do_checks() {
-    if (this.checks.length == 0 || this.result === false) {
-      if (this.result !== false)
-        this.result = true;
+  testFailed() {
+    return (this.stepRunFailed || this.stepCheckFailed);
+  }
 
-      this.run();
+  runNextStep() {
+    const stepCurrent = this.stepIterator.next();
+    if (stepCurrent.done)
+      return;
+
+    /* A step can be either a string or a function */
+    if (typeof stepCurrent.value === "string")
+      /* Run given string command in the VM */
+      this.runCmdVM(stepCurrent.value);
+    else if (typeof stepCurrent.value === "function")
+      /* Call given function */
+      stepCurrent.value();
+  }
+
+  runChecks() {
+    /* Skip the checks if there are none or if a previous command failed to run */
+    if (this.checks.length == 0 || this.stepRunFailed) {
+      this.runNextStep();
       return;
     }
 
-    var checks_complete = 0;
+    let checkCount = 0;
 
-    for (let i = 0; i < this.checks.length; i++) {
-      /* add a div to visually represent the check - must be added in advance to
-         ensure the ordering is consistent */
-      const check = this.checks[i];
-      const check_elt = document.createElement('div');
-      this.body_elt.appendChild(check_elt);
+    this.checks.forEach((check, idx) => {
+      /* Add a div to visually represent the check - must be added in advance to
+       * ensure the ordering between checks is consistent */
+      const checkElt = document.createElement('div');
+      this.feedbackDivBody.appendChild(checkElt);
 
-      /* set up a callback, as the output may reside in a file in the VM,
-         requiring an asynchronous call to access */
-      var on_data = data => {
-        var res = null;
+      /* Set up a callback, as the output may reside in a file in the VM,
+       * requiring an asynchronous call to access */
+      let onData = (data) => {
+        let checkFailed = false;
 
-        /* convert to string (if not already) */
+        /* Convert data to string if necessary */
         if (ArrayBuffer.isView(data))
           data = new TextDecoder().decode(data);
 
         if (data == null)
-          res = false;
+          checkFailed = true;
         else if (check.type == "exact")
-          res = data == check.content;
+          checkFailed = data != check.content;
         else if (check.type == "regex")
-          res = check.re.test(data);
+          checkFailed = !check.re.test(data);
 
-        if (res === false)
-          this.result = false;
+        if (checkFailed)
+          this.stepCheckFailed = true;
 
-        this.render_check(check_elt, check, data, res);
+        this.completeCheck(checkElt, check, data, checkFailed);
 
-        /* ensure run() is called after all checks are completed */
-        checks_complete += 1;
-        if (checks_complete == this.checks.length) {
-          if (this.result !== false)
-            this.result = true;
-          this.run();
+        /* Ensure runNextStep() is called after *all checks* are completed */
+        if (++checkCount == this.checks.length) {
+          this.runNextStep();
         }
       };
 
       if (check.output == "stdout" || check.output == "stderr")
-        on_data(this.prev_output[check.output]);
+        onData(this.stepExecInfo[check.output]);
       else if (check.output == "file")
-        LupBookVM.session_download(this.icode.sessionVM, check.filename, on_data);
-    }
-
-    /* at this point some files may still need to be retrieved from the VM,
-       so run() can't be called here even though all checks have been handled. */
+        LupBookVM.session_download(this.icode.sessionVM, check.filename, onData);
+    });
   }
 
-  render_check(dest_elt, check, output_data, result) {
-    dest_elt.classList.add("ic-l-check");
+  completeCheck(checkElt, checkObj, checkData, checkFailed) {
+    checkElt.classList.add("ic-l-check");
 
-    /* describe what is being checked */
-    const output_desc = check.output == "file" ? `file ${check.filename}` :
-      `${check.output}`;
+    /* Describe what is being checked between file or terminal streams */
+    const output_desc = checkObj.output == "file" ?
+      `file ${checkObj.filename}` : `${checkObj.output}`;
 
-    var expect_elt;
-    if (check.type == "regex") {
-        expect_elt = document.createElement("span");
-        expect_elt.classList.add("ic-l-code-inline");
-        expect_elt.textContent = check.content;
-    } else if (check.type == "exact") {
-        expect_elt = document.createElement("pre");
-        expect_elt.classList.add("ic-l-code");
-        expect_elt.textContent = str_render_printable(check.content);
+    /* Build expected element */
+    let expectElt;
+    if (checkObj.type == "regex") {
+        expectElt = document.createElement("span");
+        expectElt.classList.add("ic-l-code-inline");
+        expectElt.textContent = checkObj.content;
+    } else if (checkObj.type == "exact") {
+        expectElt = document.createElement("pre");
+        expectElt.classList.add("ic-l-code");
+        expectElt.textContent = str_render_printable(checkObj.content);
     }
 
-    /* describe the result of the check */
-    if (result === true) {
-      dest_elt.classList.add("ic-l-check-pass");
-      if (check.type == "regex") {
-        dest_elt.append(`Output ${output_desc} matches regular expression`);
-        dest_elt.append(expect_elt);
-      } else if (check.type == "exact") {
-        dest_elt.append(`Output ${output_desc} matches`);
-        dest_elt.append(expect_elt);
+    /* Check was a success */
+    if (!checkFailed) {
+      checkElt.classList.add("ic-l-check-pass");
+      if (checkObj.type == "regex") {
+        checkElt.append(`Output ${output_desc} matches regular expression`);
+        checkElt.append(expectElt);
+      } else if (checkObj.type == "exact") {
+        checkElt.append(`Output ${output_desc} matches`);
+        checkElt.append(expectElt);
       }
       return;
     }
 
-    dest_elt.classList.add("ic-l-check-error");
+    /* Check was an failure */
+    checkElt.classList.add("ic-l-check-error");
 
-    /* there was an error result, describe the error */
-    if (output_data == null) {
-      dest_elt.append(`Output ${output_desc} does not exist.`);
+    if (checkData == null) {
+      checkElt.append(`Output ${output_desc} does not exist.`);
       return;
     }
 
-    var output_elt = document.createElement("pre");
-    output_elt.classList.add("ic-l-code");
-    output_elt.textContent = str_render_printable(output_data);
+    const outputElt = document.createElement("pre");
+    outputElt.classList.add("ic-l-code");
+    outputElt.textContent = str_render_printable(checkData);
 
-    if (check.type == "regex") {
-      dest_elt.append(`Output ${output_desc} does not match regular expression`);
-      dest_elt.append(expect_elt);
-      dest_elt.append(output_elt);
+    if (checkObj.type == "regex") {
+      checkElt.append(`Output ${output_desc} does not match regular expression`);
+      checkElt.append(expectElt);
+      checkElt.append(outputElt);
     } else {
-      dest_elt.append(`Output ${output_desc} differs from expected value`);
+      checkElt.append(`Output ${output_desc} differs from expected value`);
       const cont_elt = document.createElement("div");
       const row_elt = document.createElement("div");
       const left_elt = document.createElement("div");
@@ -221,104 +239,103 @@ class ICodeTest {
       cont_elt.append(row_elt);
       row_elt.append(left_elt, right_elt);
 
-      left_elt.append("Program output:", output_elt);
-      right_elt.append("Expected value:", expect_elt);
+      left_elt.append("Program output:", outputElt);
+      right_elt.append("Expected value:", expectElt);
 
-      dest_elt.append(cont_elt);
+      checkElt.append(cont_elt);
     }
   }
 
-  render() {
-    /* update the overall progress bar for the parent ICode element */
-    this.icode.activityProgress(this.result);
+  completeTest() {
+    /* Update the overall progress bar for the parent ICode element */
+    this.icode.completeTest(this.testFailed());
 
-    /* create a check to represent the overall result of the test, and add it
-       before all other rendered checks (if any) */
-    const result_elt = document.createElement('div');
-    result_elt.classList.add("ic-l-check");
-    this.body_elt.prepend(result_elt);
+    /* Create a check to represent the overall result of the test, and add it
+     * before all other rendered checks (if any) */
+    const resultElt = document.createElement('div');
+    resultElt.classList.add("ic-l-check");
+    this.feedbackDivBody.prepend(resultElt);
 
-    /* refer to the test by the command it runs */
+    /* Refer to the test by the last command it ran */
     const hdr = document.createElement('h5');
     const cmd = document.createElement('span');
     cmd.classList.add("ic-l-code-inline");
     cmd.append(this.cmds.at(-1));
     hdr.append("Command", cmd);
-    result_elt.append(hdr);
+    resultElt.append(hdr);
 
-    this.btn_coll_elt.firstElementChild.classList
+    this.feedbackDivBtn.firstElementChild.classList
       .remove("bi-dash-circle-fill", "text-secondary");
 
-    /* describe the overall result */
-    if (this.result === true) {
-      this.btn_coll_elt.firstElementChild.classList
+    /* Describe the overall result */
+    if (this.stepRunFailed) {
+      /* Command failed with an erroneous exit code */
+      this.feedbackDivBtn.firstElementChild.classList
+        .add("bi-x-circle-fill", "text-danger");
+
+      hdr.append(`failed with exit code ${this.stepExecInfo.return_code}.`);
+      resultElt.classList.add("ic-l-check-error");
+
+      const output = document.createElement('pre');
+      output.classList.add("ic-l-code");
+      output.append(str_render_printable(this.stepExecInfo.stderr));
+      resultElt.append(output);
+
+    } else if (this.stepCheckFailed) {
+      /* Check failed with incorrect data */
+      this.feedbackDivBtn.firstElementChild.classList
+        .add("bi-x-circle-fill", "text-danger");
+
+      resultElt.classList.add("ic-l-check-warning");
+      hdr.append("succeeded, but some checks failed.");
+    } else {
+      /* Success! */
+      this.feedbackDivBtn.firstElementChild.classList
         .add("bi-check-circle-fill", "text-success");
-      result_elt.classList.add("ic-l-check-pass");
+      resultElt.classList.add("ic-l-check-pass");
       hdr.append("succeeded.");
 
-      if (this.checks.length == 0 && this.prev_output.stdout.trim().length) {
+      if (this.checks.length == 0 && this.stepExecInfo.stdout.trim().length) {
         /* show the output only if there are no additional checks
            (avoid duplicate rendering of the same output) */
         const output = document.createElement('pre');
         output.classList.add("ic-l-code");
-        output.append(str_render_printable(this.prev_output.stdout));
-        result_elt.append(output);
-      }
-    } else if (this.result === false) {
-      this.btn_coll_elt.firstElementChild.classList
-        .add("bi-x-circle-fill", "text-danger");
-
-      if (this.prev_output.return_code == 0) {
-        result_elt.classList.add("ic-l-check-warning");
-        hdr.append("succeeded, but some checks failed.");
-      } else {
-        hdr.append(`failed with exit code ${this.prev_output.return_code}.`);
-        result_elt.classList.add("ic-l-check-error");
-
-        const output = document.createElement('pre');
-        output.classList.add("ic-l-code");
-        output.append(str_render_printable(this.prev_output.stderr));
-        result_elt.append(output);
+        output.append(str_render_printable(this.stepExecInfo.stdout));
+        resultElt.append(output);
       }
     }
 
-    this.btn_coll_elt.disabled = false;
+    /* User is allowed to submit again */
+    this.feedbackDivBtn.disabled = false;
   }
 
-  vm_cmd(cmd) {
-    if (this.result === false && this.state !== this.states.POSTCMDS) {
-      this.run();
+  runCmdVM(cmd) {
+    /* Skip current step if a previous one failed, unless it's a post command */
+    if (this.testFailed() && this.state !== this.states.POSTCMDS) {
+      this.runNextStep();
       return;
     }
 
-    LupBookVM.session_exec(this.icode.sessionVM, cmd,
-      result => { this.on_cmd_complete(result) }, null, this.icode.timeout);
-  }
+    LupBookVM.session_exec(
+      this.icode.sessionVM,
+      cmd,
+      (execInfo) => {
+        /* Ignore completion info for post commands */
+        if (this.state === this.states.POSTCMDS) {
+          this.runNextStep();
+          return;
+        }
 
-  on_cmd_complete(output) {
-    if (this.state === this.states.POSTCMDS) {
-      this.run();
-      return;
-    }
+        this.stepExecInfo = execInfo;
 
-    this.prev_output = output;
+        /* TODO: valid return code should be customizable */
+        if (execInfo.return_code != 0)
+          this.stepRunFailed = true;
 
-    if (output.return_code != 0)
-      this.result = false;
-
-    this.run();
-  }
-
-  run() {
-    var cur_step = this.steps_it.next();
-
-    if (cur_step.done)
-      return;
-
-    if (typeof cur_step.value === "string")
-      this.vm_cmd(cur_step.value);
-    else if (typeof cur_step.value === "function")
-      cur_step.value();
+        this.runNextStep();
+      },
+      null,
+      this.icode.timeout);
   }
 }
 
@@ -459,11 +476,11 @@ class ICode {
 
   /* Event handler for submit button */
   submitActivity() {
-    this.activityInit();
-    this.activityRun();
+    this.initActivity();
+    this.runNextTest();
   }
 
-  activityInit() {
+  initActivity() {
     /* Prevent user from submitting again until all the tests have completed */
     this.submitBtn.disabled = true;
 
@@ -478,27 +495,27 @@ class ICode {
     this.feedbackProgress.classList.remove("d-none");
 
     /* Init all the tests */
-    this.tests.forEach((test) => test.init());
+    this.tests.forEach((test) => test.initTest());
 
     /* Track which test is currently being run */
     this.testIterator = this.tests[Symbol.iterator]();
-    this.testPrevious = null;
+    this.testCurrent = null;
   }
 
-  activityRun() {
+  runNextTest() {
     /* Stop running tests if a test marked as fatal failed */
-    if (this.testPrevious
-      && this.testPrevious.result === false && this.testPrevious.fatal) {
-      this.activityCompleted();
+    if (this.testCurrent
+      && this.testCurrent.testFailed() && this.testCurrent.fatal) {
+      this.completeActivity();
       return;
     }
 
     /* Compute current test index */
-    this.fb_idx = this.testPrevious === null ? 0 : this.fb_idx + 1;
+    this.fb_idx = this.testCurrent === null ? 0 : this.fb_idx + 1;
 
     let nextTest = this.testIterator.next();
     if (nextTest.done) {
-      this.activityCompleted();
+      this.completeActivity();
     } else {
       /* Show ongoing test in progress bar */
       this.feedbackProgressBars[this.fb_idx].classList.remove("bg-light");
@@ -506,42 +523,44 @@ class ICode {
         "progress-bar-striped", "progress-bar-animated");
 
       /* Run next test */
-      this.testPrevious = nextTest.value;
-      nextTest.value.run();
+      this.testCurrent = nextTest.value;
+      nextTest.value.runNextStep();
     }
   }
 
-  activityCompleted() {
+  /* Update progress from test result */
+  completeTest(fail) {
+    this.feedbackProgressBars[this.fb_idx].classList.remove(
+      "progress-bar-striped", "progress-bar-animated");
+    if (fail)
+      this.feedbackProgressBars[this.fb_idx].classList.add("bg-danger");
+    else
+      this.feedbackProgressBars[this.fb_idx].classList.add("bg-success");
+  }
+
+  completeActivity() {
     /* Activity can now be resubmitted again */
     this.submitBtn.disabled = false;
 
     /* Jump to the feedback corresponding to the first failed test if any */
-    this.tests.forEach((test) => {
-      if (test.result !== false)
-        return;
+    for (const test of this.tests) {
+      if (!test.testFailed())
+        continue;
 
       if (this.feedbackDiv.classList.contains('show')) {
         /* Feedback div already open, open accordion of failed test */
-        test.collapse.show();
+        test.feedbackDivCollapse.show();
       } else {
         this.feedbackDiv.addEventListener("shown.bs.collapse", () => {
           /* Open accordion after feedback div has opened */
-          test.collapse.show();
+          test.feedbackDivCollapse.show();
         }, { once: true });
         /* Open feedback div */
         this.feedbackDivCollapse.show();
       }
-    });
-  }
 
-  /* Update progress from test result */
-  activityProgress(result) {
-    this.feedbackProgressBars[this.fb_idx].classList.remove(
-      "progress-bar-striped", "progress-bar-animated");
-    if (result === true)
-      this.feedbackProgressBars[this.fb_idx].classList.add("bg-success");
-    else
-      this.feedbackProgressBars[this.fb_idx].classList.add("bg-danger");
+      break;
+    }
   }
 }
 
