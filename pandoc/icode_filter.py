@@ -141,6 +141,7 @@ class LupbookICode(lupbook_filter.LupbookComponent):
 
                     with li(cls = "nav-item"):
                         button(file_name,
+                               id = f"{file_uid}-tab",
                                cls = "nav-link" + (
                                    " active" if active_tab == file_name else ""),
                                data_bs_toggle = "tab",
@@ -152,8 +153,9 @@ class LupbookICode(lupbook_filter.LupbookComponent):
             with div(cls = "border border-top-0 tab-content"):
                 for src_file, file_name, file_uid in tab_data:
 
-                    # Prep textarea for CodeMirror
+                    # Prep textarea
                     textarea_args = {
+                        "data_tab": f"{file_uid}-tab",
                         "data_filename": file_name,
                         "cls": "icode-srcfile"
                     }

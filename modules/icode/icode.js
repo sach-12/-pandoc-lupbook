@@ -441,8 +441,7 @@ class ICode {
       }
 
       /* Refresh editor when corresponding tab is shown */
-      const tab = elt.querySelector(
-        `[data-bs-target="#${srcFileElt.parentElement.id}"]`);
+      const tab = document.getElementById(srcFileElt.dataset.tab);
       if (tab)
         tab.addEventListener("shown.bs.tab", () => cm.refresh());
 
