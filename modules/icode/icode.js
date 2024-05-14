@@ -53,7 +53,7 @@ class ICodeTest {
     /* read test parameters from the DOM */
     Object.assign(this, JSON.parse(atob(elt.dataset.params)));
 
-    const test_id = `${icode.prefix_id}-test-${idx}`;
+    const test_id = `${icode.prefixID}-test-${idx}`;
 
     this.btn_coll_elt = document.getElementById(`${test_id}-btn`);
     this.body_elt = document.getElementById(`${test_id}-feedback`);
@@ -80,7 +80,7 @@ class ICodeTest {
       () => { this.do_checks(); },
       () => { this.state = this.states.POSTCMDS; this.run(); },
       ...this.postcmds,
-      () => { this.render(); this.icode.run(); }
+      () => { this.render(); this.icode.activityRun(); }
     ]
   }
 
@@ -154,7 +154,7 @@ class ICodeTest {
       if (check.output == "stdout" || check.output == "stderr")
         on_data(this.prev_output[check.output]);
       else if (check.output == "file")
-        LupBookVM.session_download(this.icode.session, check.filename, on_data);
+        LupBookVM.session_download(this.icode.sessionVM, check.filename, on_data);
     }
 
     /* at this point some files may still need to be retrieved from the VM,
@@ -230,7 +230,7 @@ class ICodeTest {
 
   render() {
     /* update the overall progress bar for the parent ICode element */
-    this.icode.on_progress(this.result);
+    this.icode.activityProgress(this.result);
 
     /* create a check to represent the overall result of the test, and add it
        before all other rendered checks (if any) */
@@ -291,7 +291,7 @@ class ICodeTest {
       return;
     }
 
-    LupBookVM.session_exec(this.icode.session, cmd,
+    LupBookVM.session_exec(this.icode.sessionVM, cmd,
       result => { this.on_cmd_complete(result) }, null, this.icode.timeout);
   }
 
@@ -328,195 +328,220 @@ class ICodeTest {
  * There is one object per icode activity.
  */
 class ICode {
+  /* Class members */
+  prefixID;
+  sessionVM;
+  srcFiles = {};
+  tests = [];
+
+  feedbackProgress;
+  feedbackProgressBars;
+  submitBtn;
+  feedbackDiv;
+  feedbackDivCollapse;
+
+  /* Class constructor */
   constructor(elt) {
-    this.id = elt.id;
-    this.prefix_id = `icode-${this.id}`;
+    /*
+     * Collect handles to various elements
+     */
+    this.prefixID = `icode-${elt.id}`;
 
-    this.session = LupBookVM.session_open();
-    this.src_files = {};
+    /* Progress bars */
+    this.feedbackProgress = document.getElementById(`${this.prefixID}-feedback-progress`);
+    this.feedbackProgressBars = Array.from(
+      this.feedbackProgress.getElementsByClassName("progress-bar"));
+    this.sessionVM = LupBookVM.session_open();
 
-    /* Handles on progress bars */
-    this.fb_progress = document.getElementById(`${this.prefix_id}-feedback-progress`);
-    this.fb_progressbars = Array.from(
-      this.fb_progress.getElementsByClassName("progress-bar"));
+    const icodeTests = Array.from(elt.getElementsByClassName("icode-test"));
+    const icodeSrcFiles = Array.from(elt.getElementsByClassName("icode-srcfile"));
 
-    /* Initialize test objects */
-    this.tests = [];
-    for (const [idx, test_elt] of
-      Array.from(elt.getElementsByClassName("icode-test")).entries()
-    ) {
-      var test = new ICodeTest(idx, test_elt, this);
-      this.tests.push(test);
-    }
+    /*
+     * Create test objects
+     */
+    icodeTests.forEach((test_elt, idx) => {
+      const t = new ICodeTest(idx, test_elt, this);
+      this.tests.push(t);
+    });
 
-    /* Initialize source file editors */
-    for (var inp_elt of elt.getElementsByClassName("icode-srcfile")) {
-      const filename = inp_elt.dataset.filename;
-      const src_file = {};
+    /*
+     * Source file editor
+     */
+    /* Code mirror generic arguments */
+    const cmBaseArgs = {
+      lineNumbers: true,
+      matchBrackets: true,
+      indentUnit: 4,
+      mode: "text/x-csrc", /* TODO: auto-detection of mode using mode/meta.js addon */
+      extraKeys: {
+        Tab: cm => cm.execCommand("indentMore"),
+        "Shift-Tab": cm => cm.execCommand("indentLess"),
+      }
+    };
 
-      const cm_args = {
-        lineNumbers: true,
-        matchBrackets: true,
-        indentUnit: 4,
-        mode: "text/x-csrc",
-        extraKeys: {
-          Tab: cm => cm.execCommand("indentMore"),
-          "Shift-Tab": cm => cm.execCommand("indentLess"),
-        }
-      };
+    icodeSrcFiles.forEach((srcFileElt) => {
+      const cmArgs = {...cmBaseArgs};
 
-      src_file.readonly = false;
-      if (typeof inp_elt.dataset.readonly !== "undefined") {
-        if (inp_elt.dataset.readonly == "data-readonly") {
-          src_file.readonly = true;
-          cm_args["readOnly"] = "nocursor";
-          cm_args["theme"] = "default readonly";
+      /* By default, files aren't readonly at all. Here, determine if a file is
+       * entirely readonly (in which case, it needs to be specified when
+       * creating the editor) or partially readonly (in which case, it needs to
+       * be specified after creating the editor) */
+      let readOnlyPartial = false;
+      if (typeof srcFileElt.dataset.readonly !== "undefined") {
+        if (srcFileElt.dataset.readonly == "data-readonly") {
+          /* The whole file is readonly */
+          cmArgs["readOnly"] = "nocursor";
+          cmArgs["theme"] = "default readonly";
         } else {
-          src_file.readonly = JSON.parse(atob(inp_elt.dataset.readonly));
+          /* Source file is partially readonly*/
+          readOnlyPartial = true;
         }
       }
 
-      const cm = CodeMirror.fromTextArea(inp_elt, cm_args);
-      src_file.cm = cm;
+      /* Create editor instance */
+      const cm = CodeMirror.fromTextArea(srcFileElt, cmArgs);
 
-      src_file.getData = () => { return cm.getValue(); };
-      src_file.isClean = () => { return cm.isClean(); };
-      src_file.markClean = () => { return cm.markClean(); };
-
-      if (src_file.readonly && src_file.readonly !== true) {
-        for (let ro_range of src_file.readonly) {
-          cm.markText({line: ro_range[0] - 2}, {line: ro_range[1], ch: 0},
+      /* Specify ranges of readonly lines if any */
+      if (readOnlyPartial) {
+        const readOnlyRanges = JSON.parse(atob(srcFileElt.dataset.readonly));
+        readOnlyRanges.forEach((range) => {
+          cm.markText({line: range[0] - 2}, {line: range[1], ch: 0},
             {
               readOnly: true,
-              inclusiveLeft: ro_range[0] == 1,
-              inclusiveRight: ro_range[1] == cm.lineCount()
+              inclusiveLeft: range[0] == 1,
+              inclusiveRight: range[1] == cm.lineCount()
             });
-          cm.eachLine(ro_range[0] - 1, ro_range[1], line => {
+          cm.eachLine(range[0] - 1, range[1], line => {
             cm.addLineClass(line, "background", "bg-body-secondary");
           });
-        }
+        });
       }
 
+      /* Refresh editor when corresponding tab is shown */
       const tab = elt.querySelector(
-        `[data-bs-target="#${inp_elt.parentElement.id}"]`);
-
+        `[data-bs-target="#${srcFileElt.parentElement.id}"]`);
       if (tab)
-        tab.addEventListener("shown.bs.tab", evt => { cm.refresh(); });
-      this.src_files[filename] = src_file;
-    }
+        tab.addEventListener("shown.bs.tab", () => cm.refresh());
 
-    this.submit_btn = document.getElementById(`${this.prefix_id}-submit`);
-    this.submit_btn.onclick = evt => { this.on_run_clicked(evt) };
+      /* Callbacks to editor used in other methods */
+      const filename = srcFileElt.dataset.filename;
+      this.srcFiles[filename] = {
+        getData: () => { return cm.getValue() },
+        isClean: () => { return cm.isClean() },
+        markClean: () => { return cm.markClean() },
+      }
+    });
 
-    this.feedback_elt = document.getElementById(`${this.prefix_id}-feedback`);
-    this.feedback_coll = new bootstrap.Collapse(this.feedback_elt, {
-      toggle: false
+    /* Button events */
+    this.submitBtn = document.getElementById(`${this.prefixID}-submit`);
+    this.submitBtn.onclick = () => this.submitActivity();
+
+    this.feedbackDiv = document.getElementById(`${this.prefixID}-feedback`);
+    this.feedbackDivCollapse = new bootstrap.Collapse(
+      this.feedbackDiv, { toggle: false });
+  }
+
+  /* Transfer files associated with icode activity to the VM */
+  uploadSrcFiles(force = false) {
+    Object.keys(this.srcFiles).forEach((filename) => {
+      const srcFile = this.srcFiles[filename];
+
+      /* Skip uploading if file hasn't been modified since the last submit,
+       * unless we're forcing it */
+      if (!force && srcFile.isClean())
+        return;
+
+      LupBookVM.session_upload(this.sessionVM, filename, srcFile.getData());
+
+      srcFile.markClean();
     });
   }
 
-  /* transfer the files associated with the interactive code element to the VM */
-  upload(force = false) {
-    var dirty = false;
-
-    for (const filename in this.src_files) {
-      const src_file = this.src_files[filename];
-
-      /* don't upload unless the file has been modified */
-      if (!force && src_file.isClean())
-        continue;
-
-      dirty = true;
-      LupBookVM.session_upload(this.session, filename, src_file.getData());
-
-      src_file.markClean();
-    }
-
-    return dirty;
+  /* Event handler for submit button */
+  submitActivity() {
+    this.activityInit();
+    this.activityRun();
   }
 
-  on_run_clicked(evt) {
-    this.init();
-    this.run();
-  }
-
-  on_run_complete() {
-    this.submit_btn.disabled = false;
-    for (var test of this.tests) {
-      if (test.result !== false)
-        continue;
-
-      /* A test resulted in an error; expand the feedback section, and after the
-         animation additionally expand the details of the first error */
-      if (this.feedback_coll._isShown()) {
-        test.collapse.show();
-      } else {
-        this.feedback_elt.addEventListener("shown.bs.collapse", () => {
-          test.collapse.show();
-        }, { once: true });
-        this.feedback_coll.show();
-      }
-      break;
-    }
-  }
-
-  on_progress(result_type) {
-    /* Show test result in progress bar */
-    this.fb_progressbars[this.fb_idx].classList.remove(
-      "progress-bar-striped", "progress-bar-animated");
-    if (result_type === true)
-      this.fb_progressbars[this.fb_idx].classList.add("bg-success");
-    else
-      this.fb_progressbars[this.fb_idx].classList.add("bg-danger");
-  }
-
-  init() {
+  activityInit() {
     /* Prevent user from submitting again until all the tests have completed */
-    this.submit_btn.disabled = true;
+    this.submitBtn.disabled = true;
 
     /* Upload the files to the VM */
-    this.upload();
+    this.uploadSrcFiles();
 
     /* Reset progress bar */
-    this.fb_progressbars.forEach((item) => {
+    this.feedbackProgressBars.forEach((item) => {
         item.classList.remove("bg-success", "bg-danger");
         item.classList.add("bg-light");
     });
-    this.fb_progress.classList.remove("d-none");
+    this.feedbackProgress.classList.remove("d-none");
 
     /* Init all the tests */
-    for (var test of this.tests)
-      test.init();
+    this.tests.forEach((test) => test.init());
 
     /* Track which test is currently being run */
-    this.test_it = this.tests[Symbol.iterator]();
-    this.test_prev = null;
+    this.testIterator = this.tests[Symbol.iterator]();
+    this.testPrevious = null;
   }
 
-  run() {
-    if (this.test_prev && this.test_prev.result === false && this.test_prev.fatal) {
-      /* skip remaining tests */
-      this.on_run_complete();
+  activityRun() {
+    /* Stop running tests if a test marked as fatal failed */
+    if (this.testPrevious
+      && this.testPrevious.result === false && this.testPrevious.fatal) {
+      this.activityCompleted();
       return;
     }
 
-    if (this.test_prev === null)
-      this.fb_idx = 0;
-    else
-      this.fb_idx++;
+    /* Compute current test index */
+    this.fb_idx = this.testPrevious === null ? 0 : this.fb_idx + 1;
 
-    var next = this.test_it.next();
-    if (next.done) {
-      this.on_run_complete();
+    let nextTest = this.testIterator.next();
+    if (nextTest.done) {
+      this.activityCompleted();
     } else {
       /* Show ongoing test in progress bar */
-      this.fb_progressbars[this.fb_idx].classList.remove("bg-light");
-      this.fb_progressbars[this.fb_idx].classList.add(
+      this.feedbackProgressBars[this.fb_idx].classList.remove("bg-light");
+      this.feedbackProgressBars[this.fb_idx].classList.add(
         "progress-bar-striped", "progress-bar-animated");
 
       /* Run next test */
-      this.test_prev = next.value;
-      next.value.run();
+      this.testPrevious = nextTest.value;
+      nextTest.value.run();
     }
+  }
+
+  activityCompleted() {
+    /* Activity can now be resubmitted again */
+    this.submitBtn.disabled = false;
+
+    /* Jump to the feedback corresponding to the first failed test if any */
+    this.tests.forEach((test) => {
+      if (test.result !== false)
+        return;
+
+      if (this.feedbackDiv.classList.contains('show')) {
+        /* Feedback div already open, open accordion of failed test */
+        test.collapse.show();
+      } else {
+        this.feedbackDiv.addEventListener("shown.bs.collapse", () => {
+          /* Open accordion after feedback div has opened */
+          test.collapse.show();
+        }, { once: true });
+        /* Open feedback div */
+        this.feedbackDivCollapse.show();
+      }
+    });
+  }
+
+  /* Update progress from test result */
+  activityProgress(result) {
+    this.feedbackProgressBars[this.fb_idx].classList.remove(
+      "progress-bar-striped", "progress-bar-animated");
+    if (result === true)
+      this.feedbackProgressBars[this.fb_idx].classList.add("bg-success");
+    else
+      this.feedbackProgressBars[this.fb_idx].classList.add("bg-danger");
   }
 }
 
@@ -575,7 +600,7 @@ window.addEventListener('DOMContentLoaded', () => {
        * activity. XXX: this should be done dynamically the first done an icode
        * is run (with an internal state we can maintain). This callback could be
        * used to enable the Submit buttons instead? */
-      icodes.forEach(icode => icode.upload(true));
+      icodes.forEach(icode => icode.uploadSrcFiles(true));
     },
     on_error: () => { console.log("VM Error!"); },
     console_debug_write: c => { term.write(c); }
