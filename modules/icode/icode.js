@@ -9,24 +9,30 @@
 
 /* Transform a string for displaying in a <pre> tag, such that visually similar
  * multi-line strings are distinguishable */
-function str_render_printable(str) {
-  const NUL_code = "\u2370";
-  const TAB = "\u27F6";
-  const LF = "\u21B2\n";
+function strRenderPrintable(str) {
+  const NUL_CODE = "\u2370";
+  const TAB_CODE = "\u27F6";
+  const NL_CODE = "\u21B2\n";
 
-  var printable = "";
+  let printable = "";
 
   /* TODO: add support for encodings other than ASCII for the input string */
-  for (var i = 0; i < str.length; ++i) {
+  for (let i = 0; i < str.length; ++i) {
     const c = str.codePointAt(i);
-    if (c >= 0x20 && c < 0xFF)
+
+    /* Show printable ASCII */
+    if (c >= 0x20 && c < 0x7F)
       printable += String.fromCodePoint(c);
-    else if (c == 0x09)
-      printable += TAB;
-    else if (c == 0x0A)
-      printable += LF;
+
+    /* Tabs and newlines */
+    else if (c === 0x9)
+      printable += TAB_CODE;
+    else if (c === 0xA)
+      printable += NL_CODE;
+
+    /* Unprintable characters */
     else
-      printable += NUL_code;
+      printable += NUL_CODE;
   }
 
   return printable;
@@ -194,7 +200,7 @@ class ICodeTest {
     } else if (checkObj.type == "exact") {
         expectElt = document.createElement("pre");
         expectElt.classList.add("ic-l-code");
-        expectElt.textContent = str_render_printable(checkObj.content);
+        expectElt.textContent = strRenderPrintable(checkObj.content);
     }
 
     /* Check was a success */
@@ -220,7 +226,7 @@ class ICodeTest {
 
     const outputElt = document.createElement("pre");
     outputElt.classList.add("ic-l-code");
-    outputElt.textContent = str_render_printable(checkData);
+    outputElt.textContent = strRenderPrintable(checkData);
 
     if (checkObj.type == "regex") {
       checkElt.append(`Output ${output_desc} does not match regular expression`);
@@ -278,7 +284,7 @@ class ICodeTest {
 
       const output = document.createElement('pre');
       output.classList.add("ic-l-code");
-      output.append(str_render_printable(this.stepExecInfo.stderr));
+      output.append(strRenderPrintable(this.stepExecInfo.stderr));
       resultElt.append(output);
 
     } else if (this.stepCheckFailed) {
@@ -300,7 +306,7 @@ class ICodeTest {
            (avoid duplicate rendering of the same output) */
         const output = document.createElement('pre');
         output.classList.add("ic-l-code");
-        output.append(str_render_printable(this.stepExecInfo.stdout));
+        output.append(strRenderPrintable(this.stepExecInfo.stdout));
         resultElt.append(output);
       }
     }
