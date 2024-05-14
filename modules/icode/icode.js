@@ -564,15 +564,15 @@ window.addEventListener('DOMContentLoaded', () => {
   term.loadAddon(fitAddon);
 
   /* Attach to container */
-  const term_el = document.getElementById("lbvm-terminal");
-  term.open(term_el);
+  const termElt = document.getElementById("lbvm-terminal");
+  term.open(termElt);
   fitAddon.fit();
 
   /* Automatically resize when modal is shown (otherwise there's a weird bug
    * where the scrollbar doesn't appear when the modal is shown for the first
    * time because output was added to a non-visible terminal) */
-  const term_mod_el = document.getElementById('lbvm-terminal-modal')
-  term_mod_el.addEventListener('shown.bs.modal', () => { fitAddon.fit() });
+  const termModElt = document.getElementById('lbvm-terminal-modal')
+  termModElt.addEventListener('shown.bs.modal', () => { fitAddon.fit() });
 
   /* Automatically resize if the window gets resized */
   window.onresize = () => { fitAddon.fit(); };
