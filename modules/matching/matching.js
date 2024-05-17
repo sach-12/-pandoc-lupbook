@@ -163,10 +163,10 @@ function matching_init(elt) {
 
     // Configure feedback
     if (correct_count == choice_items.length) {
-      fb_score.innerHTML = "Congratulations!";
+      fb_score.textContent = "Congratulations!";
       fb_score.classList.add("alert-success");
     } else {
-      fb_score.innerHTML = `You correctly matched ${correct_count} items`
+      fb_score.textContent = `You correctly matched ${correct_count} items`
         + ` out of ${choice_items.length}.`;
       fb_score.classList.add("alert-danger");
     }
