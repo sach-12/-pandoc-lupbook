@@ -61,67 +61,71 @@ $endif$
 $for(header-includes)$
   $header-includes$
 $endfor$
+
 $if(math)$
   $math$
 $endif$
 </head>
+
 <body>
-$for(include-before)$
-$include-before$
-$endfor$
-<header>
-<div class="modal fade" id="lbvm-terminal-modal" tabindex="-1" aria-labelledby="lbvm-terminal-label" aria-hidden="true">
-  <div class="modal-dialog modal-lg modal-dialog-centered">
-      <div class="modal-content">
+
+  $for(include-before)$
+    $include-before$
+  $endfor$
+
+  <header>
+    <div class="modal fade" id="lbvm-terminal-modal" tabindex="-1" aria-labelledby="lbvm-terminal-label" aria-hidden="true">
+      <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
           <div class="modal-header">
-              <h5 class="modal-title" id="lbvm-terminal-label">LupBookVM Terminal</h5>
-              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            <h5 class="modal-title" id="lbvm-terminal-label">LupBookVM Terminal</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body lbvm-terminal-container">
-              <div id="lbvm-terminal"></div>
+            <div id="lbvm-terminal"></div>
           </div>
+        </div>
       </div>
-  </div>
-</div>
-
-<nav class="navbar fixed-top navbar-secondary bg-secondary">
-  <div class="container-fluid">
-    <div class="me-auto"></div>
-    <div class="me-0">
-      <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#lbvm-terminal-modal">
-        <span class="terminal-toggler-icon"></span>
-      </button>
     </div>
-  </div>
-</nav>
-</header>
 
-<main role="main" class="container">
+    <nav class="navbar fixed-top navbar-secondary bg-secondary">
+      <div class="container-fluid">
+        <div class="me-auto"></div>
+        <div class="me-0">
+          <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#lbvm-terminal-modal">
+            <span class="terminal-toggler-icon"></span>
+          </button>
+        </div>
+      </div>
+    </nav>
+  </header>
 
-$if(title)$
-<h1 class="title">$title$</h1>
-$if(subtitle)$
-<p class="subtitle">$subtitle$</p>
-$endif$
-$for(author)$
-<p class="author">$author$</p>
-$endfor$
-$if(date)$
-<p class="date">$date$</p>
-$endif$
-$if(abstract)$
-<div class="abstract">
-<div class="abstract-title">$abstract-title$</div>
-$abstract$
-</div>
-$endif$
-$endif$
+  <main role="main" class="container">
+  $if(title)$
+      <h1 class="title">$title$</h1>
+    $if(subtitle)$
+      <p class="subtitle">$subtitle$</p>
+    $endif$
+    $for(author)$
+      <p class="author">$author$</p>
+    $endfor$
+    $if(date)$
+      <p class="date">$date$</p>
+    $endif$
+    $if(abstract)$
+      <div class="abstract">
+        <div class="abstract-title">$abstract-title$</div>
+        $abstract$
+      </div>
+    $endif$
+  $endif$
 
-$body$
-$for(include-after)$
-$include-after$
-$endfor$
-</main>
+  $body$
+
+  $for(include-after)$
+    $include-after$
+  $endfor$
+  </main>
 
 </body>
 </html>
