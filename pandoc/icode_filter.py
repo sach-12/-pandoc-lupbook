@@ -177,7 +177,8 @@ class LupbookICode(lupbook_filter.LupbookComponent):
                 with div(cls = "px-1"):
                     button("Submit",
                            id = f"{self.prefix_id}-submit",
-                           cls = "btn btn-primary")
+                           cls = "btn btn-primary",
+                           disabled = True)
 
                 with div(cls = "px-1 flex-grow-1"):
                     with div(id = f"{self.prefix_id}-feedback-progress",

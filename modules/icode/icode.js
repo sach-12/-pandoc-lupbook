@@ -357,6 +357,8 @@ class ICode {
   srcFiles = {};
   tests = [];
 
+  firstUpload = true;
+
   feedbackProgress;
   feedbackProgressBars;
   submitBtn;
@@ -464,19 +466,23 @@ class ICode {
   }
 
   /* Transfer files associated with icode activity to the VM */
-  uploadSrcFiles(force = false) {
+  uploadSrcFiles() {
     Object.keys(this.srcFiles).forEach((filename) => {
       const srcFile = this.srcFiles[filename];
 
-      /* Skip uploading if file hasn't been modified since the last submit,
-       * unless we're forcing it */
-      if (!force && srcFile.isClean())
+      /* Skip uploading if file hasn't been modified since the last submit and
+       * it's not the first upload */
+      if (!this.firstUpload && srcFile.isClean())
         return;
 
       LupBookVM.session_upload(this.sessionVM, filename, srcFile.getData());
 
       srcFile.markClean();
     });
+
+    /* From now on, the VM has a version of every file for this activity. We can
+     * rely on whether or not files have been modified, via CodeMirror */
+    this.firstUpload = false;
   }
 
   /* Event handler for submit button */
@@ -620,11 +626,8 @@ window.addEventListener('DOMContentLoaded', () => {
   term.write("Loading virtual machine...\r\n");
   LupBookVM.start({
     on_init: () => {
-      /* Once the VM is up and ready, upload the skeleton code for each
-       * activity. XXX: this should be done dynamically the first done an icode
-       * is run (with an internal state we can maintain). This callback could be
-       * used to enable the Submit buttons instead? */
-      icodes.forEach(icode => icode.uploadSrcFiles(true));
+      /* Once the VM is up and ready, make icode activities submittable */
+      icodes.forEach(icode => icode.submitBtn.disabled = false);
     },
     on_error: () => { console.log("VM Error!"); },
     console_debug_write: c => { term.write(c); }
