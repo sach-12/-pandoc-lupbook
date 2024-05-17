@@ -74,6 +74,8 @@ class ICodeTest {
 
     this.icode = icode;
 
+    /* XXX: this shouldn't be necessary but Firefox somehow removes the
+     * disabled attributes for some accordions */
     this.feedbackDivBtn.disabled = true;
 
     this.checks.forEach((check) => {

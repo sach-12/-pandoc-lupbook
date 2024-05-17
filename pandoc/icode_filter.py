@@ -215,6 +215,7 @@ class LupbookICode(lupbook_filter.LupbookComponent):
                     with button(id = f"{test_id}-btn",
                                 cls = "accordion-button collapsed",
                                 type = "button",
+                                disabled = True,
                                 data_bs_toggle = "collapse",
                                 data_bs_target = "#{}".format(test_id)):
                         i(cls = "bi bi-dash-circle-fill text-secondary me-1")
