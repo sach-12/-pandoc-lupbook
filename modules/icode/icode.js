@@ -363,7 +363,7 @@ class ICode {
   srcFiles = {};
   tests = [];
 
-  firstUpload = true;
+  forceUpload = true;
 
   feedbackProgress;
   feedbackProgressBars;
@@ -454,6 +454,8 @@ class ICode {
       if (tab)
         tab.addEventListener("shown.bs.tab", () => cm.refresh());
 
+      cm.on("changes", (cm, changes) => this.readySubmit());
+
       /* Callbacks to editor used in other methods */
       const filename = srcFileElt.dataset.filename;
       this.srcFiles[filename] = {
@@ -463,6 +465,8 @@ class ICode {
         isClean: () => cm.isClean(),
         markClean: () => cm.markClean(),
       }
+
+
     });
 
     /* Button events */
@@ -477,6 +481,12 @@ class ICode {
       this.feedbackDiv, { toggle: false });
   }
 
+  readySubmit() {
+    this.submitBtn.classList.remove("btn-danger", "btn-success");
+    this.submitBtn.classList.add("btn-primary");
+    this.submitBtn.disabled = false;
+  }
+
   /* Transfer files associated with icode activity to the VM */
   uploadSrcFiles() {
     Object.keys(this.srcFiles).forEach((filename) => {
@@ -484,7 +494,7 @@ class ICode {
 
       /* Skip uploading if file hasn't been modified since the last submit and
        * it's not the first upload */
-      if (!this.firstUpload && srcFile.isClean())
+      if (!this.forceUpload && srcFile.isClean())
         return;
 
       LupBookVM.session_upload(this.sessionVM, filename, srcFile.getData());
@@ -492,9 +502,9 @@ class ICode {
       srcFile.markClean();
     });
 
-    /* From now on, the VM has a version of every file for this activity. We can
-     * rely on whether or not files have been modified, via CodeMirror */
-    this.firstUpload = false;
+    /* Now the VM has a version of every file for this activity. We can rely on
+     * whether or not files have been modified, via CodeMirror */
+    this.forceUpload = false;
   }
 
   /* Event handler for reset button */
@@ -503,6 +513,15 @@ class ICode {
       const srcFile = this.srcFiles[filename];
       srcFile.resetDoc();
     });
+    this.forceUpload = true;
+
+    this.readySubmit();
+
+    this.feedbackProgress.classList.add("d-none");
+    this.feedbackDivCollapse.hide();
+
+    /* Init all the tests */
+    this.tests.forEach((test) => test.resetTest());
   }
 
   /* Event handler for submit button */
@@ -570,13 +589,14 @@ class ICode {
   }
 
   completeActivity() {
-    /* Activity can now be resubmitted again */
-    this.submitBtn.disabled = false;
+    let fail = false;
 
     /* Jump to the feedback corresponding to the first failed test if any */
     for (const test of this.tests) {
       if (!test.testFailed())
         continue;
+
+      fail = true;
 
       if (this.feedbackDiv.classList.contains('show')) {
         /* Feedback div already open, open accordion of failed test */
@@ -592,6 +612,10 @@ class ICode {
 
       break;
     }
+
+    /* Overall feedback via submit button */
+    this.submitBtn.classList.remove("btn-primary");
+    this.submitBtn.classList.add(fail ? "btn-danger" : "btn-success");
   }
 }
 
@@ -647,7 +671,7 @@ window.addEventListener('DOMContentLoaded', () => {
   LupBookVM.start({
     on_init: () => {
       /* Once the VM is up and ready, make icode activities submittable */
-      icodes.forEach(icode => icode.submitBtn.disabled = false);
+      icodes.forEach(icode => icode.readySubmit());
     },
     on_error: () => { console.log("VM Error!"); },
     console_debug_write: c => { term.write(c); }
