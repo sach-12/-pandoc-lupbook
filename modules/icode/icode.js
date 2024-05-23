@@ -98,8 +98,7 @@ class ICodeTest {
 
   }
 
-  /* Called prior to running the test's various steps */
-  initTest() {
+  resetTest() {
     /* Clear any visually displayed results */
     this.feedbackDivBody.textContent = "";
     this.feedbackDivBtn.disabled = true;
@@ -110,6 +109,11 @@ class ICodeTest {
     this.feedbackDivBtn.firstElementChild.classList
       .add("bi-dash-circle-fill", "text-secondary");
     this.feedbackDivCollapse.hide();
+  }
+
+  /* Called prior to running the test's various steps */
+  initTest() {
+    this.resetTest();
 
     /* Reset the state */
     this.state = this.states.IDLE;
