@@ -170,8 +170,6 @@ class LupbookICode(lupbook_filter.LupbookComponent):
                         textarea(src_file["data"], **textarea_args)
 
     def _gen_controls(self):
-        feedback_id = "{}-fb".format(self.conf["id"])
-
         with div(cls = "card-body border-top"):
             with div(cls = "d-flex align-items-center"):
                 with div(cls = "px-1"):
