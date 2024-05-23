@@ -105,7 +105,7 @@ class LupbookComponent:
     def _gen_controls(self):
         raise NotImplementedError
 
-    def _gen_feedback(self):
+    def _gen_testing(self):
         raise NotImplementedError
 
     def _gen_footer(self):
@@ -120,7 +120,7 @@ class LupbookComponent:
             self._gen_description()
             self._gen_activity()
             self._gen_controls()
-            self._gen_feedback()
+            self._gen_testing()
             self._gen_footer()
 
         return panflute.RawBlock(text=root.render(), format='html')

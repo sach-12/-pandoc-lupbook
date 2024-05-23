@@ -105,7 +105,7 @@ class LupbookMatching(lupbook_filter.LupbookComponent):
                                 data_bs_toggle = "collapse", type = "button"):
                         i(cls = "bi bi-chevron-up")
 
-    def _gen_feedback(self):
+    def _gen_testing(self):
         with div(id = f"{self.prefix_id}-feedback", cls = "collapse"):
             with div(cls = "card-body border-top"):
                 div(id = f"{self.prefix_id}-feedback-score",
