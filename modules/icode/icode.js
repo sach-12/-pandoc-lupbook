@@ -364,6 +364,7 @@ class ICode {
   feedbackProgress;
   feedbackProgressBars;
   submitBtn;
+  resetBtn;
   feedbackDiv;
   feedbackDivCollapse;
 
@@ -452,15 +453,20 @@ class ICode {
       /* Callbacks to editor used in other methods */
       const filename = srcFileElt.dataset.filename;
       this.srcFiles[filename] = {
-        getData: () => { return cm.getValue() },
-        isClean: () => { return cm.isClean() },
-        markClean: () => { return cm.markClean() },
+        docInit: cm.getDoc().copy(),
+        resetDoc: function() { cm.swapDoc(this.docInit.copy()) },
+        getData: () => cm.getValue(),
+        isClean: () => cm.isClean(),
+        markClean: () => cm.markClean(),
       }
     });
 
     /* Button events */
     this.submitBtn = document.getElementById(`${this.prefixID}-submit`);
     this.submitBtn.onclick = () => this.submitActivity();
+
+    this.resetBtn = document.getElementById(`${this.prefixID}-reset`);
+    this.resetBtn.onclick = () => this.resetActivity();
 
     this.feedbackDiv = document.getElementById(`${this.prefixID}-feedback`);
     this.feedbackDivCollapse = new bootstrap.Collapse(
@@ -485,6 +491,14 @@ class ICode {
     /* From now on, the VM has a version of every file for this activity. We can
      * rely on whether or not files have been modified, via CodeMirror */
     this.firstUpload = false;
+  }
+
+  /* Event handler for reset button */
+  resetActivity() {
+    Object.keys(this.srcFiles).forEach((filename) => {
+      const srcFile = this.srcFiles[filename];
+      srcFile.resetDoc();
+    });
   }
 
   /* Event handler for submit button */

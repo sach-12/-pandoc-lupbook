@@ -179,6 +179,9 @@ class LupbookICode(lupbook_filter.LupbookComponent):
                            id = f"{self.prefix_id}-submit",
                            cls = "btn btn-primary",
                            disabled = True)
+                    button("Reset",
+                           id = f"{self.prefix_id}-reset",
+                           cls = "btn btn-secondary")
 
                 with div(cls = "px-1 flex-grow-1"):
                     with div(id = f"{self.prefix_id}-feedback-progress",
