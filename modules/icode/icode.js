@@ -66,17 +66,17 @@ class ICodeTest {
 
     const testID = `${icode.prefixID}-test-${idx}`;
 
-    this.feedbackDivBtn = document.getElementById(`${testID}-btn`);
-    this.feedbackDivBody = document.getElementById(`${testID}-feedback`);
-    const feedbackDiv = document.getElementById(`${testID}`);
-    this.feedbackDivCollapse = new bootstrap.Collapse(
-      feedbackDiv, { toggle: false });
+    this.testingDivBtn = document.getElementById(`${testID}-btn`);
+    this.testingDivBody = document.getElementById(`${testID}-testing`);
+    const testingDiv = document.getElementById(`${testID}`);
+    this.testingDivCollapse = new bootstrap.Collapse(
+      testingDiv, { toggle: false });
 
     this.icode = icode;
 
     /* XXX: this shouldn't be necessary but Firefox somehow removes the
      * disabled attributes for some accordions */
-    this.feedbackDivBtn.disabled = true;
+    this.testingDivBtn.disabled = true;
 
     this.checks.forEach((check) => {
       if (check.type == "regex")
@@ -100,15 +100,15 @@ class ICodeTest {
 
   resetTest() {
     /* Clear any visually displayed results */
-    this.feedbackDivBody.textContent = "";
-    this.feedbackDivBtn.disabled = true;
-    this.feedbackDivBtn.firstElementChild.classList
+    this.testingDivBody.textContent = "";
+    this.testingDivBtn.disabled = true;
+    this.testingDivBtn.firstElementChild.classList
       .remove("bi-check-circle-fill", "text-success");
-    this.feedbackDivBtn.firstElementChild.classList
+    this.testingDivBtn.firstElementChild.classList
       .remove("bi-x-circle-fill", "text-danger");
-    this.feedbackDivBtn.firstElementChild.classList
+    this.testingDivBtn.firstElementChild.classList
       .add("bi-dash-circle-fill", "text-secondary");
-    this.feedbackDivCollapse.hide();
+    this.testingDivCollapse.hide();
   }
 
   /* Called prior to running the test's various steps */
@@ -154,7 +154,7 @@ class ICodeTest {
       /* Add a div to visually represent the check - must be added in advance to
        * ensure the ordering between checks is consistent */
       const checkElt = document.createElement('div');
-      this.feedbackDivBody.appendChild(checkElt);
+      this.testingDivBody.appendChild(checkElt);
 
       /* Set up a callback, as the output may reside in a file in the VM,
        * requiring an asynchronous call to access */
@@ -266,7 +266,7 @@ class ICodeTest {
      * before all other rendered checks (if any) */
     const resultElt = document.createElement('div');
     resultElt.classList.add("ic-l-check");
-    this.feedbackDivBody.prepend(resultElt);
+    this.testingDivBody.prepend(resultElt);
 
     /* Refer to the test by the last command it ran */
     const hdr = document.createElement('h5');
@@ -276,13 +276,13 @@ class ICodeTest {
     hdr.append("Command", cmd);
     resultElt.append(hdr);
 
-    this.feedbackDivBtn.firstElementChild.classList
+    this.testingDivBtn.firstElementChild.classList
       .remove("bi-dash-circle-fill", "text-secondary");
 
     /* Describe the overall result */
     if (this.stepRunFailed) {
       /* Command failed with an erroneous exit code */
-      this.feedbackDivBtn.firstElementChild.classList
+      this.testingDivBtn.firstElementChild.classList
         .add("bi-x-circle-fill", "text-danger");
 
       hdr.append(`failed with exit code ${this.stepExecInfo.return_code}.`);
@@ -295,14 +295,14 @@ class ICodeTest {
 
     } else if (this.stepCheckFailed) {
       /* Check failed with incorrect data */
-      this.feedbackDivBtn.firstElementChild.classList
+      this.testingDivBtn.firstElementChild.classList
         .add("bi-x-circle-fill", "text-danger");
 
       resultElt.classList.add("ic-l-check-warning");
       hdr.append("succeeded, but some checks failed.");
     } else {
       /* Success! */
-      this.feedbackDivBtn.firstElementChild.classList
+      this.testingDivBtn.firstElementChild.classList
         .add("bi-check-circle-fill", "text-success");
       resultElt.classList.add("ic-l-check-pass");
       hdr.append("succeeded.");
@@ -318,7 +318,7 @@ class ICodeTest {
     }
 
     /* User is allowed to submit again */
-    this.feedbackDivBtn.disabled = false;
+    this.testingDivBtn.disabled = false;
   }
 
   runCmdVM(cmd) {
@@ -365,12 +365,12 @@ class ICode {
 
   forceUpload = true;
 
-  feedbackProgress;
-  feedbackProgressBars;
+  testingProgress;
+  testingProgressBars;
   submitBtn;
   resetBtn;
-  feedbackDiv;
-  feedbackDivCollapse;
+  testingDiv;
+  testingDivCollapse;
 
   /* Class constructor */
   constructor(elt) {
@@ -380,9 +380,9 @@ class ICode {
     this.prefixID = `icode-${elt.id}`;
 
     /* Progress bars */
-    this.feedbackProgress = document.getElementById(`${this.prefixID}-feedback-progress`);
-    this.feedbackProgressBars = Array.from(
-      this.feedbackProgress.getElementsByClassName("progress-bar"));
+    this.testingProgress = document.getElementById(`${this.prefixID}-testing-progress`);
+    this.testingProgressBars = Array.from(
+      this.testingProgress.getElementsByClassName("progress-bar"));
     this.sessionVM = LupBookVM.session_open();
 
     const icodeTests = Array.from(elt.getElementsByClassName("icode-test"));
@@ -476,9 +476,9 @@ class ICode {
     this.resetBtn = document.getElementById(`${this.prefixID}-reset`);
     this.resetBtn.onclick = () => this.resetActivity();
 
-    this.feedbackDiv = document.getElementById(`${this.prefixID}-feedback`);
-    this.feedbackDivCollapse = new bootstrap.Collapse(
-      this.feedbackDiv, { toggle: false });
+    this.testingDiv = document.getElementById(`${this.prefixID}-testing`);
+    this.testingDivCollapse = new bootstrap.Collapse(
+      this.testingDiv, { toggle: false });
   }
 
   readySubmit() {
@@ -517,8 +517,8 @@ class ICode {
 
     this.readySubmit();
 
-    this.feedbackProgress.classList.add("d-none");
-    this.feedbackDivCollapse.hide();
+    this.testingProgress.classList.add("d-none");
+    this.testingDivCollapse.hide();
 
     /* Init all the tests */
     this.tests.forEach((test) => test.resetTest());
@@ -538,11 +538,11 @@ class ICode {
     this.uploadSrcFiles();
 
     /* Reset progress bar */
-    this.feedbackProgressBars.forEach((item) => {
+    this.testingProgressBars.forEach((item) => {
         item.classList.remove("bg-success", "bg-danger");
         item.classList.add("bg-light");
     });
-    this.feedbackProgress.classList.remove("d-none");
+    this.testingProgress.classList.remove("d-none");
 
     /* Init all the tests */
     this.tests.forEach((test) => test.initTest());
@@ -568,8 +568,8 @@ class ICode {
       this.completeActivity();
     } else {
       /* Show ongoing test in progress bar */
-      this.feedbackProgressBars[this.fb_idx].classList.remove("bg-light");
-      this.feedbackProgressBars[this.fb_idx].classList.add(
+      this.testingProgressBars[this.fb_idx].classList.remove("bg-light");
+      this.testingProgressBars[this.fb_idx].classList.add(
         "progress-bar-striped", "progress-bar-animated");
 
       /* Run next test */
@@ -580,34 +580,34 @@ class ICode {
 
   /* Update progress from test result */
   completeTest(fail) {
-    this.feedbackProgressBars[this.fb_idx].classList.remove(
+    this.testingProgressBars[this.fb_idx].classList.remove(
       "progress-bar-striped", "progress-bar-animated");
     if (fail)
-      this.feedbackProgressBars[this.fb_idx].classList.add("bg-danger");
+      this.testingProgressBars[this.fb_idx].classList.add("bg-danger");
     else
-      this.feedbackProgressBars[this.fb_idx].classList.add("bg-success");
+      this.testingProgressBars[this.fb_idx].classList.add("bg-success");
   }
 
   completeActivity() {
     let fail = false;
 
-    /* Jump to the feedback corresponding to the first failed test if any */
+    /* Jump to the first failed test if any */
     for (const test of this.tests) {
       if (!test.testFailed())
         continue;
 
       fail = true;
 
-      if (this.feedbackDiv.classList.contains('show')) {
-        /* Feedback div already open, open accordion of failed test */
-        test.feedbackDivCollapse.show();
+      if (this.testingDiv.classList.contains('show')) {
+        /* Testing div already open, open accordion of failed test */
+        test.testingDivCollapse.show();
       } else {
-        this.feedbackDiv.addEventListener("shown.bs.collapse", () => {
-          /* Open accordion after feedback div has opened */
-          test.feedbackDivCollapse.show();
+        this.testingDiv.addEventListener("shown.bs.collapse", () => {
+          /* Open accordion after testing div has opened */
+          test.testingDivCollapse.show();
         }, { once: true });
-        /* Open feedback div */
-        this.feedbackDivCollapse.show();
+        /* Open testing div */
+        this.testingDivCollapse.show();
       }
 
       break;

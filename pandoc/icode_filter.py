@@ -104,7 +104,7 @@ def _encode_rdonly(yaml_ro, file_data):
 class LupbookICode(lupbook_filter.LupbookComponent):
     def __init__(self, yaml_config):
         super().__init__(yaml_config)
-        self.feedback_cnt = len(self.conf["tests"])
+        self.testing_cnt = len(self.conf["tests"])
 
     @staticmethod
     def _yaml_validator():
@@ -182,25 +182,25 @@ class LupbookICode(lupbook_filter.LupbookComponent):
                            cls = "btn btn-secondary")
 
                 with div(cls = "px-1 flex-grow-1"):
-                    with div(id = f"{self.prefix_id}-feedback-progress",
+                    with div(id = f"{self.prefix_id}-testing-progress",
                              cls = "progress-stacked d-none",
                              style="cursor: pointer;",
-                             data_bs_target = f"#{self.prefix_id}-feedback",
+                             data_bs_target = f"#{self.prefix_id}-testing",
                              data_bs_toggle = "collapse"):
-                        for _ in range(self.feedback_cnt):
+                        for _ in range(self.testing_cnt):
                             with div(cls = "progress", role = "progressbar",
-                                     style = f"width: {100 / self.feedback_cnt}%"):
+                                     style = f"width: {100 / self.testing_cnt}%"):
                                 div(cls = "progress-bar")
 
                 with div(cls = "px-1"):
-                    with button(id = f"{self.prefix_id}-feedback-btn",
-                                cls = "icode-feedback-btn btn btn-light collapsed",
-                                data_bs_target = f"#{self.prefix_id}-feedback",
+                    with button(id = f"{self.prefix_id}-testing-btn",
+                                cls = "icode-testing-btn btn btn-light collapsed",
+                                data_bs_target = f"#{self.prefix_id}-testing",
                                 data_bs_toggle = "collapse", type = "button"):
                         i(cls = "bi bi-chevron-up")
 
     def _gen_testing(self):
-        with div(id = f"{self.prefix_id}-feedback", cls = "collapse"):
+        with div(id = f"{self.prefix_id}-testing", cls = "collapse"):
             with div(cls = "card-body border-top"):
                 accord_div = div(cls = "accordion accordion-flush")
 
@@ -223,6 +223,6 @@ class LupbookICode(lupbook_filter.LupbookComponent):
                         div(test["name"])
                 # Accordion body
                 with div(id = test_id, cls = "accordion-collapse collapse"):
-                    div(id = f"{test_id}-feedback", cls = "accordion-body")
+                    div(id = f"{test_id}-testing", cls = "accordion-body")
 
             accord_div += accord_item_div

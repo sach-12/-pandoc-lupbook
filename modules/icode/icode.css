@@ -42,17 +42,17 @@
  * Control elements
  */
 
-/* Feedback collapsing chevron */
-.icode-feedback-btn > i {
+/* Testing collapsing chevron */
+.icode-testing-btn > i {
   display: inline-block;
   transition: transform 0.2s;
 }
-.icode-feedback-btn.collapsed > i {
+.icode-testing-btn.collapsed > i {
   transform: rotate(-180deg);
 }
 
 /*
- * Feedback
+ * Testing
  */
 .ic-l-check {
   border: 0px solid;
