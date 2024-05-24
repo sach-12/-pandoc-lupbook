@@ -3,15 +3,6 @@
  * SPDX-License-Identifier: AGPL-3.0-only
  */
 
-const SubmitState = {
-  /* First submission after reset */
-  SUBMISSION: 1,
-  /* Feedback corresponds to submission */
-  SUBMITTED: 2,
-  /* Submission modified, feedback possibly outdated */
-  RESUBMISSION: 3,
-};
-
 function matching_init(elt) {
   /*
    * Collect handles to various elements
@@ -29,7 +20,6 @@ function matching_init(elt) {
   const reset_btn = document.getElementById(`${prefix_id}-reset`);
 
   // Feedback
-  const fb_resubmission = document.getElementById(`${prefix_id}-feedback-resubmission`);
   const fb_progress = document.getElementById(`${prefix_id}-feedback-progress`);
   const fb_progressbars = Array.from(fb_progress.getElementsByClassName("progress-bar"));
   const fb_btn = document.getElementById(`${prefix_id}-feedback-btn`);
@@ -90,7 +80,7 @@ function matching_init(elt) {
       target.appendChild(dragged);
       event.target.classList.replace("bg-secondary-subtle", "bg-light");
 
-      modified();
+      readySubmit();
     };
   });
 
@@ -113,21 +103,18 @@ function matching_init(elt) {
       /* Move choice items back to choice box in one click */
       if (choice_item.parentNode != choice_box) {
         choice_box.appendChild(choice_item);
-        modified();
+        readySubmit();
       }
     })
   });
 
   // Submit button click event
   submit_btn.addEventListener('click', () => {
-
-    // Nothing to do if activity hasn't changed since previous submission
-    if (submit_btn.dataset.state == SubmitState.SUBMITTED)
-      return;
-
     let correct_count = 0;
 
     softReset();
+
+    submit_btn.disabled = true;
 
     // Check each items
     choice_items.forEach((choice_item) => {
@@ -152,7 +139,6 @@ function matching_init(elt) {
     });
 
     // Set up progress bar
-    fb_resubmission.classList.add("d-none");
     fb_progress.classList.remove("d-none");
     fb_progressbars.forEach((item, index) => {
       if (index < correct_count)
@@ -179,33 +165,20 @@ function matching_init(elt) {
       fb_div.scrollIntoView();
     }, { once: true });
 
-    submit_btn.dataset.state = SubmitState.SUBMITTED;
+    /* Overall feedback via submit button */
+    submit_btn.classList.remove("btn-primary");
+    submit_btn.classList.add(correct_count == choice_items.length ?
+      "btn-success" : "btn-danger");
   });
 
-  /*
-   * State management
-   */
-  // Initial
-  submit_btn.dataset.state = SubmitState.SUBMISSION;
-
-  // Handles modifications in activity
-  function modified() {
-    // Nothing to do if activity hasn't been submitted once yet, or if we're
-    // already in an outdated state
-    if (submit_btn.dataset.state != SubmitState.SUBMITTED)
-      return;
-
-    // Mark feedback as outdated
-    fb_progress.classList.add("d-none");
-    fb_resubmission.classList.remove("d-none");
-    fb_div.classList.add("opacity-50");
-
-    submit_btn.dataset.state = SubmitState.RESUBMISSION;
+  function readySubmit() {
+    submit_btn.classList.add("btn-primary");
+    submit_btn.classList.remove("btn-success", "btn-danger");
+    submit_btn.disabled = false;
   }
 
   // Upon reset or upon resubmission
   function softReset() {
-    fb_div.classList.remove("opacity-50");
     fb_score.classList.remove("alert-success", "alert-danger");
     fb_items.forEach((item) => {
       item.classList.remove("border-success", "border-danger");
@@ -217,10 +190,6 @@ function matching_init(elt) {
 
   // Reset activity
   function reset() {
-    // Nothing to do if activity hasn't been submitted once yet
-    if (submit_btn.dataset.state == SubmitState.SUBMISSION)
-      return;
-
     softReset();
 
     // Hide feedback section
@@ -229,7 +198,6 @@ function matching_init(elt) {
 
     // Hide progress bars
     fb_progress.classList.add("d-none");
-    fb_resubmission.classList.add("d-none");
 
     // Hide feedback score
     fb_score.classList.add("d-none");
@@ -239,7 +207,7 @@ function matching_init(elt) {
       item.classList.add("d-none");
     });
 
-    submit_btn.dataset.state = SubmitState.SUBMISSION;
+    readySubmit();
   }
 }
 
