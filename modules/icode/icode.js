@@ -40,13 +40,11 @@ function strRenderPrintable(str) {
 
 
 /*
- * Class ICodeTest
- *
- * Represents a series of commands that should invoke the contents of the
- * associated ICode element, as well as subsequent checks against the output of
- * those commands.
+ * Each class object represents a series of commands that should invoke the
+ * contents of the associated IcodeActivity, as well as subsequent checks
+ * against the output of those commands.
  */
-class ICodeTest {
+class IcodeTest {
   /* Class members */
   states = Object.freeze({
     IDLE: "IDLE",
@@ -64,13 +62,14 @@ class ICodeTest {
      * attributes. */
     Object.assign(this, JSON.parse(atob(elt.dataset.params)));
 
-    const testID = `${icode.prefixID}-test-${idx}`;
+    const testId = `${icode.prefixId}-test-${idx}`;
 
-    this.testingDivBtn = document.getElementById(`${testID}-btn`);
-    this.testingDivBody = document.getElementById(`${testID}-testing`);
-    const testingDiv = document.getElementById(`${testID}`);
+    this.testingElt = elt;
+    this.testingDivBtn = document.getElementById(`${testId}-btn`);
+    this.testingDivBody = document.getElementById(`${testId}-testing`);
+    this.testingDiv = document.getElementById(`${testId}`);
     this.testingDivCollapse = new bootstrap.Collapse(
-      testingDiv, { toggle: false });
+      this.testingDiv, { toggle: false });
 
     this.icode = icode;
 
@@ -194,7 +193,7 @@ class ICodeTest {
     checkElt.classList.add("ic-l-check");
 
     /* Describe what is being checked between file or terminal streams */
-    const output_desc = checkObj.output == "file" ?
+    const outputDesc = checkObj.output == "file" ?
       `file ${checkObj.filename}` : `${checkObj.output}`;
 
     /* Build expected element */
@@ -213,10 +212,10 @@ class ICodeTest {
     if (!checkFailed) {
       checkElt.classList.add("ic-l-check-pass");
       if (checkObj.type == "regex") {
-        checkElt.append(`Output ${output_desc} matches regular expression`);
+        checkElt.append(`Output ${outputDesc} matches regular expression`);
         checkElt.append(expectElt);
       } else if (checkObj.type == "exact") {
-        checkElt.append(`Output ${output_desc} matches`);
+        checkElt.append(`Output ${outputDesc} matches`);
         checkElt.append(expectElt);
       }
       return;
@@ -226,7 +225,7 @@ class ICodeTest {
     checkElt.classList.add("ic-l-check-error");
 
     if (checkData == null) {
-      checkElt.append(`Output ${output_desc} does not exist.`);
+      checkElt.append(`Output ${outputDesc} does not exist.`);
       return;
     }
 
@@ -235,11 +234,11 @@ class ICodeTest {
     outputElt.textContent = strRenderPrintable(checkData);
 
     if (checkObj.type == "regex") {
-      checkElt.append(`Output ${output_desc} does not match regular expression`);
+      checkElt.append(`Output ${outputDesc} does not match regular expression`);
       checkElt.append(expectElt);
       checkElt.append(outputElt);
     } else {
-      checkElt.append(`Output ${output_desc} differs from expected value`);
+      checkElt.append(`Output ${outputDesc} differs from expected value`);
       const cont_elt = document.createElement("div");
       const row_elt = document.createElement("div");
       const left_elt = document.createElement("div");
