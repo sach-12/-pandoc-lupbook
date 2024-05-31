@@ -16,7 +16,7 @@ import panflute
 class LupbookMatching(lupbook_filter.LupbookComponent):
     def __init__(self, yaml_config):
         super().__init__(yaml_config)
-        self.feedback_cnt = len(self.conf["choices"])
+        self.testing_cnt = len(self.conf["choices"])
 
     @staticmethod
     def _yaml_validator():
@@ -75,33 +75,34 @@ class LupbookMatching(lupbook_filter.LupbookComponent):
                 with div(cls = "px-1"):
                     button("Submit",
                            id = f"{self.prefix_id}-submit",
-                           cls = "btn btn-primary")
+                           cls = "btn btn-primary",
+                           disabled = True)
                     button("Reset",
                            id = f"{self.prefix_id}-reset",
                            cls = "btn btn-secondary")
 
                 with div(cls = "px-1 flex-grow-1"):
-                    with div(id = f"{self.prefix_id}-feedback-progress",
+                    with div(id = f"{self.prefix_id}-testing-progress",
                              cls = "progress-stacked d-none",
                              style="cursor: pointer;",
-                             data_bs_target = f"#{self.prefix_id}-feedback",
+                             data_bs_target = f"#{self.prefix_id}-testing",
                              data_bs_toggle = "collapse"):
-                        for _ in range(self.feedback_cnt):
+                        for _ in range(self.testing_cnt):
                             with div(cls = "progress", role = "progressbar",
-                                     style = f"width: {100 / self.feedback_cnt}%"):
+                                     style = f"width: {100 / self.testing_cnt}%"):
                                 div(cls = "progress-bar")
 
                 with div(cls = "px-1"):
-                    with button(id = f"{self.prefix_id}-feedback-btn",
-                                cls = "matching-feedback-btn btn btn-light collapsed d-none",
-                                data_bs_target = f"#{self.prefix_id}-feedback",
+                    with button(id = f"{self.prefix_id}-testing-btn",
+                                cls = "matching-testing-btn btn btn-light collapsed d-none",
+                                data_bs_target = f"#{self.prefix_id}-testing",
                                 data_bs_toggle = "collapse", type = "button"):
                         i(cls = "bi bi-chevron-up")
 
     def _gen_testing(self):
-        with div(id = f"{self.prefix_id}-feedback", cls = "collapse"):
+        with div(id = f"{self.prefix_id}-testing", cls = "collapse"):
             with div(cls = "card-body border-top"):
-                div(id = f"{self.prefix_id}-feedback-score",
+                div(id = f"{self.prefix_id}-testing-score",
                     cls = "alert d-none")
                 for choice in self.conf["choices"]:
                     formatted_text = panflute.convert_text(

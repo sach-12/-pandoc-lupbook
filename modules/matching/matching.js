@@ -3,211 +3,200 @@
  * SPDX-License-Identifier: AGPL-3.0-only
  */
 
-function matching_init(elt) {
-  /*
-   * Collect handles to various elements
-   */
-  const id = elt.id;
-  const prefix_id = `matching-${id}`;
+class MatchingActivity extends LupBookActivity {
+  /* Class members */
+  choiceBox;
+  choiceItems = [];
+  answerBoxes = [];
 
-  // Activity
-  const choice_box = document.getElementById(`${prefix_id}-choices`);
-  const choice_items = Array.from(choice_box.getElementsByClassName("matching-choice"));
-  const answer_boxes = Array.from(elt.getElementsByClassName("matching-answer"));
+  testingScore;
+  feedbackItems = [];
 
-  // Actions
-  const submit_btn = document.getElementById(`${prefix_id}-submit`);
-  const reset_btn = document.getElementById(`${prefix_id}-reset`);
+  /* Class methods */
+  constructor(elt) {
+    super('matching', elt);
 
-  // Feedback
-  const fb_progress = document.getElementById(`${prefix_id}-feedback-progress`);
-  const fb_progressbars = Array.from(fb_progress.getElementsByClassName("progress-bar"));
-  const fb_btn = document.getElementById(`${prefix_id}-feedback-btn`);
+    /* Handle on various elements of our activity */
+    this.choiceBox = document.getElementById(`${this.prefixId}-choices`);
+    this.choiceItems = Array.from(
+      this.choiceBox.getElementsByClassName("matching-choice"));
+    this.answerBoxes = Array.from(
+      elt.getElementsByClassName("matching-answer"));
 
-  const fb_div = document.getElementById(`${prefix_id}-feedback`);
-  const fb_div_collapse = new bootstrap.Collapse(fb_div, { toggle: false });
+    this.testingScore = document.getElementById(`${this.prefixId}-testing-score`);
+    this.feedbackItems = Array.from(
+      elt.getElementsByClassName("matching-feedback-item"));
 
-  const fb_score = document.getElementById(`${prefix_id}-feedback-score`);
-  const fb_items = Array.from(fb_div.getElementsByClassName("matching-feedback-item"));
+    /* Init activity */
+    this.initActivity();
 
+    /* Activity is ready to be used! */
+    this.submitStatus(LupBookActivity.SubmitStatus.ENABLED);
+  }
 
-  /*
-   * Dragging feature
-   */
-  // Attach "source" dragging functions to choice items
-  choice_items.forEach((choice_item) => {
-    choice_item.draggable = true;
+  initActivity() {
+    /* Attach "source" dragging functions to choice items */
+    this.choiceItems.forEach((item) => {
+      item.draggable = true;
 
-    choice_item.ondragstart = (event) => {
-      event.dataTransfer.clearData();
-      event.dataTransfer.setData("text", event.target.id);
-      event.dataTransfer.effectAllowed = "move";
-      event.target.classList.replace("bg-white", "bg-light-subtle");
-    };
+      item.ondragstart = (event) => {
+        event.dataTransfer.clearData();
+        event.dataTransfer.setData("text", event.target.id);
+        event.dataTransfer.effectAllowed = "move";
+        event.target.classList.replace("bg-white", "bg-light-subtle");
+      };
 
-    choice_item.ondragend = (event) => {
-      event.target.classList.replace("bg-light-subtle", "bg-white");
-    };
-  });
+      item.ondragend = (event) => {
+        event.target.classList.replace("bg-light-subtle", "bg-white");
+      };
+    });
 
-  // Attach "target" dragging functions to answer boxes
-  answer_boxes.forEach((answer_box) => {
-    answer_box.ondragover = (event) => {
-      event.preventDefault();
-      event.dataTransfer.dropEffect = "move";
-    };
+    /* Attach "target" dragging functions to answer boxes */
+    this.answerBoxes.forEach((box) => {
+      box.ondragover = (event) => {
+        event.preventDefault();
+        event.dataTransfer.dropEffect = "move";
+      };
 
-    answer_box.ondragenter = (event) => {
-      event.preventDefault();
-      event.target.classList.replace("bg-light", "bg-secondary-subtle");
-    };
+      box.ondragenter = (event) => {
+        event.preventDefault();
+        event.target.classList.replace("bg-light", "bg-secondary-subtle");
+      };
 
-    answer_box.ondragleave = (event) => {
-      event.preventDefault();
-      event.target.classList.replace("bg-secondary-subtle", "bg-light");
-    };
+      box.ondragleave = (event) => {
+        event.preventDefault();
+        event.target.classList.replace("bg-secondary-subtle", "bg-light");
+      };
 
-    answer_box.ondrop = (event) => {
-      event.preventDefault();
+      box.ondrop = (event) => {
+        event.preventDefault();
 
-      // Dragged element
-      const dragged = document.getElementById(event.dataTransfer.getData("text"));
+        /* Dragged element */
+        const dragged = document.getElementById(event.dataTransfer.getData("text"));
 
-      // Target container
-      const target = event.target.closest(".matching-answer");
+        /* Target container */
+        const target = event.target.closest(".matching-answer");
 
-      // Move dragged element to target container
-      target.appendChild(dragged);
-      event.target.classList.replace("bg-secondary-subtle", "bg-light");
+        /* Move dragged element to target container */
+        target.appendChild(dragged);
+        event.target.classList.replace("bg-secondary-subtle", "bg-light");
 
-      readySubmit();
-    };
-  });
+        /* Modifications re-enable the activity's submittability */
+        this.submitStatus(LupBookActivity.SubmitStatus.ENABLED);
+      };
+    });
 
+    /* Move choice items back to choice box in one click */
+    this.choiceItems.forEach((item) => {
+      item.addEventListener('click', () => {
+        if (item.parentNode != this.choiceBox) {
+          this.choiceBox.appendChild(item);
+          this.submitStatus(LupBookActivity.SubmitStatus.ENABLED);
+        }
+      })
+    });
+  }
 
-  /*
-   * Click events
-   */
-  // Reset button click event
-  reset_btn.addEventListener('click', () => {
-    // Move all choice items back to choice box
-    choice_items.forEach((choice_item) => {
-      choice_box.appendChild(choice_item);
-    })
-    reset();
-  });
+  onReset() {
+    /* Move all choice items back to choice box */
+    this.choiceItems.forEach((item) => this.choiceBox.appendChild(item));
 
-  // Choice items click events
-  choice_items.forEach((choice_item) => {
-    choice_item.addEventListener('click', (event) => {
-      /* Move choice items back to choice box in one click */
-      if (choice_item.parentNode != choice_box) {
-        choice_box.appendChild(choice_item);
-        readySubmit();
-      }
-    })
-  });
+    /* Clear testing area */
+    this.visibilityProgress(false);
+    this.hideFeedback(true);
 
-  // Submit button click event
-  submit_btn.addEventListener('click', () => {
-    let correct_count = 0;
+    this.visibilityTesting(false);
+    this.clearTesting();
 
-    softReset();
+    /* Allow new submission */
+    this.submitStatus(LupBookActivity.SubmitStatus.ENABLED);
+  }
 
-    submit_btn.disabled = true;
+  onSubmit() {
+    const choiceCount = this.choiceItems.length;
+    let correctCount = 0;
 
-    // Check each items
-    choice_items.forEach((choice_item) => {
-      const choice_id = choice_item.id.split('-').pop();
-      const choice_match = choice_item.dataset.match;
-      const containing_box = choice_item.parentNode;
-      const fb_item = document.getElementById(`${prefix_id}-feedback-${choice_id}`);
+    /* Disable buttons */
+    this.submitStatus(LupBookActivity.SubmitStatus.DISABLED);
+    this.resetStatus(false);
 
-      // Show feedback only if choice item was moved to answer box
-      if (containing_box.classList.contains("matching-answer")) {
-        // show corresponding feedback item and color it appropriately
-        fb_item.classList.remove("d-none");
-        if (containing_box.id != `${prefix_id}-answer-${choice_match}`) {
-          fb_item.classList.add("border-danger");
+    /* Clear info from previous submission if any */
+    this.clearProgress();
+    this.clearTesting();
+
+    /* Now compute which choice items are correct */
+    this.choiceItems.forEach((item, idx) => {
+      const choiceContainerElt = item.parentNode;
+      const feedbackItem = this.feedbackItems[idx];
+      const answerMatchId = `${this.prefixId}-answer-${item.dataset.match}`;
+
+      const choiceId = item.id.split('-').pop();
+      if (feedbackItem != document.getElementById(`${this.prefixId}-feedback-${choiceId}`))
+        throw new Error("ohoh");
+
+      /* Show feedback only if choice item was moved to answer box */
+      if (choiceContainerElt.classList.contains("matching-answer")) {
+        /* Show corresponding feedback item and color it appropriately */
+        feedbackItem.classList.remove("d-none");
+        if (choiceContainerElt.id == answerMatchId) {
+          feedbackItem.classList.add("border-success");
+          correctCount++;
         } else {
-          fb_item.classList.add("border-success");
-          correct_count++;
+          feedbackItem.classList.add("border-danger");
         }
       } else {
-        fb_item.classList.add("d-none");
+        feedbackItem.classList.add("d-none");
       }
     });
 
-    // Set up progress bar
-    fb_progress.classList.remove("d-none");
-    fb_progressbars.forEach((item, index) => {
-      if (index < correct_count)
-        item.classList.add("bg-success");
-      else
-        item.classList.add("bg-danger");
-    });
+    /* Set up progress bar */
+    for (let i = 0; i < choiceCount; i++ ) {
+      let s = i < correctCount ? LupBookActivity.ProgressStatus.SUCCESS
+        : LupBookActivity.ProgressStatus.FAILURE;
+      this.progressStatus(i, s);
+    }
+    this.visibilityProgress(true);
 
-    // Configure feedback
-    if (correct_count == choice_items.length) {
-      fb_score.textContent = "Congratulations!";
-      fb_score.classList.add("alert-success");
+    /* Feedback score */
+    if (correctCount == choiceCount) {
+      this.testingScore.textContent = "Congratulations!";
+      this.testingScore.classList.add("alert-success");
     } else {
-      fb_score.textContent = `You correctly matched ${correct_count} items`
-        + ` out of ${choice_items.length}.`;
-      fb_score.classList.add("alert-danger");
+      this.testingScore.textContent =
+        `You correctly matched ${correctCount} items out of ${choiceCount}.`;
+      this.testingScore.classList.add("alert-danger");
     }
 
-    // Show feedback
-    fb_score.classList.remove("d-none");
-    fb_btn.classList.remove("d-none");
-    fb_div_collapse.show();
-    fb_div.addEventListener("shown.bs.collapse", () => {
-      fb_div.scrollIntoView();
-    }, { once: true });
+    /* Show feedback */
+    this.testingScore.classList.remove("d-none");
+    this.showFeedback();
 
     /* Overall feedback via submit button */
-    submit_btn.classList.remove("btn-primary");
-    submit_btn.classList.add(correct_count == choice_items.length ?
-      "btn-success" : "btn-danger");
-  });
-
-  function readySubmit() {
-    submit_btn.classList.add("btn-primary");
-    submit_btn.classList.remove("btn-success", "btn-danger");
-    submit_btn.disabled = false;
+    let s = (correctCount == choiceCount) ?
+      LupBookActivity.SubmitStatus.SUCCESS : LupBookActivity.SubmitStatus.FAILURE;
+    this.submitStatus(s);
+    this.resetStatus(true);
   }
 
-  // Upon reset or upon resubmission
-  function softReset() {
-    fb_score.classList.remove("alert-success", "alert-danger");
-    fb_items.forEach((item) => {
+  clearTesting() {
+    this.testingScore.classList.remove("alert-success", "alert-danger");
+    this.feedbackItems.forEach((item) => {
       item.classList.remove("border-success", "border-danger");
     });
-    fb_progressbars.forEach((item) => {
-        item.classList.remove("bg-success", "bg-danger");
-    });
   }
 
-  // Reset activity
-  function reset() {
-    softReset();
-
-    // Hide feedback section
-    fb_btn.classList.add("d-none");
-    fb_div_collapse.hide();
-
-    // Hide progress bars
-    fb_progress.classList.add("d-none");
-
-    // Hide feedback score
-    fb_score.classList.add("d-none");
-
-    // Hide feedback items
-    fb_items.forEach((item) => {
-      item.classList.add("d-none");
-    });
-
-    readySubmit();
+  visibilityTesting(visible) {
+    if (visible) {
+      this.testingScore.classList.remove("d-none");
+      this.feedbackItems.forEach((item) => {
+        item.classList.remove("d-none");
+      });
+    } else {
+      this.testingScore.classList.add("d-none");
+      this.feedbackItems.forEach((item) => {
+        item.classList.add("d-none");
+      });
+    }
   }
 }
 
@@ -215,7 +204,9 @@ function matching_init(elt) {
  * Initialize "matching" interactive components after page loading
  */
 window.addEventListener('DOMContentLoaded', () => {
+  let matchingActivities = [];
+
   for (const e of document.getElementsByClassName("matching-container")) {
-    matching_init(e);
+    matchingActivities.push(new MatchingActivity(e));
   }
 });
