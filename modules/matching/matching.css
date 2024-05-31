@@ -33,19 +33,6 @@
 }
 
 /*
- * Control elements
- */
-
-/* Feedback collapsing chevron */
-.matching-feedback-btn > i {
-  display: inline-block;
-  transition: transform 0.2s;
-}
-.matching-feedback-btn.collapsed > i {
-  transform: rotate(-180deg);
-}
-
-/*
  * Feedback
  */
 .matching-feedback-item > p:last-child {

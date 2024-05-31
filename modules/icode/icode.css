@@ -37,20 +37,6 @@
   background: var(--bs-secondary-bg);
 }
 
-
-/*
- * Control elements
- */
-
-/* Testing collapsing chevron */
-.icode-testing-btn > i {
-  display: inline-block;
-  transition: transform 0.2s;
-}
-.icode-testing-btn.collapsed > i {
-  transform: rotate(-180deg);
-}
-
 /*
  * Testing
  */

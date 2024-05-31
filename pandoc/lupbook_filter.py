@@ -103,9 +103,41 @@ class LupbookComponent:
         raise NotImplementedError
 
     def _gen_controls(self):
-        raise NotImplementedError
+        with div(cls = "card-body border-top"):
+            with div(cls = "d-flex align-items-center"):
+                with div(cls = "px-1"):
+                    button("Submit",
+                           id = f"{self.prefix_id}-submit",
+                           cls = "btn btn-primary",
+                           disabled = True)
+                    button("Reset",
+                           id = f"{self.prefix_id}-reset",
+                           cls = "btn btn-secondary")
+
+                with div(cls = "px-1 flex-grow-1"):
+                    with div(id = f"{self.prefix_id}-testing-progress",
+                             cls = "progress-stacked d-none",
+                             style="cursor: pointer;",
+                             data_bs_target = f"#{self.prefix_id}-testing",
+                             data_bs_toggle = "collapse"):
+                        for _ in range(self.testing_cnt):
+                            with div(cls = "progress", role = "progressbar",
+                                     style = f"width: {100 / self.testing_cnt}%"):
+                                div(cls = "progress-bar")
+
+                with div(cls = "px-1"):
+                    with button(id = f"{self.prefix_id}-testing-btn",
+                                cls = f"lupbook-testing-btn btn btn-light collapsed d-none",
+                                data_bs_target = f"#{self.prefix_id}-testing",
+                                data_bs_toggle = "collapse", type = "button"):
+                        i(cls = "bi bi-chevron-up")
 
     def _gen_testing(self):
+        with div(id = f"{self.prefix_id}-testing", cls = "collapse"):
+            with div(cls = "card-body border-top"):
+                self._gen_testing_activity()
+
+    def _gen_testing_activity(self):
         raise NotImplementedError
 
     def _gen_footer(self):
