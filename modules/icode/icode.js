@@ -258,7 +258,7 @@ class IcodeTest {
   }
 
   completeTest() {
-    /* Update the overall progress bar for the parent ICode element */
+    /* Update the overall progress bar for the parent IcodeActivity */
     this.icode.completeTest(this.testFailed());
 
     /* Create a check to represent the overall result of the test, and add it
@@ -350,48 +350,28 @@ class IcodeTest {
   }
 }
 
-/*
- * Class ICode
- *
- * There is one object per icode activity.
- */
-class ICode {
+class IcodeActivity extends LupBookActivity {
   /* Class members */
-  prefixID;
   sessionVM;
-  srcFiles = {};
   tests = [];
-
+  srcFiles = {};
   forceUpload = true;
-
-  testingProgress;
-  testingProgressBars;
-  submitBtn;
-  resetBtn;
-  testingDiv;
-  testingDivCollapse;
+  testIdx;
+  testCurrent;
+  testIterator;
 
   /* Class constructor */
   constructor(elt) {
-    /*
-     * Collect handles to various elements
-     */
-    this.prefixID = `icode-${elt.id}`;
+    super('icode', elt);
 
-    /* Progress bars */
-    this.testingProgress = document.getElementById(`${this.prefixID}-testing-progress`);
-    this.testingProgressBars = Array.from(
-      this.testingProgress.getElementsByClassName("progress-bar"));
     this.sessionVM = LupBookVM.session_open();
-
-    const icodeTests = Array.from(elt.getElementsByClassName("icode-test"));
-    const icodeSrcFiles = Array.from(elt.getElementsByClassName("icode-srcfile"));
 
     /*
      * Create test objects
      */
-    icodeTests.forEach((test_elt, idx) => {
-      const t = new ICodeTest(idx, test_elt, this);
+    const icodeTests = Array.from(elt.getElementsByClassName("icode-test"));
+    icodeTests.forEach((testElt, idx) => {
+      const t = new IcodeTest(idx, testElt, this);
       this.tests.push(t);
     });
 
@@ -410,6 +390,7 @@ class ICode {
       }
     };
 
+    const icodeSrcFiles = Array.from(elt.getElementsByClassName("icode-srcfile"));
     icodeSrcFiles.forEach((srcFileElt) => {
       const cmArgs = {...cmBaseArgs};
 
@@ -453,7 +434,8 @@ class ICode {
       if (tab)
         tab.addEventListener("shown.bs.tab", () => cm.refresh());
 
-      cm.on("changes", (cm, changes) => this.readySubmit());
+      /* Re-enable the submission upon changes */
+      cm.on("changes", () => this.submitStatus(LupBookActivity.SubmitStatus.ENABLED));
 
       /* Callbacks to editor used in other methods */
       const filename = srcFileElt.dataset.filename;
@@ -464,26 +446,7 @@ class ICode {
         isClean: () => cm.isClean(),
         markClean: () => cm.markClean(),
       }
-
-
     });
-
-    /* Button events */
-    this.submitBtn = document.getElementById(`${this.prefixID}-submit`);
-    this.submitBtn.onclick = () => this.submitActivity();
-
-    this.resetBtn = document.getElementById(`${this.prefixID}-reset`);
-    this.resetBtn.onclick = () => this.resetActivity();
-
-    this.testingDiv = document.getElementById(`${this.prefixID}-testing`);
-    this.testingDivCollapse = new bootstrap.Collapse(
-      this.testingDiv, { toggle: false });
-  }
-
-  readySubmit() {
-    this.submitBtn.classList.remove("btn-danger", "btn-success");
-    this.submitBtn.classList.add("btn-primary");
-    this.submitBtn.disabled = false;
   }
 
   /* Transfer files associated with icode activity to the VM */
@@ -507,41 +470,35 @@ class ICode {
   }
 
   /* Event handler for reset button */
-  resetActivity() {
+  onReset() {
+    /* Reset code */
     Object.keys(this.srcFiles).forEach((filename) => {
       const srcFile = this.srcFiles[filename];
       srcFile.resetDoc();
     });
     this.forceUpload = true;
 
-    this.readySubmit();
-
-    this.testingProgress.classList.add("d-none");
-    this.testingDivCollapse.hide();
-
-    /* Init all the tests */
+    /* Reset testing */
+    this.visibilityProgress(false);
+    this.hideFeedback();
     this.tests.forEach((test) => test.resetTest());
+
+    /* Allow new submission */
+    this.submitStatus(LupBookActivity.SubmitStatus.ENABLED);
   }
 
   /* Event handler for submit button */
-  submitActivity() {
-    this.initActivity();
-    this.runNextTest();
-  }
+  onSubmit() {
+    /* Disable buttons */
+    this.submitStatus(LupBookActivity.SubmitStatus.DISABLED);
+    this.resetStatus(false);
 
-  initActivity() {
-    /* Prevent user from submitting again until all the tests have completed */
-    this.submitBtn.disabled = true;
+    /* Clear and show progress bar */
+    this.clearProgress();
+    this.visibilityProgress(true);
 
     /* Upload the files to the VM */
     this.uploadSrcFiles();
-
-    /* Reset progress bar */
-    this.testingProgressBars.forEach((item) => {
-        item.classList.remove("bg-success", "bg-danger");
-        item.classList.add("bg-light");
-    });
-    this.testingProgress.classList.remove("d-none");
 
     /* Init all the tests */
     this.tests.forEach((test) => test.initTest());
@@ -549,42 +506,37 @@ class ICode {
     /* Track which test is currently being run */
     this.testIterator = this.tests[Symbol.iterator]();
     this.testCurrent = null;
+
+    this.runNextTest();
   }
 
   runNextTest() {
-    /* Stop running tests if a test marked as fatal failed */
-    if (this.testCurrent
-      && this.testCurrent.testFailed() && this.testCurrent.fatal) {
-      this.completeActivity();
-      return;
+    /* Stop running tests if a test tagged as "fatal" failed */
+    if (this.testCurrent && this.testCurrent.testFailed() && this.testCurrent.fatal) {
+      return this.completeActivity();
     }
 
-    /* Compute current test index */
-    this.fb_idx = this.testCurrent === null ? 0 : this.fb_idx + 1;
-
+    /* We just run the last test */
     let nextTest = this.testIterator.next();
     if (nextTest.done) {
-      this.completeActivity();
-    } else {
-      /* Show ongoing test in progress bar */
-      this.testingProgressBars[this.fb_idx].classList.remove("bg-light");
-      this.testingProgressBars[this.fb_idx].classList.add(
-        "progress-bar-striped", "progress-bar-animated");
-
-      /* Run next test */
-      this.testCurrent = nextTest.value;
-      nextTest.value.runNextStep();
+      return this.completeActivity();
     }
+
+    this.testIdx = (this.testCurrent) ? this.testIdx + 1 : 0;
+
+    /* Show ongoing test in progress bar */
+    this.progressStatus(this.testIdx, LupBookActivity.ProgressStatus.PENDING);
+
+    /* Run next test */
+    this.testCurrent = nextTest.value;
+    nextTest.value.runNextStep();
   }
 
   /* Update progress from test result */
   completeTest(fail) {
-    this.testingProgressBars[this.fb_idx].classList.remove(
-      "progress-bar-striped", "progress-bar-animated");
-    if (fail)
-      this.testingProgressBars[this.fb_idx].classList.add("bg-danger");
-    else
-      this.testingProgressBars[this.fb_idx].classList.add("bg-success");
+    let s = fail ? LupBookActivity.ProgressStatus.FAILURE
+      : LupBookActivity.ProgressStatus.SUCCESS;
+    this.progressStatus(this.testIdx, s);
   }
 
   completeActivity() {
@@ -597,24 +549,20 @@ class ICode {
 
       fail = true;
 
-      if (this.testingDiv.classList.contains('show')) {
-        /* Testing div already open, open accordion of failed test */
+      this.showFeedback(() => {
+        test.testingDiv.addEventListener("shown.bs.collapse",
+          () => test.testingElt.scrollIntoView(), { once: true });
         test.testingDivCollapse.show();
-      } else {
-        this.testingDiv.addEventListener("shown.bs.collapse", () => {
-          /* Open accordion after testing div has opened */
-          test.testingDivCollapse.show();
-        }, { once: true });
-        /* Open testing div */
-        this.testingDivCollapse.show();
-      }
+      });
 
       break;
     }
 
     /* Overall feedback via submit button */
-    this.submitBtn.classList.remove("btn-primary");
-    this.submitBtn.classList.add(fail ? "btn-danger" : "btn-success");
+    let s = fail ? LupBookActivity.SubmitStatus.FAILURE
+      : LupBookActivity.SubmitStatus.SUCCESS;
+    this.submitStatus(s);
+    this.resetStatus(true);
   }
 }
 
@@ -660,7 +608,7 @@ window.addEventListener('DOMContentLoaded', () => {
    */
   let icodes = [];
   for (const e of document.getElementsByClassName("icode-container")) {
-    icodes.push(new ICode(e));
+    icodes.push(new IcodeActivity(e));
   }
 
   /*
@@ -670,7 +618,7 @@ window.addEventListener('DOMContentLoaded', () => {
   LupBookVM.start({
     on_init: () => {
       /* Once the VM is up and ready, make icode activities submittable */
-      icodes.forEach(icode => icode.readySubmit());
+      icodes.forEach(icode => icode.submitStatus(LupBookActivity.SubmitStatus.ENABLED));
     },
     on_error: () => { console.log("VM Error!"); },
     console_debug_write: c => { term.write(c); }
