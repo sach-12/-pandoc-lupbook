@@ -89,7 +89,7 @@ class LupbookComponent:
         raise NotImplementedError
 
     def _gen_header(self):
-        with div(cls = "card-header"):
+        with div(cls = "card-header py-1 px-2"):
             div(self._activity_name(), cls = "text-secondary small")
 
     def _gen_description(self):
@@ -103,9 +103,9 @@ class LupbookComponent:
         raise NotImplementedError
 
     def _gen_controls(self):
-        with div(cls = "card-body border-top"):
+        with div(cls = "card-body p-2 m-0 border-top"):
             with div(cls = "d-flex align-items-center"):
-                with div(cls = "px-1"):
+                with div(cls = "ps-2"):
                     button("Submit",
                            id = f"{self.prefix_id}-submit",
                            cls = "btn btn-primary",
@@ -114,7 +114,7 @@ class LupbookComponent:
                            id = f"{self.prefix_id}-reset",
                            cls = "btn btn-secondary")
 
-                with div(cls = "px-1 flex-grow-1"):
+                with div(cls = "px-2 flex-grow-1"):
                     with div(id = f"{self.prefix_id}-testing-progress",
                              cls = "progress-stacked d-none",
                              style="cursor: pointer;",
@@ -125,7 +125,7 @@ class LupbookComponent:
                                      style = f"width: {100 / self.testing_cnt}%"):
                                 div(cls = "progress-bar")
 
-                with div(cls = "px-1"):
+                with div(cls = "pe-2"):
                     with button(id = f"{self.prefix_id}-testing-btn",
                                 cls = f"lupbook-testing-btn btn btn-light collapsed d-none",
                                 data_bs_target = f"#{self.prefix_id}-testing",
@@ -141,7 +141,7 @@ class LupbookComponent:
         raise NotImplementedError
 
     def _gen_footer(self):
-        with div(cls = "card-footer"):
+        with div(cls = "card-footer py-1 px-2"):
             div(self.conf["id"], cls = "text-end text-secondary small")
 
     def _generate_html(self):
