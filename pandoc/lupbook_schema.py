@@ -44,7 +44,7 @@ def _check_lupbook_id(value):
         _check_lupbook_id.all_ids = set()
 
     # Allow all alphanumeric characters and hyphens, but that's it
-    if (not re.fullmatch("[\w\-]+", value)
+    if (not re.fullmatch(r'[\w\-]+', value)
         or value in _check_lupbook_id.all_ids):
         return False
 
