@@ -33,23 +33,9 @@ LupbookLoader.add_constructor('!include', LupbookLoader.include)
 LupbookLoader.add_constructor('!raw_include', LupbookLoader.raw_include)
 
 #
-# Generic interactive component
+# Generic class from which filters for the different interactive activities are
+# meant to derive
 #
-
-# Only consider fenced code blocks that correspond to @cls
-def validate_element(cls, element, doc):
-    if type(element)!= panflute.CodeBlock \
-            or cls not in element.classes \
-            or not doc.format == "html":
-                return False
-
-    # TODO: May want to enforce that our interactive element have an ID in order
-    # to help with debugging (if the YAML config is incorrect for instance).
-    # Otherwise, we don't have a good way of pointing where errors are.
-    # => if element.ident == "": raise Exception
-
-    return True
-
 class LupbookComponent:
     def __init__(self, yaml_config):
         # Load YAML config

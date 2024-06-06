@@ -16,6 +16,11 @@ def _process_lupbook_filters(element, doc):
     if (type(element)!= panflute.CodeBlock or not doc.format == "html"):
         return
 
+    # TODO: May want to enforce that our interactive element have an ID in order
+    # to help with debugging (if the YAML config is incorrect for instance).
+    # Otherwise, we don't have a good way of pointing where errors are.
+    # => if element.ident == "": raise Exception
+
     # Find the corresponding lupbook filter if any
     # NOTE: we only look at the first element class
     lb_filters = [
