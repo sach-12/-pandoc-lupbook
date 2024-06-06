@@ -3,9 +3,6 @@
 # Copyright (c) 2021 LupLab
 # SPDX-License-Identifier: AGPL-3.0-only
 
-import os
-import yaml
-
 import panflute
 
 import fia_filter

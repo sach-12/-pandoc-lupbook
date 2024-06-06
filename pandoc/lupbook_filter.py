@@ -5,7 +5,7 @@ Shared code between filters
 import os
 import sys
 
-from dominate.tags import *
+from dominate.tags import button, div, h5, i
 from dominate.util import raw
 import jsonschema
 import panflute
@@ -39,7 +39,7 @@ LupbookLoader.add_constructor('!raw_include', LupbookLoader.raw_include)
 # Only consider fenced code blocks that correspond to @cls
 def validate_element(cls, element, doc):
     if type(element)!= panflute.CodeBlock \
-            or not cls in element.classes \
+            or cls not in element.classes \
             or not doc.format == "html":
                 return False
 
@@ -127,7 +127,7 @@ class LupbookComponent:
 
                 with div(cls = "pe-2"):
                     with button(id = f"{self.prefix_id}-testing-btn",
-                                cls = f"lupbook-testing-btn btn btn-light collapsed d-none",
+                                cls = "lupbook-testing-btn btn btn-light collapsed d-none",
                                 data_bs_target = f"#{self.prefix_id}-testing",
                                 data_bs_toggle = "collapse", type = "button"):
                         i(cls = "bi bi-chevron-up")
@@ -158,5 +158,5 @@ class LupbookComponent:
         return panflute.RawBlock(text=root.render(), format='html')
 
     def process(self):
-        return self._generate_html();
+        return self._generate_html()
 

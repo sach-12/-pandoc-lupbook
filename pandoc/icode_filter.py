@@ -4,7 +4,7 @@
 import base64
 import json
 
-from dominate.tags import *
+from dominate.tags import button, div, i, li, textarea, ul
 
 import icode_schema
 import lupbook_filter
@@ -26,9 +26,9 @@ def _normalize_line_ranges(yaml_rangelist, max_lines):
     """
     sanitized = []
     for item in yaml_rangelist:
-        if type(item) is int:
+        if isinstance(item, int):
             start, end = item, item
-        elif type(item) is dict:
+        elif isinstance(item, dict):
             start, end = item["from"], item["to"]
 
         # Count from the end if values are negative
@@ -77,16 +77,16 @@ def _negate_line_ranges(rangelist, max_lines):
     return negated
 
 def _encode_rdonly(yaml_ro, file_data):
-    if yaml_ro == None:
-        return "";
+    if yaml_ro is None:
+        return ""
 
     endl = file_data.count("\n") + 1
 
-    if type(yaml_ro) == bool:
+    if isinstance(yaml_ro, bool):
         return yaml_ro
 
     negate = False
-    if type(yaml_ro) == dict and "except" in yaml_ro:
+    if isinstance(yaml_ro, dict) and "except" in yaml_ro:
         negate = True
         yaml_ro = yaml_ro["except"]
 

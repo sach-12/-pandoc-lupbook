@@ -1,7 +1,7 @@
 # Copyright (c) 2021 LupLab
 # SPDX-License-Identifier: AGPL-3.0-only
 
-from dominate.tags import *
+from dominate.tags import div
 from dominate.util import raw
 
 import lupbook_filter

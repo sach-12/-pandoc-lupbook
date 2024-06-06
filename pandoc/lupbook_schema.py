@@ -13,7 +13,7 @@ def _extend_with_default(validator_class):
     def set_defaults(validator, properties, instance, schema):
         for property, subschema in properties.items():
             if "default" in subschema:
-                if type(instance) != dict:
+                if not isinstance(instance, dict):
                     continue
                 if callable(subschema["default"]):
                     instance.setdefault(property, subschema["default"](instance))
