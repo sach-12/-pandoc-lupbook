@@ -64,11 +64,18 @@ class LupBookActivity {
 
   showFeedback(onShow = null) {
     this.testingBtn.classList.remove("d-none");
-    this.testingDiv.addEventListener("shown.bs.collapse", () => {
-      this.testingDiv.scrollIntoView();
+    let showTestingDiv = () => {
+      this.testingDiv.scrollIntoView({ block: "nearest" });
       if (onShow) onShow();
-    }, { once: true });
-    this.testingDivCollapse.show();
+    };
+    if (this.testingDiv.classList.contains("show")) {
+      showTestingDiv();
+    } else {
+      this.testingDiv.addEventListener("shown.bs.collapse", showTestingDiv, {
+        once: true
+      });
+      this.testingDivCollapse.show();
+    }
   }
 
   hideFeedback(hideBtn = false) {
