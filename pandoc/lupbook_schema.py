@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 
 import re
+import sys
 
 import jsonschema
 
@@ -44,8 +45,11 @@ def _check_lupbook_id(value):
         _check_lupbook_id.all_ids = set()
 
     # Allow all alphanumeric characters and hyphens, but that's it
-    if (not re.fullmatch(r'[\w\-]+', value)
-        or value in _check_lupbook_id.all_ids):
+    if not re.fullmatch(r'[\w\-]+', value):
+        sys.stderr.write(f"Invalid activity id '{value}'\n")
+        return False
+    if value in _check_lupbook_id.all_ids:
+        sys.stderr.write(f"Non-unique activity id '{value}'\n")
         return False
 
     _check_lupbook_id.all_ids.add(value)
