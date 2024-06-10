@@ -26,6 +26,7 @@ def _process_lupbook_filters(element, doc):
     lb_filters = [
         icode_filter.LupbookICode,
         matching_filter.LupbookMatching,
+        mcq_filter.LupbookMCQ,
         ]
     lb_filter_map = { f.activity_id(): f for f in lb_filters }
     try:
@@ -40,7 +41,6 @@ if __name__ == "__main__":
     actions = [
             _process_lupbook_filters,
             fia_filter.FIA,
-            mcq_filter.MCQ,
             parsons_filter.Parsons,
             ]
     panflute.run_filters(actions)

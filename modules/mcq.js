@@ -1,211 +1,190 @@
-function nextChar(c) {
-  return String.fromCharCode(c.charCodeAt(0) + 1);
-}
+/*
+ * Copyright (c) 2023 LupLab
+ * SPDX-License-Identifier: AGPL-3.0-only
+ */
 
-var mcqs = {};
+class MCQActivity extends LupBookActivity {
+  /* Class members */
+  choiceItems = [];
 
-class MCQ_One {
+  testingScore;
+  feedbackItems = [];
 
+  totalCorrectCount = 0;
+  testingCount = 0;
+
+  selectedCount = 0;
+
+  /* Class methods */
   constructor(elt) {
-    this.id = elt.id;
+    super("mcq", elt);
 
-    this.submit_btn = elt.getElementsByClassName("mcq-c-button__submit")[0];
-    this.submit_btn.disabled = true;
+    /* Handles on various elements of our activity */
+    this.choiceItems = Array.from(
+      elt.getElementsByClassName("form-check-input")
+    );
+    this.testingScore = document.getElementById(
+      `${this.prefixId}-testing-score`
+    );
+    this.feedbackItems = Array.from(
+      elt.getElementsByClassName("mcq-feedback-item")
+    );
 
-    this.reset_btn = elt.getElementsByClassName("mcq-c-button__reset")[0];
-    this.reset_btn.disabled = true;
+    /* Init activity */
+    this.initActivity();
+  }
 
-    this.choices = elt.getElementsByClassName("mcq-l-radio");
-    for (let choice of this.choices) {
-      // reset the Radio buttons on page reload
-      choice.checked = false;
+  resetSelection() {
+    this.selectedCount = 0;
+    this.choiceItems.forEach((item) => {
+      item.checked = false;
+    });
 
-      choice.addEventListener('click', () => {
-        this.submit_btn.disabled = false;
-        this.reset_btn.disabled = false;
-      })
+    /* No new submission until an item is clicked */
+    this.submitStatus(LupBookActivity.SubmitStatus.DISABLED);
+    this.resetStatus(false);
+  }
+
+  initActivity() {
+    this.resetSelection();
+
+    this.choiceItems.forEach((item) => {
+      if (item.dataset.correct !== undefined) this.totalCorrectCount++;
+
+      item.addEventListener("click", () => {
+        if (item.checked) this.selectedCount++;
+        else this.selectedCount--;
+
+        if (this.selectedCount == 0) {
+          this.submitStatus(LupBookActivity.SubmitStatus.DISABLED);
+        } else if (this.selectedCount >= 1) {
+          this.submitStatus(LupBookActivity.SubmitStatus.ENABLED);
+          this.resetStatus(true);
+        }
+      });
+    });
+
+    this.testingCount =
+      this.choiceItems[0].type == "radio" ? 1 : this.choiceItems.length;
+  }
+
+  onReset() {
+    this.resetSelection();
+
+    /* Clear testing area */
+    this.visibilityProgress(false);
+    this.hideFeedback(true);
+
+    this.visibilityTesting(false);
+    this.clearTesting();
+  }
+
+  onSubmit() {
+    let userSelected = 0,
+      userCorrect = 0;
+
+    /* Disable buttons */
+    this.submitStatus(LupBookActivity.SubmitStatus.DISABLED);
+    this.resetStatus(false);
+
+    /* Clear info from previous submission if any */
+    this.clearProgress();
+    this.clearTesting();
+
+    /* Now compute which choice items are correct */
+    this.choiceItems.forEach((item, idx) => {
+      const feedbackItem = this.feedbackItems[idx];
+
+      /* Show feedback only if choice item was selected */
+      if (item.checked == true) {
+        userSelected++;
+
+        /* Show corresponding feedback item and color it appropriately */
+        feedbackItem.classList.remove("d-none");
+        if (item.dataset.correct !== undefined) {
+          feedbackItem.classList.add("border-success");
+          userCorrect++;
+        } else {
+          feedbackItem.classList.add("border-danger");
+        }
+      } else {
+        feedbackItem.classList.add("d-none");
+      }
+    });
+
+    /* Overall success */
+    let success =
+      userSelected == this.totalCorrectCount &&
+      userCorrect == this.totalCorrectCount;
+
+    /* Set up progress bar */
+    for (let i = 0; i < this.testingCount; i++) {
+      let s =
+        success ||
+        i <
+          this.testingCount -
+            ((this.totalCorrectCount - userCorrect) +
+            (userSelected - userCorrect))
+          ? LupBookActivity.ProgressStatus.SUCCESS
+          : LupBookActivity.ProgressStatus.FAILURE;
+      this.progressStatus(i, s);
+    }
+    this.visibilityProgress(true);
+
+    /* Feedback score */
+    if (success) {
+      this.testingScore.classList.add("alert-success");
+      this.testingScore.textContent = "Congratulations!";
+    } else {
+      this.testingScore.classList.add("alert-danger");
+
+      if (this.choiceItems[0].type == "radio" )
+        this.testingScore.textContent = "Incorrect answer.";
+      else
+        this.testingScore.textContent = `You selected ${userSelected} items: ${userCorrect} out of ${this.totalCorrectCount} correct items and ${userSelected - userCorrect} incorrect items.`;
     }
 
-    this.feedback_btn = elt.getElementsByClassName("mcq-c-feedback__toggle")[0];
-    this.feedback_elt = elt.getElementsByClassName("mcq-l-feedback")[0];
-    this.feedback_coll = new bootstrap.Collapse(this.feedback_elt, {
-      toggle: false
+    /* Show feedback */
+    this.testingScore.classList.remove("d-none");
+    this.showFeedback();
+
+    /* Overall feedback via submit button */
+    let s = success
+      ? LupBookActivity.SubmitStatus.SUCCESS
+      : LupBookActivity.SubmitStatus.FAILURE;
+    this.submitStatus(s);
+    this.resetStatus(true);
+  }
+
+  clearTesting() {
+    this.testingScore.classList.remove("alert-success", "alert-danger");
+    this.feedbackItems.forEach((item) => {
+      item.classList.remove("border-success", "border-danger");
     });
-    this.feedbacks = elt.getElementsByClassName("mcq-l-check");
+  }
 
-    this.submit_btn.addEventListener('click', () => {
-      this.submit_btn.disabled = true;
-
-      for (let i = 0; i < this.choices.length; i++) {
-        let choice = this.choices[i];
-        let feedback = this.feedbacks[i];
-
-        choice.disabled = true;
-        feedback.classList.toggle("d-none", !choice.checked);
-
-        choice.checked && feedback.classList.contains("mcq-l-check-pass") ?
-        this.submit_btn.style.backgroundColor = "#198754" :
-        this.submit_btn.style.backgroundColor = "#e35d6a";
-      }
-
-      /* Uncollapse feedback */
-      this.feedback_btn.classList.remove("d-none");
-      this.feedback_coll.show();
-    });
-
-    this.reset_btn.addEventListener('click', () => {
-      /* Collapse feedback */
-      this.feedback_btn.classList.add("d-none");
-      this.feedback_coll.hide();
-
-      /* Reset choices */
-      for (let i = 0; i < this.choices.length; i++) {
-        let choice = this.choices[i];
-        let feedback = this.feedbacks[i];
-
-        choice.disabled = false;
-        choice.checked = false;
-        feedback.classList.add("d-none");
-      }
-      this.submit_btn.style.backgroundColor = "#0B5ED7";
-      this.submit_btn.disabled = true;
-      this.reset_btn.disabled = true;
-    });
-
-    this.spans = elt.getElementsByClassName("mcq-l-spans");
-    /* Lettering for choices and feedback */
-    let label = 'A';
-    for (let span of this.spans) {
-      span.textContent = label + ". ";
-      span.style.fontWeight = "bold";
-      label = nextChar(label);
-    }
-    label = 'A';
-    for (let i = 0; i < this.feedbacks.length; i++) {
-      let feedback = this.feedbacks[i];
-      let label_node = document.createTextNode(label+". ");
-      feedback.insertBefore(label_node, feedback.firstChild);
-      label = nextChar(label);
+  visibilityTesting(visible) {
+    if (visible) {
+      this.testingScore.classList.remove("d-none");
+      this.feedbackItems.forEach((item) => {
+        item.classList.remove("d-none");
+      });
+    } else {
+      this.testingScore.classList.add("d-none");
+      this.feedbackItems.forEach((item) => {
+        item.classList.add("d-none");
+      });
     }
   }
 }
 
-class MCQ_Many {
+/*
+ * Initialize "MCQ" interactive activities after page loading
+ */
+window.addEventListener("DOMContentLoaded", () => {
+  let mcqActivities = [];
 
-  constructor(elt){
-    this.id = elt.id;
-
-    this.submit_btn = elt.getElementsByClassName("mcq-c-button__submit")[0];
-    this.submit_btn.disabled = true;
-
-    this.reset_btn = elt.getElementsByClassName("mcq-c-button__reset")[0];
-    this.reset_btn.disabled = true;
-
-    this.num_correct = elt.getElementsByClassName("mcq-l-num-correct")[0];
-
-    this.choices = elt.getElementsByClassName("mcq-l-checkbox");
-    for (let choice of this.choices) {
-      // reset the check boxes on page reload
-      choice.checked = false;
-
-      choice.addEventListener('click', () => {
-        this.submit_btn.disabled = false;
-        this.reset_btn.disabled = false;
-      })
-    }
-
-    this.feedback_btn = elt.getElementsByClassName("mcq-c-feedback__toggle")[0];
-    this.feedback_elt = elt.getElementsByClassName("mcq-l-feedback")[0];
-    this.feedback_coll = new bootstrap.Collapse(this.feedback_elt, {
-      toggle: false
-    });
-    this.feedbacks = elt.getElementsByClassName("mcq-l-check");
-
-    this.submit_btn.addEventListener('click', () => {
-      let chosen = [], answers = [];
-      let numCorrect = 0;
-      this.submit_btn.disabled = true;
-
-      for (let i = 0; i < this.choices.length; i++) {
-        let choice = this.choices[i];
-        let feedback = this.feedbacks[i];
-
-        choice.disabled = true;
-        feedback.classList.toggle("d-none", !choice.checked);
-
-        /* Calculations to get number of correct answers */
-        if (feedback.classList.contains("mcq-l-check-pass")) {
-          answers.push(choice.id);
-          if (choice.checked) {
-            numCorrect++;
-            chosen.push(choice.id);
-          }
-        }
-        else {
-          if (choice.checked) {
-            chosen.push(choice.id);
-          }
-        }
-      }
-
-      if (chosen.toString() == answers.toString()) {
-        this.submit_btn.style.backgroundColor = "#198754";
-        this.num_correct.classList.add("d-none");
-      }
-      else {
-        this.submit_btn.style.backgroundColor = "#e35d6a";
-        let numCorrectMsg = `You gave ${chosen.length} answer(s) and got ${numCorrect} out of ${answers.length} correct`;
-        this.num_correct.innerHTML = numCorrectMsg;
-        this.num_correct.classList.remove("d-none");
-      }
-
-      /* Uncollapse feedback */
-      this.feedback_btn.classList.remove("d-none");
-      this.feedback_coll.show();
-    });
-
-    this.reset_btn.addEventListener('click', () => {
-      /* Collapse feedback */
-      this.feedback_btn.classList.add("d-none");
-      this.feedback_coll.hide();
-
-      /* Reset choices */
-      for (let i = 0; i < this.choices.length; i++) {
-        let choice = this.choices[i];
-        let feedback = this.feedbacks[i];
-
-        choice.disabled = false;
-        choice.checked = false;
-        feedback.classList.add("d-none");
-      }
-      this.submit_btn.style.backgroundColor = "#0B5ED7";
-      this.submit_btn.disabled = true;
-      this.reset_btn.disabled = true;
-    });
-
-    this.spans = elt.getElementsByClassName("mcq-l-spans");
-    /* Lettering for choices and feedback */
-    let label = 'A';
-    for (let span of this.spans) {
-      span.textContent = label + ". ";
-      span.style.fontWeight = "bold";
-      label = nextChar(label);
-    }
-    label = 'A';
-    for (let i = 0; i < this.feedbacks.length; i++) {
-      let feedback = this.feedbacks[i];
-      let label_node = document.createTextNode(label+". ");
-      feedback.insertBefore(label_node, feedback.firstChild);
-      label = nextChar(label);
-    }
-  }
-}
-
-window.addEventListener('DOMContentLoaded', (evt) => {
-  for (const mcq_elt of document.getElementsByClassName("mcq-l-container-one")) {
-    mcqs[mcq_elt.id] = new MCQ_One(mcq_elt);
-  }
-  for (const mcq_elt of document.getElementsByClassName("mcq-l-container-many")){
-    mcqs[mcq_elt.id] = new MCQ_Many(mcq_elt);
+  for (const e of document.getElementsByClassName("mcq-container")) {
+    mcqActivities.push(new MCQActivity(e));
   }
 });

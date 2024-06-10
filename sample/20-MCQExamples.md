@@ -6,28 +6,23 @@ Write any MCQ you want, select your answer(s) and click on run to see the
 answer.
 
 ``` mcq
-id: circum
+id: circumference
 title: Circumference
-type: one
-random: false
-stem: |
+prompt: |
       *Let’s explore the mathematical world of circles!*
 
       What is the formula for the **circumference of a circle**?
 
       We covered this in `Section 1`.
-answers:
-  - id: choice1
-    text: $r$
+choices:
+  - text: $r$
     feedback: |
       The radius only refers to the distance from the center to any edge of the
       circle, not the circumference itself.
-  - id: choice2
-    text: $2\pi^2$
+  - text: $2\pi^2$
     feedback: |
       That’s right! The circumference of a circle is given by $2\pi^2$.
-key:
-   - choice2
+    correct: true
 ```
 
 This is a simple example where only one of the choices is correct. Let us define
@@ -46,63 +41,54 @@ One can specify whether the choices to each question are randomized using the
 key; its default value is `false`.
 
 ``` mcq
-id: circumference
-title: Circumference
-type: one
+id: prog-language
+title: Programming languages
 random: true
-stem: |
-      *Let’s explore the mathematical world of circles!*
-
-      What is the formula for the **circumference of a circle**?
-
-      We covered this in `Section 1`.
-answers:
-  - id: choice1
-    text: $r$
+prompt: |
+    Which of the following is **not** a programming language?
+choices:
+  - text: Python
     feedback: |
-      The radius only refers to the distance from the center to any edge of the
-      circle, not the circumference itself.
-  - id: choice2
-    text: $2\pi^2$
+      Python is a progamming language created by Guido Van Rossum.
+  - text: Javascript
     feedback: |
-      That’s right! The circumference of a circle is given by $2\pi r^2$.
-key:
-   - choice2
+      Did you know that the first version of Javascript had been created in only
+      10 days back in 1995, as a way to make web pages dynamic!
+  - text: HTML
+    feedback: |
+      HTML is a *markup* language for displaying documents in a web browser. It
+      was invented at CERN and released in 1993.
+    correct: true
+  - text: Java
+    feedback: |
+      Java is one of the most popular object-oriented programming languages,
+      developed by Sun Microsystems in 1995.
 ```
-
-Notice that each choice is given its own unique id. This id is referred to in
-the `key` when listing which choice(s) are correct.
 
 ### One-to-many MCQs
 
-With the `type: many` key, one can specify multiple correct answers to a
+With the `many: true` key, one can specify multiple correct answers to a
 question.
 
 ``` mcq
 id: c-native-types
-title: Data Types
-type: many
-random: true
-stem: |
+title: Data Types in C
+many: true
+prompt: |
       Which of the following are **native C data types**?
-answers:
-  - id: choice1
-    text: int
+choices:
+  - text: int
     feedback: |
-      Yes, 'int' is a type for holding integers.
-  - id: choice2
-    text: let
+      Yes, `int` is a type for holding integers.
+    correct: true
+  - text: let
     feedback: |
-      'let' is a construct for declaring variables in Javascript.
-  - id: choice3
-    text: var
+      `let` is a construct for declaring variables in Javascript.
+  - text: var
     feedback: |
-      'var' is a construct for declaring variables in Javascript.
-  - id: choice4
-    text: char
+      `var` is a construct for declaring variables in Javascript.
+  - text: char
     feedback: |
-      Yes, 'char' is a type for holding characters.
-key:
-   - choice1
-   - choice4
+      Yes, `char` is a type for holding characters.
+    correct: true
 ```
