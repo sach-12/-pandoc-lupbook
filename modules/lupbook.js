@@ -5,17 +5,17 @@
 
 class LupBookActivity {
   static SubmitStatus = Object.freeze({
-    ENABLED:  'ENABLED',
-    DISABLED: 'DISABLED',
-    SUCCESS:  'SUCCESS',
-    FAILURE:  'FAILURE',
+    ENABLED: "ENABLED",
+    DISABLED: "DISABLED",
+    SUCCESS: "SUCCESS",
+    FAILURE: "FAILURE"
   });
 
   static ProgressStatus = Object.freeze({
-    RESET:    'CLEAR',
-    PENDING:  'PENDING',
-    SUCCESS:  'SUCCESS',
-    FAILURE:  'FAILURE',
+    RESET: "CLEAR",
+    PENDING: "PENDING",
+    SUCCESS: "SUCCESS",
+    FAILURE: "FAILURE"
   });
 
   /* Class members */
@@ -39,27 +39,31 @@ class LupBookActivity {
     this.resetBtn = document.getElementById(`${this.prefixId}-reset`);
     this.testingBtn = document.getElementById(`${this.prefixId}-testing-btn`);
 
-    this.testingProgress = document.getElementById(`${this.prefixId}-testing-progress`);
+    this.testingProgress = document.getElementById(
+      `${this.prefixId}-testing-progress`
+    );
     this.testingProgressBars = Array.from(
-      this.testingProgress.getElementsByClassName("progress-bar"));
+      this.testingProgress.getElementsByClassName("progress-bar")
+    );
 
     /*
      * Collect handles to various elements
      */
     this.testingDiv = document.getElementById(`${this.prefixId}-testing`);
-    this.testingDivCollapse = new bootstrap.Collapse(
-      this.testingDiv, { toggle: false });
+    this.testingDivCollapse = new bootstrap.Collapse(this.testingDiv, {
+      toggle: false
+    });
 
     this.submitBtn.onclick = () => this.onSubmit();
     this.resetBtn.onclick = () => this.onReset();
   }
 
   onSubmit() {
-    throw new Error('This method should be overridden by subclasses');
+    throw new Error("This method should be overridden by subclasses");
   }
 
   onReset() {
-    throw new Error('This method should be overridden by subclasses');
+    throw new Error("This method should be overridden by subclasses");
   }
 
   showFeedback(onShow = null) {
@@ -109,8 +113,7 @@ class LupBookActivity {
   }
 
   progressStatus(idx, progressState) {
-    if (idx === undefined)
-      throw new Error;
+    if (idx === undefined) throw new Error();
     let item = this.testingProgressBars[idx];
     switch (progressState) {
       case LupBookActivity.ProgressStatus.CLEAR:
@@ -122,11 +125,19 @@ class LupBookActivity {
         item.classList.add("progress-bar-striped", "progress-bar-animated");
         break;
       case LupBookActivity.ProgressStatus.SUCCESS:
-        item.classList.remove("bg-light", "progress-bar-striped", "progress-bar-animated");
+        item.classList.remove(
+          "bg-light",
+          "progress-bar-striped",
+          "progress-bar-animated"
+        );
         item.classList.add("bg-success");
         break;
       case LupBookActivity.ProgressStatus.FAILURE:
-        item.classList.remove("bg-light", "progress-bar-striped", "progress-bar-animated");
+        item.classList.remove(
+          "bg-light",
+          "progress-bar-striped",
+          "progress-bar-animated"
+        );
         item.classList.add("bg-danger");
         break;
     }
