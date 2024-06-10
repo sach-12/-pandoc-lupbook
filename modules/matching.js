@@ -14,18 +14,23 @@ class MatchingActivity extends LupBookActivity {
 
   /* Class methods */
   constructor(elt) {
-    super('matching', elt);
+    super("matching", elt);
 
     /* Handle on various elements of our activity */
     this.choiceBox = document.getElementById(`${this.prefixId}-choices`);
     this.choiceItems = Array.from(
-      this.choiceBox.getElementsByClassName("matching-choice"));
+      this.choiceBox.getElementsByClassName("matching-choice")
+    );
     this.answerBoxes = Array.from(
-      elt.getElementsByClassName("matching-answer"));
+      elt.getElementsByClassName("matching-answer")
+    );
 
-    this.testingScore = document.getElementById(`${this.prefixId}-testing-score`);
+    this.testingScore = document.getElementById(
+      `${this.prefixId}-testing-score`
+    );
     this.feedbackItems = Array.from(
-      elt.getElementsByClassName("matching-feedback-item"));
+      elt.getElementsByClassName("matching-feedback-item")
+    );
 
     /* Init activity */
     this.initActivity();
@@ -72,7 +77,9 @@ class MatchingActivity extends LupBookActivity {
         event.preventDefault();
 
         /* Dragged element */
-        const dragged = document.getElementById(event.dataTransfer.getData("text"));
+        const dragged = document.getElementById(
+          event.dataTransfer.getData("text")
+        );
 
         /* Target container */
         const target = event.target.closest(".matching-answer");
@@ -88,12 +95,12 @@ class MatchingActivity extends LupBookActivity {
 
     /* Move choice items back to choice box in one click */
     this.choiceItems.forEach((item) => {
-      item.addEventListener('click', () => {
+      item.addEventListener("click", () => {
         if (item.parentNode != this.choiceBox) {
           this.choiceBox.appendChild(item);
           this.submitStatus(LupBookActivity.SubmitStatus.ENABLED);
         }
-      })
+      });
     });
   }
 
@@ -130,8 +137,11 @@ class MatchingActivity extends LupBookActivity {
       const feedbackItem = this.feedbackItems[idx];
       const answerMatchId = `${this.prefixId}-answer-${item.dataset.match}`;
 
-      const choiceId = item.id.split('-').pop();
-      if (feedbackItem != document.getElementById(`${this.prefixId}-feedback-${choiceId}`))
+      const choiceId = item.id.split("-").pop();
+      if (
+        feedbackItem !=
+        document.getElementById(`${this.prefixId}-feedback-${choiceId}`)
+      )
         throw new Error("ohoh");
 
       /* Show feedback only if choice item was moved to answer box */
@@ -150,9 +160,11 @@ class MatchingActivity extends LupBookActivity {
     });
 
     /* Set up progress bar */
-    for (let i = 0; i < choiceCount; i++ ) {
-      let s = i < correctCount ? LupBookActivity.ProgressStatus.SUCCESS
-        : LupBookActivity.ProgressStatus.FAILURE;
+    for (let i = 0; i < choiceCount; i++) {
+      let s =
+        i < correctCount
+          ? LupBookActivity.ProgressStatus.SUCCESS
+          : LupBookActivity.ProgressStatus.FAILURE;
       this.progressStatus(i, s);
     }
     this.visibilityProgress(true);
@@ -162,8 +174,7 @@ class MatchingActivity extends LupBookActivity {
       this.testingScore.textContent = "Congratulations!";
       this.testingScore.classList.add("alert-success");
     } else {
-      this.testingScore.textContent =
-        `You correctly matched ${correctCount} items out of ${choiceCount}.`;
+      this.testingScore.textContent = `You correctly matched ${correctCount} items out of ${choiceCount}.`;
       this.testingScore.classList.add("alert-danger");
     }
 
@@ -172,8 +183,10 @@ class MatchingActivity extends LupBookActivity {
     this.showFeedback();
 
     /* Overall feedback via submit button */
-    let s = (correctCount == choiceCount) ?
-      LupBookActivity.SubmitStatus.SUCCESS : LupBookActivity.SubmitStatus.FAILURE;
+    let s =
+      correctCount == choiceCount
+        ? LupBookActivity.SubmitStatus.SUCCESS
+        : LupBookActivity.SubmitStatus.FAILURE;
     this.submitStatus(s);
     this.resetStatus(true);
   }
@@ -203,7 +216,7 @@ class MatchingActivity extends LupBookActivity {
 /*
  * Initialize "matching" interactive components after page loading
  */
-window.addEventListener('DOMContentLoaded', () => {
+window.addEventListener("DOMContentLoaded", () => {
   let matchingActivities = [];
 
   for (const e of document.getElementsByClassName("matching-container")) {
