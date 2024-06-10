@@ -65,7 +65,7 @@ class LupbookMatching(lupbook_filter.LupbookComponent):
                 div("...and drop them here (click to remove)",
                     cls = "small fst-italic text-secondary")
                 with div(id = f"{self.prefix_id}-answers",
-                         cls = "matching-l-answers border pb-2"):
+                         cls = "border pb-2"):
                     for block in self.conf['answers']:
                         self._gen_answer_block(block)
 
