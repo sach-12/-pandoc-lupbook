@@ -21,23 +21,16 @@ function strRenderPrintable(str) {
     const c = str.codePointAt(i);
 
     /* Show printable ASCII */
-    if (c >= 0x20 && c < 0x7F)
-      printable += String.fromCodePoint(c);
-
+    if (c >= 0x20 && c < 0x7f) printable += String.fromCodePoint(c);
     /* Tabs and newlines */
-    else if (c === 0x9)
-      printable += TAB_CODE;
-    else if (c === 0xA)
-      printable += NL_CODE;
-
+    else if (c === 0x9) printable += TAB_CODE;
+    else if (c === 0xa) printable += NL_CODE;
     /* Unprintable characters */
-    else
-      printable += NUL_CODE;
+    else printable += NUL_CODE;
   }
 
   return printable;
-};
-
+}
 
 /*
  * Each class object represents a series of commands that should invoke the
@@ -68,8 +61,9 @@ class IcodeTest {
     this.testingDivBtn = document.getElementById(`${testId}-btn`);
     this.testingDivBody = document.getElementById(`${testId}-testing`);
     this.testingDiv = document.getElementById(`${testId}`);
-    this.testingDivCollapse = new bootstrap.Collapse(
-      this.testingDiv, { toggle: false });
+    this.testingDivCollapse = new bootstrap.Collapse(this.testingDiv, {
+      toggle: false
+    });
 
     this.icode = icode;
 
@@ -78,35 +72,53 @@ class IcodeTest {
     this.testingDivBtn.disabled = true;
 
     this.checks.forEach((check) => {
-      if (check.type == "regex")
-        check.re = new RegExp(check.content);
+      if (check.type == "regex") check.re = new RegExp(check.content);
     });
 
     /* Each step of the test is either a command that should be run on the VM
      * (represented as a string) or a function. */
     this.steps = [
-      () => { this.state = this.states.PRECMDS; this.runNextStep(); },
+      () => {
+        this.state = this.states.PRECMDS;
+        this.runNextStep();
+      },
       ...this.precmds,
-      () => { this.state = this.states.CMDS; this.runNextStep(); },
+      () => {
+        this.state = this.states.CMDS;
+        this.runNextStep();
+      },
       ...this.cmds,
-      () => { this.runChecks(); },
-      () => { this.state = this.states.POSTCMDS; this.runNextStep(); },
+      () => {
+        this.runChecks();
+      },
+      () => {
+        this.state = this.states.POSTCMDS;
+        this.runNextStep();
+      },
       ...this.postcmds,
-      () => { this.completeTest(); this.icode.runNextTest(); }
-    ]
-
+      () => {
+        this.completeTest();
+        this.icode.runNextTest();
+      }
+    ];
   }
 
   resetTest() {
     /* Clear any visually displayed results */
     this.testingDivBody.textContent = "";
     this.testingDivBtn.disabled = true;
-    this.testingDivBtn.firstElementChild.classList
-      .remove("bi-check-circle-fill", "text-success");
-    this.testingDivBtn.firstElementChild.classList
-      .remove("bi-x-circle-fill", "text-danger");
-    this.testingDivBtn.firstElementChild.classList
-      .add("bi-dash-circle-fill", "text-secondary");
+    this.testingDivBtn.firstElementChild.classList.remove(
+      "bi-check-circle-fill",
+      "text-success"
+    );
+    this.testingDivBtn.firstElementChild.classList.remove(
+      "bi-x-circle-fill",
+      "text-danger"
+    );
+    this.testingDivBtn.firstElementChild.classList.add(
+      "bi-dash-circle-fill",
+      "text-secondary"
+    );
     this.testingDivCollapse.hide();
   }
 
@@ -123,13 +135,12 @@ class IcodeTest {
   }
 
   testFailed() {
-    return (this.stepRunFailed || this.stepCheckFailed);
+    return this.stepRunFailed || this.stepCheckFailed;
   }
 
   runNextStep() {
     const stepCurrent = this.stepIterator.next();
-    if (stepCurrent.done)
-      return;
+    if (stepCurrent.done) return;
 
     /* A step can be either a string or a function */
     if (typeof stepCurrent.value === "string")
@@ -152,7 +163,7 @@ class IcodeTest {
     this.checks.forEach((check, idx) => {
       /* Add a div to visually represent the check - must be added in advance to
        * ensure the ordering between checks is consistent */
-      const checkElt = document.createElement('div');
+      const checkElt = document.createElement("div");
       this.testingDivBody.appendChild(checkElt);
 
       /* Set up a callback, as the output may reside in a file in the VM,
@@ -161,18 +172,13 @@ class IcodeTest {
         let checkFailed = false;
 
         /* Convert data to string if necessary */
-        if (ArrayBuffer.isView(data))
-          data = new TextDecoder().decode(data);
+        if (ArrayBuffer.isView(data)) data = new TextDecoder().decode(data);
 
-        if (data == null)
-          checkFailed = true;
-        else if (check.type == "exact")
-          checkFailed = data != check.content;
-        else if (check.type == "regex")
-          checkFailed = !check.re.test(data);
+        if (data == null) checkFailed = true;
+        else if (check.type == "exact") checkFailed = data != check.content;
+        else if (check.type == "regex") checkFailed = !check.re.test(data);
 
-        if (checkFailed)
-          this.stepCheckFailed = true;
+        if (checkFailed) this.stepCheckFailed = true;
 
         this.completeCheck(checkElt, check, data, checkFailed);
 
@@ -185,7 +191,11 @@ class IcodeTest {
       if (check.output == "stdout" || check.output == "stderr")
         onData(this.stepExecInfo[check.output]);
       else if (check.output == "file")
-        LupBookVM.session_download(this.icode.sessionVM, check.filename, onData);
+        LupBookVM.session_download(
+          this.icode.sessionVM,
+          check.filename,
+          onData
+        );
     });
   }
 
@@ -193,19 +203,21 @@ class IcodeTest {
     checkElt.classList.add("ic-l-check");
 
     /* Describe what is being checked between file or terminal streams */
-    const outputDesc = checkObj.output == "file" ?
-      `file ${checkObj.filename}` : `${checkObj.output}`;
+    const outputDesc =
+      checkObj.output == "file"
+        ? `file ${checkObj.filename}`
+        : `${checkObj.output}`;
 
     /* Build expected element */
     let expectElt;
     if (checkObj.type == "regex") {
-        expectElt = document.createElement("span");
-        expectElt.classList.add("ic-l-code-inline");
-        expectElt.textContent = checkObj.content;
+      expectElt = document.createElement("span");
+      expectElt.classList.add("ic-l-code-inline");
+      expectElt.textContent = checkObj.content;
     } else if (checkObj.type == "exact") {
-        expectElt = document.createElement("pre");
-        expectElt.classList.add("ic-l-code");
-        expectElt.textContent = strRenderPrintable(checkObj.content);
+      expectElt = document.createElement("pre");
+      expectElt.classList.add("ic-l-code");
+      expectElt.textContent = strRenderPrintable(checkObj.content);
     }
 
     /* Check was a success */
@@ -263,53 +275,60 @@ class IcodeTest {
 
     /* Create a check to represent the overall result of the test, and add it
      * before all other rendered checks (if any) */
-    const resultElt = document.createElement('div');
+    const resultElt = document.createElement("div");
     resultElt.classList.add("ic-l-check");
     this.testingDivBody.prepend(resultElt);
 
     /* Refer to the test by the last command it ran */
-    const hdr = document.createElement('h5');
-    const cmd = document.createElement('span');
+    const hdr = document.createElement("h5");
+    const cmd = document.createElement("span");
     cmd.classList.add("ic-l-code-inline");
     cmd.append(this.cmds.at(-1));
     hdr.append("Command", cmd);
     resultElt.append(hdr);
 
-    this.testingDivBtn.firstElementChild.classList
-      .remove("bi-dash-circle-fill", "text-secondary");
+    this.testingDivBtn.firstElementChild.classList.remove(
+      "bi-dash-circle-fill",
+      "text-secondary"
+    );
 
     /* Describe the overall result */
     if (this.stepRunFailed) {
       /* Command failed with an erroneous exit code */
-      this.testingDivBtn.firstElementChild.classList
-        .add("bi-x-circle-fill", "text-danger");
+      this.testingDivBtn.firstElementChild.classList.add(
+        "bi-x-circle-fill",
+        "text-danger"
+      );
 
       hdr.append(`failed with exit code ${this.stepExecInfo.return_code}.`);
       resultElt.classList.add("ic-l-check-error");
 
-      const output = document.createElement('pre');
+      const output = document.createElement("pre");
       output.classList.add("ic-l-code");
       output.append(strRenderPrintable(this.stepExecInfo.stderr));
       resultElt.append(output);
-
     } else if (this.stepCheckFailed) {
       /* Check failed with incorrect data */
-      this.testingDivBtn.firstElementChild.classList
-        .add("bi-x-circle-fill", "text-danger");
+      this.testingDivBtn.firstElementChild.classList.add(
+        "bi-x-circle-fill",
+        "text-danger"
+      );
 
       resultElt.classList.add("ic-l-check-warning");
       hdr.append("succeeded, but some checks failed.");
     } else {
       /* Success! */
-      this.testingDivBtn.firstElementChild.classList
-        .add("bi-check-circle-fill", "text-success");
+      this.testingDivBtn.firstElementChild.classList.add(
+        "bi-check-circle-fill",
+        "text-success"
+      );
       resultElt.classList.add("ic-l-check-pass");
       hdr.append("succeeded.");
 
       if (this.checks.length == 0 && this.stepExecInfo.stdout.trim().length) {
         /* show the output only if there are no additional checks
            (avoid duplicate rendering of the same output) */
-        const output = document.createElement('pre');
+        const output = document.createElement("pre");
         output.classList.add("ic-l-code");
         output.append(strRenderPrintable(this.stepExecInfo.stdout));
         resultElt.append(output);
@@ -340,13 +359,13 @@ class IcodeTest {
         this.stepExecInfo = execInfo;
 
         /* TODO: valid return code should be customizable */
-        if (execInfo.return_code != 0)
-          this.stepRunFailed = true;
+        if (execInfo.return_code != 0) this.stepRunFailed = true;
 
         this.runNextStep();
       },
       null,
-      this.icode.timeout);
+      this.icode.timeout
+    );
   }
 }
 
@@ -362,7 +381,7 @@ class IcodeActivity extends LupBookActivity {
 
   /* Class constructor */
   constructor(elt) {
-    super('icode', elt);
+    super("icode", elt);
 
     this.sessionVM = LupBookVM.session_open();
 
@@ -383,16 +402,18 @@ class IcodeActivity extends LupBookActivity {
       lineNumbers: true,
       matchBrackets: true,
       indentUnit: 4,
-      mode: "text/x-csrc", /* TODO: auto-detection of mode using mode/meta.js addon */
+      mode: "text/x-csrc" /* TODO: auto-detection of mode using mode/meta.js addon */,
       extraKeys: {
-        Tab: cm => cm.execCommand("indentMore"),
-        "Shift-Tab": cm => cm.execCommand("indentLess"),
+        Tab: (cm) => cm.execCommand("indentMore"),
+        "Shift-Tab": (cm) => cm.execCommand("indentLess")
       }
     };
 
-    const icodeSrcFiles = Array.from(elt.getElementsByClassName("icode-srcfile"));
+    const icodeSrcFiles = Array.from(
+      elt.getElementsByClassName("icode-srcfile")
+    );
     icodeSrcFiles.forEach((srcFileElt) => {
-      const cmArgs = {...cmBaseArgs};
+      const cmArgs = { ...cmBaseArgs };
 
       /* By default, files aren't readonly at all. Here, determine if a file is
        * entirely readonly (in which case, it needs to be specified when
@@ -417,13 +438,16 @@ class IcodeActivity extends LupBookActivity {
       if (readOnlyPartial) {
         const readOnlyRanges = JSON.parse(atob(srcFileElt.dataset.readonly));
         readOnlyRanges.forEach((range) => {
-          cm.markText({line: range[0] - 2}, {line: range[1], ch: 0},
+          cm.markText(
+            { line: range[0] - 2 },
+            { line: range[1], ch: 0 },
             {
               readOnly: true,
               inclusiveLeft: range[0] == 1,
               inclusiveRight: range[1] == cm.lineCount()
-            });
-          cm.eachLine(range[0] - 1, range[1], line => {
+            }
+          );
+          cm.eachLine(range[0] - 1, range[1], (line) => {
             cm.addLineClass(line, "background", "bg-body-secondary");
           });
         });
@@ -431,21 +455,24 @@ class IcodeActivity extends LupBookActivity {
 
       /* Refresh editor when corresponding tab is shown */
       const tab = document.getElementById(srcFileElt.dataset.tab);
-      if (tab)
-        tab.addEventListener("shown.bs.tab", () => cm.refresh());
+      if (tab) tab.addEventListener("shown.bs.tab", () => cm.refresh());
 
       /* Re-enable the submission upon changes */
-      cm.on("changes", () => this.submitStatus(LupBookActivity.SubmitStatus.ENABLED));
+      cm.on("changes", () =>
+        this.submitStatus(LupBookActivity.SubmitStatus.ENABLED)
+      );
 
       /* Callbacks to editor used in other methods */
       const filename = srcFileElt.dataset.filename;
       this.srcFiles[filename] = {
         docInit: cm.getDoc().copy(),
-        resetDoc: function() { cm.swapDoc(this.docInit.copy()) },
+        resetDoc: function () {
+          cm.swapDoc(this.docInit.copy());
+        },
         getData: () => cm.getValue(),
         isClean: () => cm.isClean(),
-        markClean: () => cm.markClean(),
-      }
+        markClean: () => cm.markClean()
+      };
     });
   }
 
@@ -456,8 +483,7 @@ class IcodeActivity extends LupBookActivity {
 
       /* Skip uploading if file hasn't been modified since the last submit and
        * it's not the first upload */
-      if (!this.forceUpload && srcFile.isClean())
-        return;
+      if (!this.forceUpload && srcFile.isClean()) return;
 
       LupBookVM.session_upload(this.sessionVM, filename, srcFile.getData());
 
@@ -512,7 +538,11 @@ class IcodeActivity extends LupBookActivity {
 
   runNextTest() {
     /* Stop running tests if a test tagged as "fatal" failed */
-    if (this.testCurrent && this.testCurrent.testFailed() && this.testCurrent.fatal) {
+    if (
+      this.testCurrent &&
+      this.testCurrent.testFailed() &&
+      this.testCurrent.fatal
+    ) {
       return this.completeActivity();
     }
 
@@ -522,7 +552,7 @@ class IcodeActivity extends LupBookActivity {
       return this.completeActivity();
     }
 
-    this.testIdx = (this.testCurrent) ? this.testIdx + 1 : 0;
+    this.testIdx = this.testCurrent ? this.testIdx + 1 : 0;
 
     /* Show ongoing test in progress bar */
     this.progressStatus(this.testIdx, LupBookActivity.ProgressStatus.PENDING);
@@ -534,7 +564,8 @@ class IcodeActivity extends LupBookActivity {
 
   /* Update progress from test result */
   completeTest(fail) {
-    let s = fail ? LupBookActivity.ProgressStatus.FAILURE
+    let s = fail
+      ? LupBookActivity.ProgressStatus.FAILURE
       : LupBookActivity.ProgressStatus.SUCCESS;
     this.progressStatus(this.testIdx, s);
   }
@@ -544,14 +575,16 @@ class IcodeActivity extends LupBookActivity {
 
     /* Jump to the first failed test if any */
     for (const test of this.tests) {
-      if (!test.testFailed())
-        continue;
+      if (!test.testFailed()) continue;
 
       fail = true;
 
       this.showFeedback(() => {
-        test.testingDiv.addEventListener("shown.bs.collapse",
-          () => test.testingElt.scrollIntoView(), { once: true });
+        test.testingDiv.addEventListener(
+          "shown.bs.collapse",
+          () => test.testingElt.scrollIntoView(),
+          { once: true }
+        );
         test.testingDivCollapse.show();
       });
 
@@ -559,19 +592,18 @@ class IcodeActivity extends LupBookActivity {
     }
 
     /* Overall feedback via submit button */
-    let s = fail ? LupBookActivity.SubmitStatus.FAILURE
+    let s = fail
+      ? LupBookActivity.SubmitStatus.FAILURE
       : LupBookActivity.SubmitStatus.SUCCESS;
     this.submitStatus(s);
     this.resetStatus(true);
   }
 }
 
-
 /*
  * Initialization of icode activities after DOM loading
  */
-window.addEventListener('DOMContentLoaded', () => {
-
+window.addEventListener("DOMContentLoaded", () => {
   /*
    * Set up terminal once
    */
@@ -592,14 +624,18 @@ window.addEventListener('DOMContentLoaded', () => {
   /* Automatically resize when modal is shown (otherwise there's a weird bug
    * where the scrollbar doesn't appear when the modal is shown for the first
    * time because output was added to a non-visible terminal) */
-  const termModElt = document.getElementById('lbvm-terminal-modal')
-  termModElt.addEventListener('shown.bs.modal', () => { fitAddon.fit() });
+  const termModElt = document.getElementById("lbvm-terminal-modal");
+  termModElt.addEventListener("shown.bs.modal", () => {
+    fitAddon.fit();
+  });
 
   /* Automatically resize if the window gets resized */
-  window.onresize = () => { fitAddon.fit(); };
+  window.onresize = () => {
+    fitAddon.fit();
+  };
 
   /* Bind terminal input to VM */
-  term.onKey(ev => {
+  term.onKey((ev) => {
     LupBookVM.on_console_queue(ev.key.charCodeAt(0));
   });
 
@@ -618,9 +654,15 @@ window.addEventListener('DOMContentLoaded', () => {
   LupBookVM.start({
     on_init: () => {
       /* Once the VM is up and ready, make icode activities submittable */
-      icodes.forEach(icode => icode.submitStatus(LupBookActivity.SubmitStatus.ENABLED));
+      icodes.forEach((icode) =>
+        icode.submitStatus(LupBookActivity.SubmitStatus.ENABLED)
+      );
     },
-    on_error: () => { console.log("VM Error!"); },
-    console_debug_write: c => { term.write(c); }
+    on_error: () => {
+      console.log("VM Error!");
+    },
+    console_debug_write: (c) => {
+      term.write(c);
+    }
   });
 });
