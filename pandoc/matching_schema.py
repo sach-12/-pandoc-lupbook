@@ -41,6 +41,12 @@ _matching_schema = {
                     }
                 },
                 "required": ["id", "match", "text"],
+                # XXX:
+                # 1. we could remove `id` for choices and just use a simple
+                # enumeration in the filter
+                # 2. we could otherwise remove `id` for answers and have them
+                # list the correct choice ids (this would also allow a choice to
+                # match multiple answers).
                 "additionalProperties": False
             }
         },
