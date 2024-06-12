@@ -38,7 +38,7 @@ class LupbookMCQ(lupbook_filter.LupbookComponent):
         return "MCQ activity"
 
     def _gen_activity(self):
-        with div(cls = "card-body px-3 py-0 m-0"):
+        with div(cls = "card-body px-3 pt-0 pb-2 m-0"):
             for i, choice in enumerate(self.conf["choices"]):
                 with div(cls = "form-check"):
                     input_(cls = "form-check-input",
@@ -46,7 +46,7 @@ class LupbookMCQ(lupbook_filter.LupbookComponent):
                           name = f"{self.prefix_id}-choice",
                           id = f"{self.prefix_id}-choice-{i}",
                           data_correct = choice['correct'])
-                    with label(cls = "form-check-label",
+                    with label(cls = "form-check-label mcq-choice-item",
                                for_ = f"{self.prefix_id}-choice-{i}"):
                         formatted_text = panflute.convert_text(
                                 choice["text"], output_format='html')
