@@ -5,7 +5,7 @@
 
 import panflute
 
-import fia_filter
+import fib_filter
 import icode_filter
 import matching_filter
 import mcq_filter
@@ -24,6 +24,7 @@ def _process_lupbook_filters(element, doc):
     # Find the corresponding lupbook filter if any
     # NOTE: we only look at the first element class
     lb_filters = [
+        fib_filter.LupbookFIB,
         icode_filter.LupbookICode,
         matching_filter.LupbookMatching,
         mcq_filter.LupbookMCQ,
@@ -40,7 +41,6 @@ def _process_lupbook_filters(element, doc):
 if __name__ == "__main__":
     actions = [
             _process_lupbook_filters,
-            fia_filter.FIA,
             parsons_filter.Parsons,
             ]
     panflute.run_filters(actions)
