@@ -95,6 +95,8 @@ class LupBookActivity {
         this.submitBtn.disabled = false;
         break;
       case LupBookActivity.SubmitStatus.DISABLED:
+        this.submitBtn.classList.remove("btn-danger", "btn-success");
+        this.submitBtn.classList.add("btn-primary");
         this.submitBtn.disabled = true;
         break;
       case LupBookActivity.SubmitStatus.SUCCESS:
