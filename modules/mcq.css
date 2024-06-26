@@ -1,0 +1,18 @@
+/*
+ * Copyright (c) 2024 LupLab
+ * SPDX-License-Identifier: AGPL-3.0-only
+ */
+
+/*
+ * Body elements
+ */
+.mcq-choice-item > p:last-child {
+  margin-bottom: 0;
+}
+
+/*
+ * Feedback
+ */
+.mcq-feedback-item > p:last-child {
+  margin-bottom: 0;
+}

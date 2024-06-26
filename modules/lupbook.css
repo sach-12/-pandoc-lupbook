@@ -1,0 +1,16 @@
+/*
+ * Activities
+ */
+.lupbook-description > p:last-of-type {
+    margin-bottom: 0;
+}
+
+/* Testing collapsing chevron in control bar */
+.lupbook-testing-btn > i {
+  display: inline-block;
+  transition: transform 0.2s;
+}
+.lupbook-testing-btn.collapsed > i {
+  transform: rotate(-180deg);
+}
+

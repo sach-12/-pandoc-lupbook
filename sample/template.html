@@ -18,104 +18,113 @@ $if(description-meta)$
 $endif$
   <title>$if(title-prefix)$$title-prefix$ – $endif$$pagetitle$</title>
 
-  <!-- Includes -->
+  <!-- Third-party components -->
+    <!-- Terminal (xtermjs) -->
+    <script src="../ext/xtermjs/lib/xterm.js"></script>
+    <script src="../ext/xtermjs/addons/xterm-addon-fit/lib/xterm-addon-fit.js"></script>
+    <link rel="stylesheet" href="../ext/xtermjs/css/xterm.css"/>
+    <!-- Code editor (CodeMirror) -->
+    <link rel="stylesheet" href="../ext/codemirror/lib/codemirror.css"/>
+    <script src="../ext/codemirror/lib/codemirror.js"></script>
+    <script src="../ext/codemirror/addon/edit/matchbrackets.js"></script>
+    <script src="../ext/codemirror/mode/clike/clike.js"></script>
+    <!-- UI toolkit (Bootstrap) -->
+    <link rel="stylesheet" href="../ext/bootstrap/dist/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="../ext/icons/font/bootstrap-icons.min.css"/>
+    <script src="../ext/bootstrap/dist/js/bootstrap.min.js"></script>
 
-  <!-- General Css-->
-  <link rel="stylesheet" href="./template.css"/>
-  <!-- lupbookvm -->
-  <script src="../build/lupbookvm.js"></script>
-  <!-- terminal -->
-  <script src="../ext/xtermjs/lib/xterm.js"></script>
-  <script src="../ext/xtermjs/addons/xterm-addon-fit/lib/xterm-addon-fit.js"></script>
-  <link rel="stylesheet" href="../ext/xtermjs/css/xterm.css"/>
-  <!-- icode -->
-  <script src="../modules/icode/icode.js"></script>
-  <link rel="stylesheet" href="../modules/icode/icode.css"/>
-  <!-- mcq -->
-  <script src="../modules/mcq/mcq.js"></script>
-  <link rel="stylesheet" href="../modules/mcq/mcq.css"/>
-  <!-- fia -->
-  <script src="../modules/fia/fia.js"></script>
-  <link rel="stylesheet" href="../modules/fia/fia.css"/>
-  <!-- parsons -->
-  <script src="../modules/parsons/parsons.js"></script>
-  <link rel="stylesheet" href="../modules/parsons/parsons.css"/>
-  <!-- matching -->
-  <script src="../modules/matching/matching.js"></script>
-  <link rel="stylesheet" href="../modules/matching/matching.css"/>
-  <!-- bootstrap -->
-  <link rel="stylesheet" href="../ext/bootstrap/dist/css/bootstrap.min.css"/>
-  <script src="../ext/bootstrap/dist/js/bootstrap.min.js"></script>
-  <!-- codemirror -->
-  <link rel="stylesheet" href="../ext/codemirror/lib/codemirror.css"/>
-  <script src="../ext/codemirror/lib/codemirror.js"></script>
-  <script src="../ext/codemirror/addon/edit/matchbrackets.js"></script>
-  <script src="../ext/codemirror/mode/clike/clike.js"></script>
+  <!-- LupBook components -->
+
+    <!-- VM -->
+    <script src="../build/lupbookvm.js"></script>
+
+    <!-- Activities -->
+    <script src="../modules/lupbook.js"></script>
+    <script src="../modules/icode.js"></script>
+    <script src="../modules/mcq.js"></script>
+    <script src="../modules/fib.js"></script>
+    <script src="../modules/parsons.js"></script>
+    <script src="../modules/matching.js"></script>
+
+    <link rel="stylesheet" href="../modules/lupbook.css"/>
+    <link rel="stylesheet" href="../modules/icode.css"/>
+    <link rel="stylesheet" href="../modules/mcq.css"/>
+    <link rel="stylesheet" href="../modules/fib.css"/>
+    <link rel="stylesheet" href="../modules/parsons.css"/>
+    <link rel="stylesheet" href="../modules/matching.css"/>
+
+  <!-- Custom components -->
+    <!-- Custom CSS-->
+    <link rel="stylesheet" href="./template.css"/>
 
 $for(header-includes)$
   $header-includes$
 $endfor$
+
 $if(math)$
   $math$
 $endif$
 </head>
+
 <body>
-$for(include-before)$
-$include-before$
-$endfor$
-<header>
-<div class="modal fade" id="lbvm-terminal-modal" tabindex="-1" aria-labelledby="lbvm-terminal-label" aria-hidden="true">
-  <div class="modal-dialog modal-lg modal-dialog-centered">
-      <div class="modal-content">
+
+  $for(include-before)$
+    $include-before$
+  $endfor$
+
+  <header>
+    <div class="modal fade" id="lbvm-terminal-modal" tabindex="-1" aria-labelledby="lbvm-terminal-label" aria-hidden="true">
+      <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
           <div class="modal-header">
-              <h5 class="modal-title" id="lbvm-terminal-label">LupBookVM Terminal</h5>
-              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            <h5 class="modal-title" id="lbvm-terminal-label">LupBookVM Terminal</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body lbvm-terminal-container">
-              <div id="lbvm-terminal"></div>
+            <div id="lbvm-terminal"></div>
           </div>
+        </div>
       </div>
-  </div>
-</div>
-
-<nav class="navbar fixed-top navbar-secondary bg-secondary">
-  <div class="container-fluid">
-    <div class="me-auto"></div>
-    <div class="me-0">
-      <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#lbvm-terminal-modal">
-        <span class="terminal-toggler-icon"></span>
-      </button>
     </div>
-  </div>
-</nav>
-</header>
 
-<main role="main" class="container">
+    <nav class="navbar fixed-top navbar-secondary bg-secondary">
+      <div class="container-fluid">
+        <div class="me-auto"></div>
+        <div class="me-0">
+          <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#lbvm-terminal-modal">
+            <span class="terminal-toggler-icon"></span>
+          </button>
+        </div>
+      </div>
+    </nav>
+  </header>
 
-$if(title)$
-<h1 class="title">$title$</h1>
-$if(subtitle)$
-<p class="subtitle">$subtitle$</p>
-$endif$
-$for(author)$
-<p class="author">$author$</p>
-$endfor$
-$if(date)$
-<p class="date">$date$</p>
-$endif$
-$if(abstract)$
-<div class="abstract">
-<div class="abstract-title">$abstract-title$</div>
-$abstract$
-</div>
-$endif$
-$endif$
+  <main role="main" class="container">
+  $if(title)$
+      <h1 class="title">$title$</h1>
+    $if(subtitle)$
+      <p class="subtitle">$subtitle$</p>
+    $endif$
+    $for(author)$
+      <p class="author">$author$</p>
+    $endfor$
+    $if(date)$
+      <p class="date">$date$</p>
+    $endif$
+    $if(abstract)$
+      <div class="abstract">
+        <div class="abstract-title">$abstract-title$</div>
+        $abstract$
+      </div>
+    $endif$
+  $endif$
 
-$body$
-$for(include-after)$
-$include-after$
-$endfor$
-</main>
+  $body$
+
+  $for(include-after)$
+    $include-after$
+  $endfor$
+  </main>
 
 </body>
 </html>

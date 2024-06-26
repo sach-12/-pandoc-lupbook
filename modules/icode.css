@@ -1,0 +1,80 @@
+/*
+ * Copyright (c) 2021 LupLab
+ * SPDX-License-Identifier: AGPL-3.0-only
+ */
+
+/*
+ * Global variables
+ */
+:root {
+  --ic-cl-pass: #198754;
+  --ic-cl-error: #e35d6a;
+  --ic-cl-warning: #f0ad4e;
+
+  /* icons - variables can't be within url(), so some colors are duplicated */
+  --bi-terminal-fill: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="darkgreen" class="bi bi-terminal-fill" viewBox="0 0 16 16"><path d="M0 3a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3zm9.5 5.5h-3a.5.5 0 0 0 0 1h3a.5.5 0 0 0 0-1zm-6.354-.354a.5.5 0 1 0 .708.708l2-2a.5.5 0 0 0 0-.708l-2-2a.5.5 0 1 0-.708.708L4.793 6.5 3.146 8.146z"/></svg>');
+}
+
+/*
+ * Terminal
+ */
+.terminal-toggler-icon {
+  flex-shrink: 0;
+  display: flex;
+  width: 32px;
+  height: 32px;
+  content: "";
+  background-image: var(--bi-terminal-fill);
+  background-repeat: no-repeat;
+  background-size: 32px;
+}
+
+/*
+ * Text editor (CodeMirror)
+ */
+.CodeMirror.cm-s-readonly {
+  /* Applies when an entire file is readonly */
+  background: var(--bs-secondary-bg);
+}
+
+/*
+ * Testing
+ */
+.ic-l-check {
+  border: 0px solid;
+  border-left-width: .5rem;
+  border-radius: .25rem;
+  padding: .5rem;
+  margin-bottom: 2px;
+}
+
+.ic-l-code-inline {
+  background-color: #0002;
+  padding: .5em;
+  border-radius: .5rem;
+  font-family: var(--bs-font-monospace);
+  margin-left: .25rem;
+  margin-right: .25rem;
+}
+
+/* Shows data written e.g. to stdout by a test command */
+.ic-l-code {
+  margin-top: 1rem;
+  margin-bottom: 0;
+  background-color: #0002;
+  border-radius: .25rem;
+  padding: .5rem;
+  max-height: 20rem;
+}
+
+.ic-l-check-pass {
+  border-color: var(--ic-cl-pass);
+}
+
+.ic-l-check-error {
+  border-color: var(--ic-cl-error);
+}
+
+.ic-l-check-warning {
+  border-color: var(--ic-cl-warning);
+}

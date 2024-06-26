@@ -1,99 +1,63 @@
-"""
-Pandoc filter to process fenced divs with class "mcq" into Multiple Choice
-Question components.
+# Copyright (c) 2023 LupLab
+# SPDX-License-Identifier: AGPL-3.0-only
 
-Depends on dominate for HTML generation
-"""
-
-import dominate
-import json
-import os
-import sys
-import yaml
-
-import panflute as pf
-
-from dominate.tags import *
+from dominate.tags import div, label, input_
 from dominate.util import raw
 
-from mcq_schema import mcq_validator
+import lupbook_filter
+import mcq_schema
+import panflute
 
-from utils import LupbookLoader
+#
+# Activity HTML generation
+#
 
-def header(args):
-    with div(cls = "card-header"):
-        h5(args["title"], cls = "card-title")
-    with div(cls = "px-2 m-0 card-body mcq-l-stem"):
-        formatted_text = pf.convert_text(text=args["stem"], output_format='html')
-        raw(formatted_text)
+class LupbookMCQ(lupbook_filter.LupbookComponent):
+    def __init__(self, yaml_config):
+        super().__init__(yaml_config)
 
-def body(args):
-    with div(cls = "p-2 m-0 card-body mcq-l-form"):
-        for i, answer in enumerate(args["answers"]):
-            with div(cls = "form-check"):
-                if (args["type"] == "one"):
-                    input_type = "mcq-l-radio"
-                    type = "radio"
-                else:
-                    input_type = "mcq-l-checkbox"
-                    type = "checkbox"
-                input_(cls = "form-check-input" + " " + input_type, type = type,
-                       name = f"{args['id']}-choice", id = f"{args['id']}-choice-{i}", data_correct = "true")
-                with label(cls = "form-check-label d-flex"):
-                    span(cls = "mcq-l-spans")
-                    formatted_text = pf.convert_text(text=answer["text"], output_format='html')
-                    raw(formatted_text)
-    hr(cls = "m-0")
+        # Error checking
+        correct_count = sum(choice["correct"] for choice in self.conf["choices"])
+        if ((not self.conf['many'] and correct_count != 1)
+            or (self.conf['many'] and correct_count < 1)):
+            raise Exception("Invalid number of correct choices in MCQ activity: "
+                            f"'{self.conf['id']}'")
+        self.form_type = 'checkbox' if self.conf['many'] else 'radio'
 
-def controls(args):
-    with div(cls = "m-0 card-body mcq-l-controls"):
-        with div(cls = "d-flex align-items-center"):
-            with div(cls = "px-2 flex-shrink-0"):
-                button("Submit", cls = "btn btn-primary mcq-c-button mcq-c-button__submit")
-                button("Reset", cls = "btn btn-secondary mcq-c-button mcq-c-button__reset")
-            with div(cls = "px-2 w-100"):
-                div (cls = "d-none")
-            with div(cls = "px-2 flex-shrink-1"):
-                button(cls = "mcq-c-feedback__toggle collapsed d-none",
-                       data_bs_target = f"#{args['id']}-fb", data_bs_toggle = "collapse", type = "button")
+        self.testing_cnt = len(self.conf["choices"]) if self.conf['many'] else 1
 
-def feedback(args):
-    with div(cls = "collapse mcq-l-feedback", id = f"{args['id']}-fb"):
-        with div(cls = "px-2 card-body"):
-            div(id = f"{args['id']}-fb-warn")
-            with div(id = f"{args['id']}-fb-check"):
-                if(args["type"] == "many"):
-                    div(cls = "mcq-l-num-correct d-none", id = f"{args['id']}-num-correct")
-                for i, answer in enumerate(args["answers"]):
-                    div_type = "mcq-l-check-pass" if (answer["id"] in args["key"]) else "mcq-l-check-error"
-                    formatted_text = pf.convert_text(answer["feedback"], output_format='html')
-                    div(raw(formatted_text), cls = "mcq-l-check" + " " + div_type + " " + "d-none" + " "+ "d-flex", id = f"{args['id']}-choice-{i}-fb")
+    @staticmethod
+    def _yaml_validator():
+        return mcq_schema.mcq_validator
 
+    @staticmethod
+    def activity_id():
+        return "mcq"
 
-# TODO: separate generation for with and without bootstrap
-def MCQ(element, doc):
-    if type(element)!= pf.CodeBlock or not "mcq" in element.classes or not doc.format == "html":
-        return
-    
-    # get CodeBlock content
-    mcq_args = yaml.load(element.text, LupbookLoader)
+    def _activity_name(self):
+        return "MCQ activity"
 
-    # validate arguments
-    try:
-        mcq_validator.validate(mcq_args)
-    except:
-        sys.stderr.write("Validation error in mcq element.\n")
-        raise
+    def _gen_activity(self):
+        with div(cls = "card-body px-3 pt-0 pb-2 m-0"):
+            for i, choice in enumerate(self.conf["choices"]):
+                with div(cls = "form-check"):
+                    input_(cls = "form-check-input",
+                          type = self.form_type,
+                          name = f"{self.prefix_id}-choice",
+                          id = f"{self.prefix_id}-choice-{i}",
+                          data_correct = choice['correct'])
+                    with label(cls = "form-check-label mcq-choice-item",
+                               for_ = f"{self.prefix_id}-choice-{i}"):
+                        formatted_text = panflute.convert_text(
+                                choice["text"], output_format='html')
+                        raw(formatted_text)
 
-    # generate HTML
-    mcq_type = "mcq-l-container-one" if (mcq_args["type"] == "one") else "mcq-l-container-many"
-    root = div(id = mcq_args["id"], cls = "card my-3 " + " " + mcq_type)
-    with root:
-        header(mcq_args)
-        body(mcq_args)
-        controls(mcq_args)
-        feedback(mcq_args)
-        div(cls = "card-footer text-muted")
-
-    return pf.RawBlock(text=root.render(), format='html')
-
+    def _gen_testing_activity(self):
+        div(id = f"{self.prefix_id}-testing-score",
+            cls = "alert d-none")
+        for i, choice in enumerate(self.conf["choices"]):
+            formatted_text = panflute.convert_text(
+                    choice["feedback"], output_format = 'html')
+            div(raw(formatted_text),
+                id = f"{self.prefix_id}-feedback-{i}",
+                cls = "mcq-feedback-item m-1 p-2 border-start border-5 d-none")

@@ -1,0 +1,40 @@
+/*
+ * Copyright (c) 2023 LupLab
+ * SPDX-License-Identifier: AGPL-3.0-only
+ */
+
+/*
+ * Body elements
+ */
+.matching-choices {
+  /* Maintain minimum size even when choice box is empty of items */
+  min-height: 3rem;
+}
+
+.matching-choice > p:last-child {
+  margin-bottom: 0;
+}
+.matching-answer > p:last-of-type {
+  margin-bottom: 0;
+}
+
+.matching-choice {
+  cursor: grab;
+}
+.matching-choice:active {
+  cursor: grabbing;
+}
+
+.matching-answer p {
+  /* Avoid creating dragenter/dragleave events when entering the <p> child of
+   * an answer box. Otherwise, it messes with the highlighting. See:
+   * https://stackoverflow.com/questions/7110353/html5-dragleave-fired-when-hovering-a-child-element */
+  pointer-events: none;
+}
+
+/*
+ * Feedback
+ */
+.matching-feedback-item > p:last-child {
+  margin-bottom: 0;
+}

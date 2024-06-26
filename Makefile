@@ -40,7 +40,8 @@ $(BUILD_DIR)/header-include.html: FORCE
 build-book: build-dir $(MODULE_DEPS)
 	cp $(SRC_LBVM) $(abs_build)/lupbookvm.js
 	cd $(SRC_DIR) && \
-        $(PANDOC) -o $(abs_build)/$(BUILD_NAME) --self-contained \
+        $(PANDOC) -o $(abs_build)/$(BUILD_NAME) \
+            --embed-resources --standalone \
             --template template.html *.md --filter $(abs_filter)
 
 # External Resources

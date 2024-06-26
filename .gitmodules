@@ -7,3 +7,6 @@
 [submodule "ext/xtermjs"]
 	path = ext/xtermjs
 	url = https://github.com/xtermjs/xterm.js.git
+[submodule "ext/icons"]
+	path = ext/icons
+	url = https://github.com/twbs/icons
