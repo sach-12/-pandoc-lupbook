@@ -10,6 +10,7 @@ import icode_filter
 import matching_filter
 import mcq_filter
 import parsons_filter
+import hparsons_filter
 
 def _process_lupbook_filters(element, doc):
     # Quit early when incorrect type of element
@@ -25,6 +26,7 @@ def _process_lupbook_filters(element, doc):
     # NOTE: we only look at the first element class
     lb_filters = [
         fib_filter.LupbookFIB,
+        hparsons_filter.LupbookHParsons,
         icode_filter.LupbookICode,
         matching_filter.LupbookMatching,
         mcq_filter.LupbookMCQ,

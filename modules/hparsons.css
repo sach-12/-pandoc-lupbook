@@ -1,0 +1,23 @@
+/*
+ * Copyright (c) 2023 LupLab
+ * SPDX-License-Identifier: AGPL-3.0-only
+ */
+
+/*
+ * Body elements
+ */
+.hparsons-answers, .hparsons-frags {
+  /* Maintain minimum size even when choice box is empty of items */
+  min-height: 3rem;
+}
+
+.hparsons-frag > p:last-child {
+  margin-bottom: 0;
+}
+
+.hparsons-frag {
+  cursor: grab;
+}
+.hparsons-frag:active {
+  cursor: grabbing;
+}
