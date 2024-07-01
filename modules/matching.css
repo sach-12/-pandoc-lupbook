@@ -25,13 +25,6 @@
   cursor: grabbing;
 }
 
-.matching-answer p {
-  /* Avoid creating dragenter/dragleave events when entering the <p> child of
-   * an answer box. Otherwise, it messes with the highlighting. See:
-   * https://stackoverflow.com/questions/7110353/html5-dragleave-fired-when-hovering-a-child-element */
-  pointer-events: none;
-}
-
 /*
  * Feedback
  */
