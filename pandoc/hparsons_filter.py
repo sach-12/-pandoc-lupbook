@@ -41,7 +41,7 @@ class LupbookHParsons(lupbook_filter.LupbookComponent):
         }
         with div(**div_attrs):
             if (self.conf["label"]):
-                span(idx, cls="badge text-bg-light m-1")
+                span(idx, cls="badge text-bg-light me-1")
             text = frag['text']
             formatted_text = panflute.convert_text(text, output_format = 'html')
             raw(formatted_text)
