@@ -50,16 +50,16 @@ class LupbookHParsons(lupbook_filter.LupbookComponent):
         # Generate containers and blocks
         with div(cls = "card-body p-2 m-0"):
             div("Drag items from here...",
-                cls = "small fst-italic text-secondary")
+                cls = "ps-2 small fst-italic text-secondary")
             with div(id = f"{self.prefix_id}-frags",
                      cls = "hparsons-frags border d-flex flex-row flex-wrap"):
                 for i, frag in enumerate(self.conf["frags"]):
                     self._gen_frag_block(frag, i)
 
             div("...and drop them here (click to remove)",
-                cls = "small fst-italic text-secondary")
+                cls = "ps-2 pt-2 small fst-italic text-secondary")
             div(id = f"{self.prefix_id}-answers",
-                 cls = "hparsons-answers bg-light border d-flex flex-row flex-wrap")
+                cls = "hparsons-answers bg-light border d-flex flex-row flex-wrap")
 
     def _gen_testing_activity(self):
         div(id = f"{self.prefix_id}-testing-score",
