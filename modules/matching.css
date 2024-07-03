@@ -6,11 +6,6 @@
 /*
  * Body elements
  */
-.matching-choices {
-  /* Maintain minimum size even when choice box is empty of items */
-  min-height: 3rem;
-}
-
 .matching-choice > p:last-child {
   margin-bottom: 0;
 }
