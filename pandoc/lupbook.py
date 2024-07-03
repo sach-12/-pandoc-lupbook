@@ -30,6 +30,7 @@ def _process_lupbook_filters(element, doc):
         icode_filter.LupbookICode,
         matching_filter.LupbookMatching,
         mcq_filter.LupbookMCQ,
+        parsons_filter.LupbookParsons,
         ]
     lb_filter_map = { f.activity_id(): f for f in lb_filters }
     try:
@@ -41,8 +42,4 @@ def _process_lupbook_filters(element, doc):
     return lb_filter(element.text).process()
 
 if __name__ == "__main__":
-    actions = [
-            _process_lupbook_filters,
-            parsons_filter.Parsons,
-            ]
-    panflute.run_filters(actions)
+    panflute.run_filter(_process_lupbook_filters)
