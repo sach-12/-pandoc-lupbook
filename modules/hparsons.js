@@ -57,11 +57,15 @@ class HParsonsActivity extends LupBookActivity {
         event.target.classList.replace("bg-white", "bg-light-subtle");
 
         setTimeout(() => {
+          /* Placeholders at possible dropping spots. Avoid spots directly
+           * around currently dragged item since it wouldn't make it move. */
           const answerBox = this.answerBox;
           Array.from(answerBox.children).forEach((child) => {
-            answerBox.insertBefore(this.placeHolder.cloneNode(), child);
+            if (child !== item && child.previousSibling !== item)
+              answerBox.insertBefore(this.placeHolder.cloneNode(), child);
           });
-          answerBox.appendChild(this.placeHolder.cloneNode());
+          if (answerBox.lastChild !== item)
+            answerBox.appendChild(this.placeHolder.cloneNode());
         }, 0);
       };
 
