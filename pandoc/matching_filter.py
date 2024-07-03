@@ -33,7 +33,7 @@ class LupbookMatching(lupbook_filter.LupbookComponent):
         div_attrs = {
             "id": f"{self.prefix_id}-choice-{choice['id']}",
             "cls": "matching-choice bg-white border rounded m-2 mb-0 p-2 d-flex",
-            "data-match": f"{choice['match']}"
+            "data-match": choice['match']
         }
         with div(**div_attrs):
             text = choice['text']
@@ -52,22 +52,25 @@ class LupbookMatching(lupbook_filter.LupbookComponent):
 
     def _gen_activity(self):
         # Generate containers and blocks
-        with div(cls = "card-body p-2 m-0 row"):
-            with div(cls = "col"):
-                div("Drag items from here...",
-                    cls = "small fst-italic text-secondary")
-                with div(id = f"{self.prefix_id}-choices",
-                         cls = "matching-choices border pb-2"):
-                    for block in self.conf["choices"]:
-                        self._gen_choice_block(block)
-
-            with div(cls = "col"):
-                div("...and drop them here (click to remove)",
-                    cls = "small fst-italic text-secondary")
-                with div(id = f"{self.prefix_id}-answers",
-                         cls = "border pb-2"):
-                    for block in self.conf['answers']:
-                        self._gen_answer_block(block)
+        with div(cls = "card-body p-2 m-0"):
+            with div(cls = "row gx-2 align-items-end"):
+                with div(cls = "col"):
+                    div("Drag items from here...",
+                        cls = "ps-2 small fst-italic text-secondary")
+                with div(cls = "col"):
+                    div("...and drop them here (click to remove)",
+                        cls = "ps-2 small fst-italic text-secondary")
+            with div(cls = "row gx-2"):
+                with div(cls = "col"):
+                    with div(id = f"{self.prefix_id}-choices",
+                             cls = "matching-choices border pb-2 h-100"):
+                        for block in self.conf["choices"]:
+                            self._gen_choice_block(block)
+                with div(cls = "col"):
+                    with div(id = f"{self.prefix_id}-answers",
+                             cls = "border pb-2 h-100"):
+                        for block in self.conf['answers']:
+                            self._gen_answer_block(block)
 
     def _gen_testing_activity(self):
         div(id = f"{self.prefix_id}-testing-score",

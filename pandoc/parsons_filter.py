@@ -1,178 +1,128 @@
-"""
-Pandoc filter to process fenced divs with class "parsons" into
-Parsons Exercise components.
+# Copyright (c) 2023 LupLab
+# SPDX-License-Identifier: AGPL-3.0-only
 
-Depends on dominate for HTML generation
-"""
-
-import dominate
-import json
-import os
-import sys
-import yaml
-import random
-
-import panflute as pf
-
-from dominate.tags import *
+from dominate.tags import div, span
 from dominate.util import raw
 
-from parsons_schema import parsons_validator
-
-from utils import LupbookLoader
-
-
-def header(args):
-    with div(cls="card-header"):
-        h4(args["title"], cls="card-title")
+import lupbook_filter
+import parsons_schema
+import panflute
 
 
-def body(args):
-    # Generate question
-    with div(cls="px-2 m-0 card-body parsons-l-question"):
-        text = args["text"]
-        formatted_text = pf.convert_text(text=text, output_format='html')
-        raw(formatted_text)
+#
+# Component generation
+#
 
-    # Generate containers and blocks
-    with div(cls="m-0 card-body parsons-l-sortable-code-container row"):
-        with div(id=f"{args['id']}-sourceRegion", cls="sortable-code col m-2"):
-            div("Drag from here", id=f"{args['id']}-sourceTip")
-            with div(id=f"{args['id']}-source", cls="sortable-container parsons-l-source border",
-                     ondragover="dragover(event)", ondrop="drop(event)", ondragleave="dragleave(event)"):
-                # Congregate or-block
-                blocks = combineOrBlocks(args['blocks'])
-                if args['random']:
-                    random.shuffle(blocks)
-                block_label = 1
-                for i, block in enumerate(blocks):
-                    if isinstance(block, dict):
-                        generateBlock(args, block, block_label)
-                        block_label += 1
-                    elif isinstance(block, list):
-                        or_blocks = block
-                        or_block_id = f"{args['id']}-or-blocks-{or_blocks[0]['or_id']}"
-                        with div(id=or_block_id, cls="text-bg-secondary rounded parsons-l-or-blocks"):
-                            span("or{", cls="parsons-l-or-symbol text-black")
-                            with div(cls="parsons-l-or-content flex-fill"):
-                                for or_block in or_blocks:
-                                    generateBlock(
-                                        args, or_block, block_label, True, or_block_id)
-                                    block_label += 1
-                    else:
-                        raise TypeError("Not a valid type: ", block)
+class LupbookParsons(lupbook_filter.LupbookComponent):
+    def __init__(self, yaml_config):
+        super().__init__(yaml_config)
 
-        with div(id=f"{args['id']}-answerRegion", cls="sortable-code col m-2"):
-            div("Drop blocks here", id=f"{args['id']}-answerTip")
-            div(id=f"{args['id']}-answer", cls="sortable-container parsons-l-answer border",
-                ondragover="dragover(event)", ondrop="drop(event)", ondragleave="dragleave(event)")
+        # Verify there is a valid sequence of orders
+        seq = sorted(f["order"] for f in self.conf["frags"]
+                     if f["order"] != -1)
+        if len(seq) < 1 or len(seq) != len(set(seq)) \
+                or seq[0] != 1 or seq != list(range(1, len(seq) + 1)):
+            raise Exception("Invalid orders in Parsons activity: "
+                            f"'{self.conf['id']}'")
 
+        # Number of valid fragments
+        self.testing_cnt = len(self.conf["frags"])
 
-def combineOrBlocks(blocks):
-    result = []
-    index = 0
+    @staticmethod
+    def _yaml_validator():
+        return parsons_schema.parsons_validator
 
-    while index < len(blocks):
-        block = blocks[index]
+    @staticmethod
+    def activity_id():
+        return "parsons"
 
-        if 'or_id' not in block:
-            result.append(block)
-            index += 1
-            continue
+    def _activity_name(self):
+        return "Parsons activity"
 
-        or_id = block['or_id']
-        or_block = [block]
+    def _group_frags(self):
+        result = []
+        gids = {}
 
-        or_index = index + 1
-        while or_index < len(blocks):
-            if blocks[or_index].get('or_id') == or_id:
-                or_block.append(blocks.pop(or_index))
-                continue
-            or_index += 1
+        for frag in self.conf["frags"]:
+            gid = frag.get("gid")
 
-        result.append(or_block)
-        index += 1
+            if not gid:
+                # Individual frag, not in a group
+                result.append([frag])
+            else:
+                # Frag part of an OR-group
+                if gid not in gids:
+                    # New group, keep track of index in result list
+                    gids[gid] = len(result)
+                    result.append([])
 
-    return result
+                # Insert frag in group list
+                result[gids[gid]].append(frag)
 
+        return result
 
-def generateBlock(args, block, block_label, is_or_block=False, or_block_id=""):
-    div_attrs = {
-        "id": f"{args['id']}-block-{block['id']}",
-        "cls": "parsons-l-block border rounded m-2 p-2 d-flex",
-        "draggable": "true",
-        "ondragstart": "dragstart(event)",
-        "ondragend": "dragend(event)",
-        "data_correct_order": block['order']
-    }
+    def _gen_frag_block(self, frag, idx, gid):
+        div_attrs = {
+            "id": f"{self.prefix_id}-frag-{idx}",
+            "cls": "parsons-frag bg-white border rounded m-2 mb-0 p-2 d-flex",
+            "data-order": f"{frag['order']}",
+            "data-gid": f"{gid}",
+        }
+        with div(**div_attrs):
+            if self.conf["label"]:
+                span(idx, cls="badge text-bg-light me-1")
+            text = frag["text"]
+            formatted_text = panflute.convert_text(text, output_format="html")
+            raw(formatted_text)
 
-    if is_or_block:
-        div_attrs["data_or_block_id"] = or_block_id
-        div_attrs['cls'] += ' parsons-l-or-block'
+    def _gen_activity(self):
+        group_frags = self._group_frags()
 
-    with div(**div_attrs):
-        if args['label']:
-            span(block_label, cls="badge text-bg-light m-1")
-        text = block['text']
-        formatted_text = pf.convert_text(
-            text=text, output_format='html')
-        modified_text = formatted_text.replace(
-            '<p>', '<p class="m-1">')
-        raw(modified_text)
+        # Generate containers and blocks
+        with div(cls = "card-body p-2 m-0 ms-4"):
+            with div(cls = "row gx-2 align-items-end"):
+                with div(cls = "col"):
+                    div("Drag items from here...",
+                        cls = "ps-2 small fst-italic text-secondary")
+                with div(cls = "col"):
+                    div("...and drop them here (click to remove)",
+                        cls = "ps-2 small fst-italic text-secondary")
+            with div(cls = "row gx-2"):
+                with div(cls = "col"):
+                    with div(id = f"{self.prefix_id}-frags",
+                             cls = "parsons-frags border pb-2 h-100"):
+                        fid = 0
+                        color_alt = 0
 
+                        # Iterate by group
+                        for gid, group in enumerate(group_frags):
+                            is_group = len(group) > 1
 
-def controls(args):
-    with div(cls="m-0 card-body parsons-l-controls"):
-        with div(cls="d-flex align-items-center"):
-            with div(cls="px-2 flex-shrink-0"):
-                button(
-                    "Submit", cls="btn btn-primary parsons-c-button parsons-c-button__submit")
-                button(
-                    "Reset", cls="btn btn-secondary parsons-c-button parsons-c-button__reset")
-            with div(cls="px-2 w-100"):
-                div(cls="d-none")
-            with div(cls="px-2 flex-shrink-1"):
-                button(cls="parsons-c-feedback__toggle collapsed d-none",
-                       data_bs_target=f"#{args['id']}-fb", data_bs_toggle="collapse", type="button")
+                            # Alternate between colors for frag groups
+                            if is_group:
+                                bg_color = "bg-primary-subtle" if color_alt \
+                                        else "bg-warning-subtle"
+                                color_alt = (color_alt + 1) % 2
+                            else:
+                                # Default color for individual frags
+                                bg_color = "bg-white"
 
+                            with div(id = f"{self.prefix_id}-frags-{gid}",
+                                     cls = f"parsons-frags-group position-relative rounded {bg_color}"):
+                                if is_group:
+                                    span("or{",
+                                         cls = ("parsons-group-symbol fw-bold "
+                                         "position-absolute top-50 start-0"))
 
-def feedback(args):
-    with div(cls="collapse parsons-l-feedback", id=f"{args['id']}-fb"):
-        with div(cls="px-2 card-body"):
-            div(id=f"{args['id']}-fb-warn")
-            with div(id=f"{args['id']}-fb-check"):
-                div("You got it right! Congratulations!",
-                    cls="parsons-l-check parsons-l-check-pass d-none")
-                div("Your answer is too short. Add more blocks.",
-                    cls="parsons-l-check parsons-l-check-error d-none")
-                div("Your answer is too long. Remove some blocks.",
-                    cls="parsons-l-check parsons-l-check-error d-none")
-                div("The red blocks indicate that each block's position is incorrect. If there are several adjacent yellow blocks, it signifies that the relative positions of those blocks are correct, but their absolute positions are still wrong. This issue can be resolved by rearranging, removing, or replacing the highlighted blocks.",
-                    cls="parsons-l-check parsons-l-check-error d-none")
+                                # Iterate by fragment
+                                for frag in group:
+                                    self._gen_frag_block(frag, fid, gid)
+                                    fid += 1
 
+                with div(cls = "col"):
+                    div(id = f"{self.prefix_id}-answers",
+                        cls = "parsons-answers bg-light border h-100 d-flex flex-column")
 
-def Parsons(element, doc):
-    if type(element) != pf.CodeBlock or not "parsons" in element.classes or not doc.format == "html":
-        return
-
-    # get CodeBlock content
-    parsons_args = yaml.load(element.text, LupbookLoader)
-
-    # validate arguments
-    try:
-        parsons_validator.validate(parsons_args)
-    except:
-        sys.stderr.write("Validation error in parsons element.\n")
-        raise
-
-    # generate HTML
-    root = div(id=parsons_args["id"],
-               cls="card my-3" + " " + "parsons-l-container")
-    with root:
-        header(parsons_args)
-        body(parsons_args)
-        controls(parsons_args)
-        feedback(parsons_args)
-        div(cls="card-footer text-muted")
-
-    return pf.RawBlock(text=root.render(), format='html')
+    def _gen_testing_activity(self):
+        div(id = f"{self.prefix_id}-testing-score",
+            cls = "alert d-none")

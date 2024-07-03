@@ -7,10 +7,13 @@ class MatchingActivity extends LupBookActivity {
   /* Class members */
   choiceBox;
   choiceItems = [];
+  answerContainer;
   answerBoxes = [];
 
   testingScore;
   feedbackItems = [];
+
+  placeHolder;
 
   /* Class methods */
   constructor(elt) {
@@ -21,6 +24,7 @@ class MatchingActivity extends LupBookActivity {
     this.choiceItems = Array.from(
       this.choiceBox.getElementsByClassName("matching-choice")
     );
+    this.answerContainer = document.getElementById(`${this.prefixId}-answers`);
     this.answerBoxes = Array.from(
       elt.getElementsByClassName("matching-answer")
     );
@@ -40,6 +44,10 @@ class MatchingActivity extends LupBookActivity {
   }
 
   initActivity() {
+    this.placeHolder = document.createElement("div");
+    this.placeHolder.className =
+      "matching-placeholder border border-0 bg-secondary-subtle rounded m-2 mb-0 p-2 d-flex";
+
     /* Attach "source" dragging functions to choice items */
     this.choiceItems.forEach((item) => {
       item.draggable = true;
@@ -49,10 +57,22 @@ class MatchingActivity extends LupBookActivity {
         event.dataTransfer.setData("text", event.target.id);
         event.dataTransfer.effectAllowed = "move";
         event.target.classList.replace("bg-white", "bg-light-subtle");
+
+        setTimeout(() => {
+          this.answerBoxes.forEach((box) => {
+            box.appendChild(this.placeHolder.cloneNode());
+          });
+        }, 0);
       };
 
       item.ondragend = (event) => {
         event.target.classList.replace("bg-light-subtle", "bg-white");
+
+        setTimeout(() => {
+          Array.from(
+            this.answerContainer.getElementsByClassName("matching-placeholder")
+          ).forEach((node) => node.remove());
+        }, 0);
       };
     });
 
@@ -61,32 +81,32 @@ class MatchingActivity extends LupBookActivity {
       box.ondragover = (event) => {
         event.preventDefault();
         event.dataTransfer.dropEffect = "move";
-      };
 
-      box.ondragenter = (event) => {
-        event.preventDefault();
-        event.target.classList.replace("bg-light", "bg-secondary-subtle");
-      };
-
-      box.ondragleave = (event) => {
-        event.preventDefault();
-        event.target.classList.replace("bg-secondary-subtle", "bg-light");
+        /* Highlight placeholder we're onto if any */
+        Array.from(
+          this.answerContainer.getElementsByClassName("matching-placeholder")
+        ).forEach((node) => {
+          if (node === event.target)
+            node.classList.replace("bg-secondary-subtle", "bg-primary-subtle");
+          else
+            node.classList.replace("bg-primary-subtle", "bg-secondary-subtle");
+        });
       };
 
       box.ondrop = (event) => {
         event.preventDefault();
 
-        /* Dragged element */
+        /* Only dropping in a placeholder */
+        if (!event.target.classList.contains("matching-placeholder")) return;
+
+        /* Target answer box */
+        const box = event.target.closest(".matching-answer");
+
+        /* Move dragged element to target container */
         const dragged = document.getElementById(
           event.dataTransfer.getData("text")
         );
-
-        /* Target container */
-        const target = event.target.closest(".matching-answer");
-
-        /* Move dragged element to target container */
-        target.appendChild(dragged);
-        event.target.classList.replace("bg-secondary-subtle", "bg-light");
+        box.insertBefore(dragged, event.target);
 
         /* Modifications re-enable the activity's submittability */
         this.submitStatus(LupBookActivity.SubmitStatus.ENABLED);

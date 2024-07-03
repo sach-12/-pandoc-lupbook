@@ -57,11 +57,15 @@ class HParsonsActivity extends LupBookActivity {
         event.target.classList.replace("bg-white", "bg-light-subtle");
 
         setTimeout(() => {
+          /* Placeholders at possible dropping spots. Avoid spots directly
+           * around currently dragged item since it wouldn't make it move. */
           const answerBox = this.answerBox;
           Array.from(answerBox.children).forEach((child) => {
-            answerBox.insertBefore(this.placeHolder.cloneNode(), child);
+            if (child !== item && child.previousSibling !== item)
+              answerBox.insertBefore(this.placeHolder.cloneNode(), child);
           });
-          answerBox.appendChild(this.placeHolder.cloneNode());
+          if (answerBox.lastChild !== item)
+            answerBox.appendChild(this.placeHolder.cloneNode());
         }, 0);
       };
 
@@ -81,7 +85,7 @@ class HParsonsActivity extends LupBookActivity {
       event.preventDefault();
       event.dataTransfer.dropEffect = "move";
 
-      /* Highlight placeholder we're onto */
+      /* Highlight placeholder we're onto if any */
       Array.from(
         this.answerBox.getElementsByClassName("hparsons-placeholder")
       ).forEach((child) => {
@@ -95,13 +99,14 @@ class HParsonsActivity extends LupBookActivity {
     this.answerBox.ondrop = (event) => {
       event.preventDefault();
 
-      /* Dragged element */
+        /* Only dropping in a placeholder */
+      if (!event.target.classList.contains("hparsons-placeholder")) return;
+
+      /* Move dragged element to target container */
       const dragged = document.getElementById(
         event.dataTransfer.getData("text")
       );
-
-      if (event.target.classList.contains("hparsons-placeholder"))
-        this.answerBox.insertBefore(dragged, event.target);
+      this.answerBox.insertBefore(dragged, event.target);
 
       /* Modifications re-enable the activity's submittability */
       this.submitStatus(LupBookActivity.SubmitStatus.ENABLED);
