@@ -11,6 +11,7 @@ class FIBActivity extends LupBookActivity {
   feedbackItems = [];
 
   filledCount = [];
+  casing;
 
   /* Class methods */
   constructor(elt) {
@@ -24,6 +25,11 @@ class FIBActivity extends LupBookActivity {
     this.feedbackItems = Array.from(
       elt.getElementsByClassName("fib-feedback-item")
     );
+    const casingDiv = document.getElementById(
+      `${this.prefixId}-casing-div`
+    );
+    this.casing = casingDiv.dataset.casing;
+
 
     /* Init activity */
     this.initActivity();
@@ -92,7 +98,18 @@ class FIBActivity extends LupBookActivity {
 
       /* Show corresponding feedback item and color it appropriately */
       feedbackItem.classList.remove("d-none");
-      if (item.value === item.dataset.answer) {
+
+      /* By default, case sensitive */
+      let itemVal = item.value;
+      let answerVal = item.dataset.answer;
+
+      /* Unless specified otherwise */
+      if (this.casing === false) {
+        itemVal = itemVal.toLowerCase();
+        answerVal = answerVal.toLowerCase();
+      }
+
+      if (itemVal === answerVal) {
         feedbackItem.classList.add("border-success");
         correctCount++;
       } else {
