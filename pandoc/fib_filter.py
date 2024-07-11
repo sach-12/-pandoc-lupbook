@@ -47,25 +47,27 @@ class LupbookFIB(lupbook_filter.LupbookComponent):
 
         idx_blank = 0
         blanks = self.conf["blanks"]
+        casing = self.conf["casing"]
 
         with div(cls="card-body px-3 pt-0 pb-2 m-0"):
-            for idx_para, para in enumerate(paragraphs):
-                with div(cls="fib-text d-flex flex-row flex-wrap align-items-baseline"):
-                    parts = para.split("|blank|")
-                    for idx_part, part in enumerate(parts):
-                        formatted_text = panflute.convert_text(
-                                part, output_format='html')
-                        div(raw(formatted_text))
+            with div(id = f"{self.prefix_id}-casing-div", data_casing=str(casing)):
+                for idx_para, para in enumerate(paragraphs):
+                    with div(cls="fib-text d-flex flex-row flex-wrap align-items-baseline"):
+                        parts = para.split("|blank|")
+                        for idx_part, part in enumerate(parts):
+                            formatted_text = panflute.convert_text(
+                                    part, output_format='html')
+                            div(raw(formatted_text))
 
-                        # If there is blank spaces behind, generate input HTML
-                        if idx_part + 1 < len(parts):
-                            blank = blanks[idx_blank]
-                            idx_blank += 1
-                            with div(cls="px-2"):
-                                input_(cls="form-control form-control-sm",
-                                       type = "text",
-                                       placeholder = blank["type"],
-                                       data_answer = blank["answer"])
+                            # If there is blank spaces behind, generate input HTML
+                            if idx_part + 1 < len(parts):
+                                blank = blanks[idx_blank]
+                                idx_blank += 1
+                                with div(cls="px-2"):
+                                    input_(cls="form-control form-control-sm",
+                                           type = "text",
+                                           placeholder = blank["type"],
+                                           data_answer = blank["answer"])
 
     def _gen_testing_activity(self):
         div(id = f"{self.prefix_id}-testing-score",

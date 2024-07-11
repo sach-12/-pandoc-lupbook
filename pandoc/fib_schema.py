@@ -21,6 +21,10 @@ _fib_schema = {
         "text": {
             "type": "string",
         },
+        "casing": {
+            "type": "boolean",
+            "default": False
+        },
         "blanks": {
             "type": "array",
             "items": {

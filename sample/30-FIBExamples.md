@@ -55,3 +55,26 @@ blanks:
     feedback: |
       Use **5** as the initial value of the variable.
 ```
+
+### Case Sensitive Example
+
+The casing property is applied to this question and applies to all blanks. 
+
+```fib
+id: python-keywords
+title: Python Keyword Trivia
+prompt: Fill in the blanks with Python keywords.
+casing: true
+text: |
+      In Python, to define a function, you use the |blank| keyword, and to indicate the end of a loop or conditional block, you use the |blank| keyword.
+blanks:
+  - answer: def
+    type: text
+    feedback: |
+      In Python, you define a function using the `def` keyword.
+  - answer: break
+    type: text
+    feedback: |
+      To indicate the end of a loop or conditional block in Python, you use the `break` keyword.
+```
+
