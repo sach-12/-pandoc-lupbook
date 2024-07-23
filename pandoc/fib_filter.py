@@ -3,7 +3,7 @@
 
 import re
 
-from dominate.tags import div, input_
+from dominate.tags import div, input_, span
 from dominate.util import raw
 
 import lupbook_filter
@@ -63,11 +63,12 @@ class LupbookFIB(lupbook_filter.LupbookComponent):
                             if idx_part + 1 < len(parts):
                                 blank = blanks[idx_blank]
                                 idx_blank += 1
-                                with div(cls="px-2"):
+                                with div(cls="input-group px-2 w-auto"):
                                     input_(cls="form-control form-control-sm",
                                            type = "text",
                                            placeholder = blank["type"],
                                            data_answer = blank["answer"])
+                                    span(str(idx_blank), cls="badge bg-secondary p-2")
 
     def _gen_testing_activity(self):
         div(id = f"{self.prefix_id}-testing-score",
@@ -75,6 +76,7 @@ class LupbookFIB(lupbook_filter.LupbookComponent):
         for i, blank in enumerate(self.conf["blanks"]):
             formatted_text = panflute.convert_text(
                     blank["feedback"], output_format = 'html')
-            div(raw(formatted_text),
-                id = f"{self.prefix_id}-feedback-{i}",
-                cls = "fib-feedback-item m-1 p-2 border-start border-5 d-none")
+            with div(id=f"{self.prefix_id}-feedback-{i}",
+                     cls="d-flex align-items-center fib-feedback-item m-1 p-2 border-start border-5 d-none"):
+                span(str(i + 1), cls="badge text-bg-secondary me-2")
+                div(raw(formatted_text))

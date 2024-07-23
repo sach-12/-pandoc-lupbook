@@ -6,6 +6,6 @@
 /*
  * Feedback
  */
-.fib-feedback-item > p:last-child {
+.fib-feedback-item p:last-child {
   margin-bottom: 0;
 }
