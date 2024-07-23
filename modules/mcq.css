@@ -6,13 +6,13 @@
 /*
  * Body elements
  */
-.mcq-choice-item > p:last-child {
+.mcq-choice-item p:last-child {
   margin-bottom: 0;
 }
 
 /*
  * Feedback
  */
-.mcq-feedback-item > p:last-child {
+.mcq-feedback-item p:last-child {
   margin-bottom: 0;
 }
