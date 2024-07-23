@@ -1,7 +1,7 @@
 # Copyright (c) 2023 LupLab
 # SPDX-License-Identifier: AGPL-3.0-only
 
-from dominate.tags import div, label, input_
+from dominate.tags import div, label, input_, span
 from dominate.util import raw
 
 import lupbook_filter
@@ -36,11 +36,15 @@ class LupbookMCQ(lupbook_filter.LupbookComponent):
 
     def _activity_name(self):
         return "MCQ activity"
+    
+    def _index_to_label(self, i):
+        return chr(ord('A') + i) + '.'
 
     def _gen_activity(self):
         with div(cls = "card-body px-3 pt-0 pb-2 m-0"):
             for i, choice in enumerate(self.conf["choices"]):
                 with div(cls = "form-check"):
+                    label(self._index_to_label(i))
                     input_(cls = "form-check-input",
                           type = self.form_type,
                           name = f"{self.prefix_id}-choice",
@@ -58,6 +62,7 @@ class LupbookMCQ(lupbook_filter.LupbookComponent):
         for i, choice in enumerate(self.conf["choices"]):
             formatted_text = panflute.convert_text(
                     choice["feedback"], output_format = 'html')
-            div(raw(formatted_text),
-                id = f"{self.prefix_id}-feedback-{i}",
-                cls = "mcq-feedback-item m-1 p-2 border-start border-5 d-none")
+            with div(id = f"{self.prefix_id}-feedback-{i}",
+                     cls = "d-flex align-items-center mcq-feedback-item m-1 p-2 border-start border-5 d-none"):
+                span(self._index_to_label(i), cls="badge bg-secondary me-2 p-1")
+                div(raw(formatted_text))
