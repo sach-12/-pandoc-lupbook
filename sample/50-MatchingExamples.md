@@ -35,3 +35,30 @@ answers:
   - text: Fourth Year
     choices: [choice4]
 ```
+
+### Multiple Choices to Answers Example
+``` matching
+id: fruit-or-vegetable
+title: Match Food Item
+random: false
+prompt: |
+      Match the food items to it's respective food category.
+choices:
+  - id: choice1
+    text: Apple
+    feedback: |
+      Apples are a fruit, more specifically an accessory fruit!
+  - id: choice2
+    text: Tomato
+    feedback: |
+      Tomatoes are thought to be vegetables because of their uses in cooking, but they are actually fruits!
+  - id: choice3
+    text: Carrot
+    feedback: |
+      Carrots are root vegetables!
+answers:
+  - text: Fruit
+    choices: [choice1, choice2]
+  - text: Vegetable
+    choices: [choice3]
+```
