@@ -33,7 +33,6 @@ class LupbookMatching(lupbook_filter.LupbookComponent):
         div_attrs = {
             "id": f"{self.prefix_id}-choice-{choice['id']}",
             "cls": "matching-choice bg-white border rounded m-2 mb-0 p-2 d-flex",
-            "data-match": choice['match'],
         }
         with div(**div_attrs):
             span(str(i + 1), cls = "badge text-bg-secondary me-2")
@@ -43,8 +42,8 @@ class LupbookMatching(lupbook_filter.LupbookComponent):
 
     def _gen_answer_block(self, answer):
         div_attrs = {
-            "id": f"{self.prefix_id}-answer-{answer['id']}",
             "cls": "matching-answer bg-light border rounded m-2 mb-0 p-2 d-flex flex-column",
+            "data-choices": ','.join(answer['choices'])
         }
         with div(**div_attrs):
             text = answer['text']

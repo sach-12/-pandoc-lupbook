@@ -155,7 +155,8 @@ class MatchingActivity extends LupBookActivity {
     this.choiceItems.forEach((item, idx) => {
       const choiceContainerElt = item.parentNode;
       const feedbackItem = this.feedbackItems[idx];
-      const answerMatchId = `${this.prefixId}-answer-${item.dataset.match}`;
+      const answerChoices = choiceContainerElt.dataset.choices ? 
+        choiceContainerElt.dataset.choices.split(",") : [];
 
       const choiceId = item.id.split("-").pop();
       if (
@@ -168,7 +169,7 @@ class MatchingActivity extends LupBookActivity {
       if (choiceContainerElt.classList.contains("matching-answer")) {
         /* Show corresponding feedback item and color it appropriately */
         feedbackItem.classList.remove("d-none");
-        if (choiceContainerElt.id == answerMatchId) {
+        if (answerChoices.includes(choiceId)) {
           feedbackItem.classList.add("border-success");
           correctCount++;
         } else {
