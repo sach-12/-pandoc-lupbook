@@ -18,8 +18,8 @@ class LupbookParsons(lupbook_filter.LupbookComponent):
         super().__init__(yaml_config)
 
         # Verify there is a valid sequence of orders
-        seq = sorted(f["order"] for f in self.conf["frags"]
-                     if f["order"] != -1)
+        seq = sorted(f["id"] for f in self.conf["frags"]
+                     if f["id"] != -1)
         if len(seq) < 1 or len(seq) != len(set(seq)) \
                 or seq[0] != 1 or seq != list(range(1, len(seq) + 1)):
             raise Exception("Invalid orders in Parsons activity: "
@@ -65,7 +65,8 @@ class LupbookParsons(lupbook_filter.LupbookComponent):
         div_attrs = {
             "id": f"{self.prefix_id}-frag-{idx}",
             "cls": "parsons-frag bg-white border rounded m-2 mb-0 p-2 d-flex",
-            "data-order": f"{frag['order']}",
+            "data-id": f"{frag['id']}",
+            "data-depend": f"{frag.get('depend', '')}",
             "data-gid": f"{gid}",
         }
         with div(**div_attrs):

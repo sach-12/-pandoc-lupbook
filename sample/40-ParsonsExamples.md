@@ -11,15 +11,18 @@ prompt: |
       Create a proof of the theorem:
       if $n$ is an even number, then $n \equiv 0$ mod 2.
 frags:
-  - order: 3
+  - id: 3
+    depend: 2
     text: So $n = 2m + 0$.
-  - order: 4
+  - id: 4
+    depend: 3
     text: Thus $n \equiv 0$ mod 2.
-  - order: 1
+  - id: 1
     text: Suppose $n$ is even.
-  - order: 2
+  - id: 2
+    depend: 1
     text: Then there exists an $m$ so that $n = 2m$.
-  - order: -1
+  - id: -1
     text: Redundant fragment
 ```
 
@@ -43,19 +46,22 @@ prompt: |
       Create a proof of the theorem:
       if $n$ is an even number, then $n \equiv 0$ mod 2.
 frags:
-  - order: 3
+  - id: 3
+    depend: 2
     text: |
       So $n = 2m + 0$.
-  - order: 4
+  - id: 4
+    depend: 3
     text: |
      Thus $n \equiv 0$ mod 2.
-  - order: 1
+  - id: 1
     text: |
       Suppose $n$ is even.
-  - order: 2
+  - id: 2
+    depend: 1
     text: |
       Then there exists an $m$ so that $n = 2m$.
-  - order: -1
+  - id: -1
     text: |
       Redundant fragment
 ```
@@ -74,33 +80,36 @@ prompt: |
       Create a proof of the theorem:
       if $n$ is an even number, then $n \equiv 0$ mod 2.
 frags:
-  - order: 3
+  - id: 3
+    depend: 2
     gid: "1"
     text: |
       So $n = 2m + 0$.
-  - order: -1
+  - id: -1
     gid: "1"
     text: |
       So $n = 2m + 1$.
-  - order: 4
+  - id: 4
+    depend: 3
     text: |
      Thus $n \equiv 0$ mod 2.
-  - order: 1
+  - id: 1
     text: |
       Suppose $n$ is even.
-  - order: 2
+  - id: 2
+    depend: 1
     gid: "2"
     text: |
       Then there exists an $m$ so that $n = 2m$.
-  - order: -1
+  - id: -1
     gid: "2"
     text: |
       Then there exists an $m$ so that $n = 2m + 1$.
-  - order: -1
+  - id: -1
     gid: "2"
     text: |
       Then $n$ is a prime number.
-  - order: -1
+  - id: -1
     text: |
       Redundant block
 ```

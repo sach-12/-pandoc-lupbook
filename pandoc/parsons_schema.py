@@ -31,7 +31,10 @@ _parsons_schema = {
             "items": {
                 "type": "object",
                 "properties": {
-                    "order": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "depend": {
                         "type": "integer"
                     },
                     "gid": {
@@ -41,7 +44,7 @@ _parsons_schema = {
                         "type": "string"
                     }
                 },
-                "required": ["order", "text"],
+                "required": ["id", "text"],
                 "additionalProperties": False
             }
         }
