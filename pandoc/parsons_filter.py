@@ -121,7 +121,7 @@ class LupbookParsons(lupbook_filter.LupbookComponent):
 
                 with div(cls = "col"):
                     div(id = f"{self.prefix_id}-answers",
-                        cls = "parsons-answers bg-light border h-100 d-flex flex-column")
+                        cls = "parsons-answers bg-light border h-100 pb-2 d-flex flex-column")
 
     def _gen_testing_activity(self):
         div(id = f"{self.prefix_id}-testing-score",

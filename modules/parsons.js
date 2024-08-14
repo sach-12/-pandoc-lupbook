@@ -21,9 +21,7 @@ class ParsonsActivity extends LupBookActivity {
 
     /* Handle on various elements of our activity */
     const fragBox = document.getElementById(`${this.prefixId}-frags`);
-    this.fragItems = Array.from(
-      fragBox.getElementsByClassName("parsons-frag")
-    );
+    this.fragItems = Array.from(fragBox.getElementsByClassName("parsons-frag"));
     this.answerBox = document.getElementById(`${this.prefixId}-answers`);
 
     this.testingScore = document.getElementById(
@@ -98,7 +96,7 @@ class ParsonsActivity extends LupBookActivity {
     this.answerBox.ondrop = (event) => {
       event.preventDefault();
 
-        /* Only dropping in a placeholder */
+      /* Only dropping in a placeholder */
       if (!event.target.classList.contains("parsons-placeholder")) return;
 
       /* Move dragged element to target container */
@@ -128,19 +126,23 @@ class ParsonsActivity extends LupBookActivity {
   }
 
   getGroup(frag) {
-    return document.getElementById(`${this.prefixId}-frags-${frag.dataset.gid}`);
+    return document.getElementById(
+      `${this.prefixId}-frags-${frag.dataset.gid}`
+    );
   }
 
   setFragDraggable(frag, draggable) {
-      frag.draggable = draggable;
-      if (draggable) frag.classList.add("grabbable");
-      else frag.classList.remove("grabbable");
+    frag.draggable = draggable;
+    if (draggable) frag.classList.add("grabbable");
+    else frag.classList.remove("grabbable");
   }
 
   setGroupDraggable(group, draggable) {
-    Array.from(group.getElementsByClassName("parsons-frag")).forEach((child) => {
-      this.setFragDraggable(child, draggable);
-    });
+    Array.from(group.getElementsByClassName("parsons-frag")).forEach(
+      (child) => {
+        this.setFragDraggable(child, draggable);
+      }
+    );
   }
 
   onReset() {
