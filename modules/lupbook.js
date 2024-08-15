@@ -20,6 +20,7 @@ class LupBookActivity {
 
   /* Class members */
   prefixId;
+  sectionDiv;
 
   submitBtn;
   resetBtn;
@@ -34,6 +35,7 @@ class LupBookActivity {
   /* Class methods */
   constructor(type, elt) {
     this.prefixId = `${type}-${elt.id}`;
+    this.sectionDiv = elt.closest("section");
 
     this.submitBtn = document.getElementById(`${this.prefixId}-submit`);
     this.resetBtn = document.getElementById(`${this.prefixId}-reset`);
