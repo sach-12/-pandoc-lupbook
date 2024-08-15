@@ -1,6 +1,6 @@
-## Matching examples
+# Matching examples
 
-### Simple Example
+## Simple Example
 
 ``` matching
 id: college-year

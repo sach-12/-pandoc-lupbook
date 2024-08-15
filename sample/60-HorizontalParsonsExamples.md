@@ -1,6 +1,6 @@
-## Horizontal Parsons examples
+# Horizontal Parsons examples
 
-### Simple Example
+## Simple Example
 
 Write any horizontal parsons exercise you want, drag and drop blocks and see its
 result.
@@ -28,7 +28,7 @@ frags:
       Distractor
 ```
 
-### Label and Random Example
+## Label and Random Example
 
 You can activate the `label` option, resulting in the creation of a numbered
 label on the left side of each block.
