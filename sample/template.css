@@ -1,11 +1,12 @@
-code {
-    font-family: "Courier New", monospace;
-    background-color: #f2f2f2;
-    padding: 2px 4px;
-    border-radius: 3px;
-}
+/*
+ * Copyright (c) 2024 LupLab
+ * SPDX-License-Identifier: AGPL-3.0-only
+ */
 
-.line-break {
-    flex-basis: 100%;
-    height: 0;
+/* Code styling */
+code {
+    background-color: var(--bs-light);
+    padding: 0.1em 0.2em;
+    border: var(--bs-border-style) var(--bs-border-width) var(--bs-border-color);
+    border-radius: var(--bs-border-radius);
 }
