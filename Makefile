@@ -10,9 +10,9 @@ all: build-book
 
 # Binaries
 PANDOC ?= pandoc
-FILTER = pandoc/lupbook.py
+FILTERS = pandoc/lupbook.py pandoc/toc_filter.py
 
-abs_filter = $(realpath $(FILTER))
+abs_filters = $(realpath $(FILTERS))
 
 # Source paths
 SRC_DIR ?= sample
@@ -42,7 +42,9 @@ build-book: build-dir $(MODULE_DEPS)
 	cd $(SRC_DIR) && \
         $(PANDOC) -o $(abs_build)/$(BUILD_NAME) \
             --embed-resources --standalone \
-            --template template.html *.md --filter $(abs_filter)
+            --section-divs \
+            --template template.html *.md \
+            $(patsubst %,--filter %,$(abs_filters))
 
 # External Resources
 deps: build-codemirror build-xtermjs build-xtermjs-addon-fit
