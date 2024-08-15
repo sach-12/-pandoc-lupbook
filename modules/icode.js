@@ -453,9 +453,10 @@ class IcodeActivity extends LupBookActivity {
         });
       }
 
-      /* Refresh editor when corresponding tab is shown */
+      /* Refresh editor when tab is shown or when section is displayed */
       const tab = document.getElementById(srcFileElt.dataset.tab);
       if (tab) tab.addEventListener("shown.bs.tab", () => cm.refresh());
+      this.sectionDiv.addEventListener("shown.lb.section", () => cm.refresh());
 
       /* Re-enable the submission upon changes */
       cm.on("changes", () =>
