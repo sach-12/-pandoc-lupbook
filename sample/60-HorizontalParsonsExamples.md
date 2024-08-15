@@ -11,19 +11,22 @@ title: SQL
 prompt: |
       Rearrange the blocks to form a valid `SQL` statement
 frags:
-  - order: 4
+  - id: 4
+    depend: 3
     text: |
       `test`
-  - order: 1
+  - id: 1
     text: |
      `SELECT`
-  - order: 2
+  - id: 2
+    depend: 1
     text: |
       `*`
-  - order: 3
+  - id: 3
+    depend: 2
     text: |
       `FROM`
-  - order: -1
+  - id: -1
     text: |
       Distractor
 ```
@@ -44,22 +47,30 @@ title: Sentence
 prompt: |
       Reorder the following words to make a sentence.
 frags:
-    - order: 3
+    - id: 3
+      depend: 2
       text: brown
-    - order: 7
+    - id: 7
+      depend: 6
       text: the
-    - order: 2
+    - id: 2
+      depend: 1
       text: quick
-    - order: 5
+    - id: 5
+      depend: 4
       text: jumped
-    - order: 8
+    - id: 8
+      depend: 7
       text: lazy
-    - order: 4
+    - id: 4
+      depend: 3
       text: fox
-    - order: 9
+    - id: 9
+      depend: 8
       text: dog
-    - order: 6
+    - id: 6
+      depend: 5
       text: over
-    - order: 1
+    - id: 1
       text: The
 ```
