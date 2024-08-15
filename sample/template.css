@@ -10,3 +10,36 @@ code {
     border: var(--bs-border-style) var(--bs-border-width) var(--bs-border-color);
     border-radius: var(--bs-border-radius);
 }
+
+/* Add some space to top of page when clicking on an anchor to reach a header,
+ * otherwise the header ends up being hidden behind our sticky top navbar */
+main section {
+  scroll-margin-top: 5rem;
+}
+
+main h2 {
+  margin-top: 3rem;
+}
+main > section > h1:first-of-type {
+  margin-top: 0rem;
+}
+
+/* Link styling in page TOC */
+.lb-toc a.active {
+  font-weight: 600;
+}
+.lb-toc a.active,
+.lb-toc a:hover {
+  background-color: var(--bs-secondary-bg) !important;
+}
+
+/* Only when page width is more than bootstrap's `md` breakpoint */
+@media (min-width: 768px) {
+    /* Make page TOC be sticky and scrollable */
+    #lb-page-toc-aside {
+        position: sticky;
+        top: 4rem;
+        height: calc(100vh);
+        overflow-y: auto;
+    }
+}
