@@ -141,7 +141,7 @@ class LupbookComponent:
             self._gen_testing()
             self._gen_footer()
 
-        return panflute.RawBlock(text=root.render(), format='html')
+        return panflute.RawBlock(root.render(), 'html')
 
     def process(self):
         return self._generate_html()
