@@ -31,14 +31,17 @@ _hparsons_schema = {
             "items": {
                 "type": "object",
                 "properties": {
-                    "order": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "depend": {
                         "type": "integer"
                     },
                     "text": {
                         "type": "string"
                     }
                 },
-                "required": ["order", "text"],
+                "required": ["id", "text"],
                 "additionalProperties": False
             }
         }

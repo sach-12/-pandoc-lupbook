@@ -37,7 +37,8 @@ class LupbookHParsons(lupbook_filter.LupbookComponent):
         div_attrs = {
             "id": f"{self.prefix_id}-frag-{idx}",
             "cls": "hparsons-frag bg-white border rounded my-2 mx-1 p-2 d-flex",
-            "data-order": f"{frag['order']}"
+            "data-id": f"{frag['id']}",
+            "data-depend": f"{frag.get('depend', '')}"
         }
         with div(**div_attrs):
             if (self.conf["label"]):

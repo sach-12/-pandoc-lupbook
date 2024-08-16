@@ -11,8 +11,8 @@ class HParsonsActivity extends LupBookActivity {
 
   testingScore;
 
-  totalOrderCount = 0;
-  totalDistractorCount = 0;
+  totalValidFrags = 0;
+  totalInvalidFrags = 0;
 
   placeHolder;
 
@@ -47,8 +47,8 @@ class HParsonsActivity extends LupBookActivity {
     this.fragItems.forEach((item) => {
       item.draggable = true;
 
-      if (parseInt(item.dataset.order, 10) !== -1) this.totalOrderCount++;
-      else this.totalDistractorCount++;
+      if (parseInt(item.dataset.id, 10) !== -1) this.totalValidFrags++;
+      else this.totalInvalidFrags++;
 
       item.ondragstart = (event) => {
         event.dataTransfer.clearData();
@@ -138,8 +138,10 @@ class HParsonsActivity extends LupBookActivity {
   }
 
   onSubmit() {
-    let orderCount = 0;
-    let distractorCount = 0;
+    let visitedFrags = new Set();
+    let missingCount = 0;
+    let misplacedCount = 0;
+    let invalidCount = 0;
 
     /* Disable buttons */
     this.submitStatus(LupBookActivity.SubmitStatus.DISABLED);
@@ -150,22 +152,56 @@ class HParsonsActivity extends LupBookActivity {
     this.clearTesting();
 
     /* Check solution */
-    Array.from(this.answerBox.children).forEach((child, idx) => {
-      if (parseInt(child.dataset.order, 10) === idx + 1) orderCount++;
-    });
-    Array.from(this.fragBox.children).forEach((child) => {
-      if (parseInt(child.dataset.order, 10) === -1) distractorCount++;
+    Array.from(this.answerBox.children).forEach((frag) => {
+      /* Count number of placed distractors */
+      const fragID = parseInt(frag.dataset.id, 10);
+      if (fragID === -1) {
+        invalidCount++;
+        return;
+      }
+
+      /* Keep track of valid fragments */
+      visitedFrags.add(fragID);
+
+      /* If current fragment has no dependency, then it is necessarily properly
+       * placed */
+      const fragDepend = frag.dataset.depend
+        ? parseInt(frag.dataset.depend, 10)
+        : null;
+      if (fragDepend === null) return;
+
+      /* If the fragment's dependency has already been visited, then it's
+       * prerequisites are met and is properly placed */
+      if (visitedFrags.has(fragDepend)) return;
+
+      /* Determine if the missing dependency was misplaced in the answer box, or
+       * not placed at all*/
+      const dependInAnswerBox = Array.from(this.answerBox.children).some(
+        (child) => parseInt(child.dataset.id, 10) === fragDepend
+      );
+      if (dependInAnswerBox) misplacedCount++;
+      else missingCount++;
     });
 
+    const totalSubmittedFrags = Array.from(this.answerBox.children).length;
+
+    /* Number of valid frags correctly placed in answer box */
+    const correctValidCount =
+      totalSubmittedFrags - misplacedCount - missingCount - invalidCount;
+    /* Number of valid frags missing from answer box */
+    const missingValidCount =
+      this.totalValidFrags - (totalSubmittedFrags - invalidCount);
+    /* Number of invalid frags correctly left in frag box */
+    const correctInvalidCount = this.totalInvalidFrags - invalidCount;
+
     /* Overall success */
-    let success =
-      orderCount === this.totalOrderCount &&
-      distractorCount === this.totalDistractorCount;
+    const success =
+      correctValidCount === this.totalValidFrags && invalidCount === 0;
 
     /* Set up progress bar */
     for (let i = 0; i < this.fragItems.length; i++) {
-      let s =
-        success || i < orderCount + distractorCount
+      const s =
+        success || i < correctValidCount + correctInvalidCount
           ? LupBookActivity.ProgressStatus.SUCCESS
           : LupBookActivity.ProgressStatus.FAILURE;
       this.progressStatus(i, s);
@@ -177,8 +213,14 @@ class HParsonsActivity extends LupBookActivity {
       this.testingScore.textContent = "Congratulations!";
       this.testingScore.classList.add("alert-success");
     } else {
-      this.testingScore.textContent = `You correctly placed ${orderCount} fragment(s), including not placing ${distractorCount} distractor(s).`;
       this.testingScore.classList.add("alert-danger");
+      this.testingScore.textContent = "";
+      if (correctValidCount)
+        this.testingScore.textContent += `At least ${correctValidCount} valid fragment(s) are correctly placed (more may be properly placed but are missing their dependencies). `;
+      if (missingValidCount)
+        this.testingScore.textContent += `You are still missing ${missingValidCount} valid fragment(s). `;
+      if (invalidCount)
+        this.testingScore.textContent += `You have incorrectly placed ${invalidCount} invalid fragment(s).`;
     }
 
     /* Show feedback */
