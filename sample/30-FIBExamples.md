@@ -1,6 +1,6 @@
-## Fill-in-the-blanks examples
+# Fill-in-the-blanks examples
 
-### Simple Example
+## Simple Example
 
 Write any FIB you want, fill in the blank and see its result.
 
@@ -28,7 +28,7 @@ elements of this setup.
 which may include one or more blanks. "|blank|" means blank in the text. Answers
 contain the answer of each blank, along with the corresponding feedback.
 
-### Multiple Blanks Example
+## Multiple Blanks Example
 
 If you want to incorporate additional blanks into the text, you can simply
 insert more "|blank|" placeholders within the paragraph. Additionally, make sure

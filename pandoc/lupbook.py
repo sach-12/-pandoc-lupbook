@@ -14,7 +14,7 @@ import hparsons_filter
 
 def _process_lupbook_filters(element, doc):
     # Quit early when incorrect type of element
-    if (type(element)!= panflute.CodeBlock or not doc.format == "html"):
+    if type(element) is not panflute.CodeBlock or not doc.format == "html":
         return
 
     # TODO: May want to enforce that our interactive element have an ID in order

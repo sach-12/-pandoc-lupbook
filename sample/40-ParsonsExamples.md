@@ -1,6 +1,6 @@
-## Parsons examples
+# Parsons examples
 
-### Simple Example
+## Simple Example
 
 Write any parsons exercise you want, drag and drop fragments and see its result.
 
@@ -29,7 +29,7 @@ frags:
 This is a simple example without any additional functions. Let's clarify certain
 aspects of this configuration.
 
-### Label and Random Example
+## Label and Random Example
 
 You can activate the 'label' option, resulting in the creation of a numbered
 label on the left side of each fragment.
@@ -66,7 +66,7 @@ frags:
       Redundant fragment
 ```
 
-### OR-group Examples
+## OR-group Examples
 
 To group fragments together as part of the same "or-group," you can assign an
 'gid' within each fragment. Fragments with the same 'gid' will be clustered

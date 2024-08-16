@@ -1,6 +1,6 @@
-## Multiple Choice Question examples
+# Multiple Choice Question examples
 
-### Simple Example
+## Simple Example
 
 Write any MCQ you want, select your answer(s) and click on run to see the
 answer.
@@ -34,7 +34,7 @@ Notice the use of $ signs in the example above. This is the syntax used in
 Markdown to style mathematical expressions with the appropriate format and
 symbols.
 
-### Randomizing answer choices
+## Randomizing answer choices
 
 One can specify whether the choices to each question are randomized using the
 `random` key. Set `random: true` to enable randomization. This is an optional
@@ -65,7 +65,7 @@ choices:
       developed by Sun Microsystems in 1995.
 ```
 
-### One-to-many MCQs
+## One-to-many MCQs
 
 With the `many: true` key, one can specify multiple correct answers to a
 question.

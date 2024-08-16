@@ -1,7 +1,6 @@
+# Interactive code (ICode) examples
 
-## Interactive code (ICode) examples
-
-### Simplest Example
+## Simplest Example
 
 Example with program from scratch and no output checking.
 
@@ -21,7 +20,7 @@ tests:
       - ./a.out
 ```
 
-### Starter code and output checking
+## Starter code and output checking
 
 Example with started code that students need to complete. We check the program's
 output.
@@ -61,7 +60,7 @@ tests:
         content: Hello World!
 ```
 
-### Checking file output
+## Checking file output
 
 A test can also check the contents of files created by the interactive code.
 
@@ -106,7 +105,7 @@ tests:
         content: Hello World.*
 ```
 
-### Complex example
+## Complex example
 
 By hiding some of the input files from the user, you can design complex test
 cases without necessarily exposing this code as part of the exercise.
