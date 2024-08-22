@@ -4,9 +4,6 @@
 [submodule "ext/bootstrap"]
 	path = ext/bootstrap
 	url = https://github.com/twbs/bootstrap.git
-[submodule "ext/xtermjs"]
-	path = ext/xtermjs
-	url = https://github.com/xtermjs/xterm.js.git
 [submodule "ext/icons"]
 	path = ext/icons
 	url = https://github.com/twbs/icons
