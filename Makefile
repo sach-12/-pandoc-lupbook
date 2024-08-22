@@ -36,12 +36,11 @@ abs_build = $(realpath $(BUILD_DIR))
 
 build-dir: FORCE
 	@mkdir -p $(BUILD_DIR)
-	rm -f $(BUILD_DIR)/header-include.html
 
-$(BUILD_DIR)/header-include.html: FORCE
-
-build-book: build-dir
+$(abs_build)/lupbookvm.js: $(SRC_LBVM)
 	cp $(SRC_LBVM) $(abs_build)/lupbookvm.js
+
+build-book: build-dir $(abs_build)/lupbookvm.js
 	cd $(SRC_DIR) && \
         $(PANDOC) -o $(abs_build)/$(BUILD_NAME) \
             -V lbdir=$(abs_lbdir) \
