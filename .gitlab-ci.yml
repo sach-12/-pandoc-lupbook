@@ -1,0 +1,34 @@
+workflow:
+  rules:
+    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
+    - if: $CI_COMMIT_TAG
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+
+image: ubuntu:24.04
+
+before_script:
+  - apt-get update
+  - DEBIAN_FRONTEND=noninteractive TZ=Etc/UTC apt-get -y install tzdata
+  - apt-get install -y
+    build-essential git
+    pandoc npm python3-pip python3-venv
+
+stages:
+  - build
+
+build:
+  stage: build
+  needs:
+    - project: luplab/lupbook/lupbook-vm
+      job: build
+      ref: main
+      artifacts: true
+  script:
+    - npm install --omit=dev
+    - python3 -m venv .venv
+    - source .venv/bin/activate
+    - npm run python-deps
+    - make SRC_LBVM=build/lupbookvm.js
+  artifacts:
+    paths:
+      - build/book.html
