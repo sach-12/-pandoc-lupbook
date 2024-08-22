@@ -1,9 +1,3 @@
 [submodule "ext/codemirror"]
 	path = ext/codemirror
 	url = https://github.com/codemirror/codemirror5.git
-[submodule "ext/bootstrap"]
-	path = ext/bootstrap
-	url = https://github.com/twbs/bootstrap.git
-[submodule "ext/icons"]
-	path = ext/icons
-	url = https://github.com/twbs/icons
