@@ -1,4 +1,8 @@
 {
+  "name": "lupbook",
+  "scripts": {
+    "python-deps": "python3 -m pip install -r requirements.txt",
+  },
   "devDependencies": {
     "@eslint/js": "^9.4.0",
     "eslint": "^9.4.0",
