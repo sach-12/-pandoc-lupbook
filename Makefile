@@ -8,6 +8,9 @@ all: build-book
 ###
 # Configuration
 
+# Lupbook directory
+abs_lbdir := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
+
 # Binaries
 PANDOC ?= pandoc
 FILTERS = pandoc/lupbook.py pandoc/toc_filter.py
@@ -41,6 +44,7 @@ build-book: build-dir $(MODULE_DEPS)
 	cp $(SRC_LBVM) $(abs_build)/lupbookvm.js
 	cd $(SRC_DIR) && \
         $(PANDOC) -o $(abs_build)/$(BUILD_NAME) \
+            -V lbdir=$(abs_lbdir) \
             --embed-resources --standalone \
             --section-divs \
             --template template.html *.md \
