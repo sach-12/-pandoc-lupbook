@@ -1,3 +1,0 @@
-[submodule "ext/codemirror"]
-	path = ext/codemirror
-	url = https://github.com/codemirror/codemirror5.git
