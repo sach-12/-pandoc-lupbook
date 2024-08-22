@@ -40,7 +40,7 @@ build-dir: FORCE
 
 $(BUILD_DIR)/header-include.html: FORCE
 
-build-book: build-dir $(MODULE_DEPS)
+build-book: build-dir
 	cp $(SRC_LBVM) $(abs_build)/lupbookvm.js
 	cd $(SRC_DIR) && \
         $(PANDOC) -o $(abs_build)/$(BUILD_NAME) \
@@ -49,12 +49,6 @@ build-book: build-dir $(MODULE_DEPS)
             --section-divs \
             --template template.html *.md \
             $(patsubst %,--filter %,$(abs_filters))
-
-# External Resources
-deps: build-codemirror
-
-build-codemirror:
-	cd ext/codemirror && npm install
 
 # Clean
 clean: FORCE
