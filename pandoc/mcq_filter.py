@@ -18,13 +18,16 @@ class LupbookMCQ(lupbook_filter.LupbookComponent):
 
         # Error checking
         correct_count = sum(choice["correct"] for choice in self.conf["choices"])
-        if ((not self.conf['many'] and correct_count != 1)
-            or (self.conf['many'] and correct_count < 1)):
-            raise Exception("Invalid number of correct choices in MCQ activity: "
-                            f"'{self.conf['id']}'")
-        self.form_type = 'checkbox' if self.conf['many'] else 'radio'
+        if (not self.conf["many"] and correct_count != 1):
+            raise Exception(f"MCQ activity '{self.conf['id']}'"
+                            " must have only one correct choice")
+        if (self.conf["many"] and correct_count < 1):
+            raise Exception(f"MCQ activity '{self.conf['id']}'"
+                            " must have at least one correct choice")
 
-        self.testing_cnt = len(self.conf["choices"]) if self.conf['many'] else 1
+        # Activity config
+        self.form_type = "checkbox" if self.conf["many"] else "radio"
+        self.testing_cnt = len(self.conf["choices"]) if self.conf["many"] else 1
 
     @staticmethod
     def _yaml_validator():
@@ -36,7 +39,7 @@ class LupbookMCQ(lupbook_filter.LupbookComponent):
 
     def _activity_name(self):
         return "MCQ activity"
-    
+
     def _index_to_label(self, i):
         return chr(ord('A') + i) + '.'
 
