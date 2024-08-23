@@ -1,6 +1,8 @@
 # Copyright (c) 2023 LupLab
 # SPDX-License-Identifier: AGPL-3.0-only
 
+import random
+
 from dominate.tags import div, span
 from dominate.util import raw
 
@@ -38,6 +40,8 @@ class LupbookParsons(lupbook_filter.LupbookComponent):
 
         # Activity config
         self.testing_cnt = len(self.conf["frags"])
+        if self.conf["random"]:
+            random.shuffle(self.conf["frags"])
 
     def _detect_dependency_loop(self):
         # Build fragment graph
