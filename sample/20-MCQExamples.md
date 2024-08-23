@@ -38,7 +38,8 @@ symbols.
 
 One can specify whether the choices to each question are randomized using the
 `random` key. Set `random: true` to enable randomization. This is an optional
-key; its default value is `false`.
+key; its default value is `false`. Note that the randomization is performed once
+statically when the HTML book is generated.
 
 ``` mcq
 id: prog-language

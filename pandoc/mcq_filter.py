@@ -1,6 +1,8 @@
 # Copyright (c) 2023 LupLab
 # SPDX-License-Identifier: AGPL-3.0-only
 
+import random
+
 from dominate.tags import div, label, input_, span
 from dominate.util import raw
 
@@ -28,6 +30,8 @@ class LupbookMCQ(lupbook_filter.LupbookComponent):
         # Activity config
         self.form_type = "checkbox" if self.conf["many"] else "radio"
         self.testing_cnt = len(self.conf["choices"]) if self.conf["many"] else 1
+        if self.conf["random"]:
+            random.shuffle(self.conf["choices"])
 
     @staticmethod
     def _yaml_validator():
