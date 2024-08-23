@@ -16,8 +16,8 @@ class ParsonsActivity extends LupBookActivity {
   placeHolder;
 
   /* Class methods */
-  constructor(elt) {
-    super("parsons", elt);
+  constructor(elt, type = "parsons") {
+    super(type, elt);
 
     /* Handle on various elements of our activity */
     const fragBox = document.getElementById(`${this.prefixId}-frags`);
