@@ -109,10 +109,10 @@ class LupbookParsons(lupbook_filter.LupbookComponent):
 
         return result
 
-    def _gen_frag_block(self, frag, idx, gid):
+    def _gen_frag_block(self, frag, margin, idx, gid):
         div_attrs = {
             "id": f"{self.prefix_id}-frag-{idx}",
-            "cls": "parsons-frag bg-white border rounded m-2 mb-0 p-2 d-flex",
+            "cls": f"parsons-frag bg-white border rounded {margin} p-2 d-flex",
             "data-id": f"{frag['id']}",
             "data-depend": f"{frag.get('depend', '')}",
             "data-gid": f"{gid}",
@@ -165,7 +165,7 @@ class LupbookParsons(lupbook_filter.LupbookComponent):
 
                                 # Iterate by fragment
                                 for frag in group:
-                                    self._gen_frag_block(frag, fid, gid)
+                                    self._gen_frag_block(frag, "m-2 mb-0", fid, gid)
                                     fid += 1
 
                 with div(cls = "col"):
