@@ -16,12 +16,14 @@ class ParsonsActivity extends LupBookActivity {
   placeHolder;
 
   /* Class methods */
-  constructor(elt) {
-    super("parsons", elt);
+  constructor(elt, type = "parsons") {
+    super(type, elt);
 
     /* Handle on various elements of our activity */
     const fragBox = document.getElementById(`${this.prefixId}-frags`);
-    this.fragItems = Array.from(fragBox.getElementsByClassName("parsons-frag"));
+    this.fragItems = Array.from(
+      fragBox.getElementsByClassName(`parsons-frag`)
+    );
     this.answerBox = document.getElementById(`${this.prefixId}-answers`);
 
     this.testingScore = document.getElementById(
@@ -176,7 +178,7 @@ class ParsonsActivity extends LupBookActivity {
     this.clearProgress();
     this.clearTesting();
 
-    /* Iterate over each fragment in the answer box */
+    /* Check solution */
     Array.from(this.answerBox.children).forEach((frag) => {
       /* Count number of placed distractors */
       const fragID = parseInt(frag.dataset.id, 10);

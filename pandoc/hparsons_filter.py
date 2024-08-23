@@ -4,7 +4,7 @@
 from dominate.tags import div, span
 from dominate.util import raw
 
-import lupbook_filter
+import parsons_filter
 import hparsons_schema
 import panflute
 
@@ -13,17 +13,14 @@ import panflute
 # Component generation
 #
 
-class LupbookHParsons(lupbook_filter.LupbookComponent):
+class LupbookHParsons(parsons_filter.LupbookParsons):
     def __init__(self, yaml_config):
         super().__init__(yaml_config)
 
-        # TODO: error checking (at least one valid frag, frags should have
-        # linear order starting from 1)
-
-        self.testing_cnt = len(self.conf["frags"])
-
     @staticmethod
     def _yaml_validator():
+        # XXX Could potentially reuse the parsons_schema and just ignore the
+        # `gid` field (it's optional anyway)
         return hparsons_schema.hparsons_validator
 
     @staticmethod
@@ -33,35 +30,23 @@ class LupbookHParsons(lupbook_filter.LupbookComponent):
     def _activity_name(self):
         return "Horizontal parsons activity"
 
-    def _gen_frag_block(self, frag, idx):
-        div_attrs = {
-            "id": f"{self.prefix_id}-frag-{idx}",
-            "cls": "hparsons-frag bg-white border rounded my-2 mx-1 p-2 d-flex",
-            "data-id": f"{frag['id']}",
-            "data-depend": f"{frag.get('depend', '')}"
-        }
-        with div(**div_attrs):
-            if (self.conf["label"]):
-                span(idx, cls="badge text-bg-light me-1")
-            text = frag['text']
-            formatted_text = panflute.convert_text(text, output_format = 'html')
-            raw(formatted_text)
-
     def _gen_activity(self):
         # Generate containers and blocks
         with div(cls = "card-body p-2 m-0"):
             div("Drag items from here...",
                 cls = "ps-2 small fst-italic text-secondary")
             with div(id = f"{self.prefix_id}-frags",
-                     cls = "hparsons-frags border d-flex flex-row flex-wrap"):
+                     cls = "parsons-frags border d-flex flex-row flex-wrap"):
                 for i, frag in enumerate(self.conf["frags"]):
-                    self._gen_frag_block(frag, i)
+                    # Reuse the block generation of the Parsons component which
+                    # has OR group blocks. Here we don't, so we only have groups
+                    # of 1 fragment each.
+                    with div(id = f"{self.prefix_id}-frags-{i}",
+                             cls = "parsons-frags-group position-relative"
+                             " rounded bg-white"):
+                        self._gen_frag_block(frag, "my-2 mx-1", i, i)
 
             div("...and drop them here (click to remove)",
                 cls = "ps-2 pt-2 small fst-italic text-secondary")
             div(id = f"{self.prefix_id}-answers",
-                cls = "hparsons-answers bg-light border d-flex flex-row flex-wrap")
-
-    def _gen_testing_activity(self):
-        div(id = f"{self.prefix_id}-testing-score",
-            cls = "alert d-none")
+                cls = "parsons-answers bg-light border d-flex flex-row flex-wrap")

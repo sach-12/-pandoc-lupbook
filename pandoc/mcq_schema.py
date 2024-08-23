@@ -42,7 +42,7 @@ _mcq_schema = {
                         "type": "string",
                         }
                     },
-                "required": [ "text" ],
+                "required": [ "text", "feedback" ],
                 "additionalProperties": False
                 }
             },

@@ -1,13 +1,14 @@
 # Copyright (c) 2023 LupLab
 # SPDX-License-Identifier: AGPL-3.0-only
 
+import random
+
 from dominate.tags import div, span
 from dominate.util import raw
 
 import lupbook_filter
 import parsons_schema
 import panflute
-
 
 #
 # Component generation
@@ -17,16 +18,63 @@ class LupbookParsons(lupbook_filter.LupbookComponent):
     def __init__(self, yaml_config):
         super().__init__(yaml_config)
 
-        # Verify there is a valid sequence of orders
-        seq = sorted(f["id"] for f in self.conf["frags"]
-                     if f["id"] != -1)
-        if len(seq) < 1 or len(seq) != len(set(seq)) \
-                or seq[0] != 1 or seq != list(range(1, len(seq) + 1)):
-            raise Exception("Invalid orders in Parsons activity: "
-                            f"'{self.conf['id']}'")
+        # Error checking
 
-        # Number of valid fragments
+        ## At least one valid fragment to place
+        frag_ids = [f["id"] for f in self.conf["frags"] if f["id"] != -1]
+        if len(frag_ids) < 1:
+            raise Exception(f"Parsons activity '{self.conf['id']}'"
+                            " must have at least one valid fragment")
+
+        ## All dependencies must be valid ids
+        frags_deps = [f["depend"] for f in self.conf["frags"]
+                      if f["id"] != -1 and f.get("depend")]
+        if not all(i in frag_ids for i in frags_deps):
+            raise Exception(f"Parsons activity '{self.conf['id']}'"
+                            " contains invalid dependencies")
+
+        ## Check for dependency loop
+        if self._detect_dependency_loop():
+            raise Exception(f"Parsons activity '{self.conf['id']}'"
+                            " contains at least one dependency loop")
+
+        # Activity config
         self.testing_cnt = len(self.conf["frags"])
+        if self.conf["random"]:
+            random.shuffle(self.conf["frags"])
+
+    def _detect_dependency_loop(self):
+        # Build fragment graph
+        graph = {f['id']: f.get('depend') for f in self.conf["frags"]}
+
+        # Sets to keep track of explored nodes and the recursion stack
+        explored = set()
+        stack = set()
+
+        # Run DFS from a given frag
+        def dfs(fid):
+            if fid in stack:    # Already seen during DFS => cycle!
+                return True
+            if fid in explored: # Already DFS'ed and no cycle
+                return False
+
+            explored.add(fid)
+            stack.add(fid)
+
+            # Recurse if frag has a dependency
+            depend = graph.get(fid)
+            if depend and dfs(depend):
+                return True
+
+            # Remove the node from the recursion stack after exploring it
+            stack.remove(fid)
+            return False
+
+        # Run DFS for each fragment in the graph
+        for fid in graph:
+            if dfs(fid):
+                return True
+        return False
 
     @staticmethod
     def _yaml_validator():
@@ -61,17 +109,17 @@ class LupbookParsons(lupbook_filter.LupbookComponent):
 
         return result
 
-    def _gen_frag_block(self, frag, idx, gid):
+    def _gen_frag_block(self, frag, margin, idx, gid):
         div_attrs = {
             "id": f"{self.prefix_id}-frag-{idx}",
-            "cls": "parsons-frag bg-white border rounded m-2 mb-0 p-2 d-flex",
+            "cls": f"parsons-frag bg-white border rounded {margin} p-2 d-flex",
             "data-id": f"{frag['id']}",
             "data-depend": f"{frag.get('depend', '')}",
             "data-gid": f"{gid}",
         }
         with div(**div_attrs):
             if self.conf["label"]:
-                span(idx, cls="badge text-bg-light me-1")
+                span(idx, cls = "badge text-bg-light fw-medium me-1")
             text = frag["text"]
             formatted_text = panflute.convert_text(text, output_format="html")
             raw(formatted_text)
@@ -117,7 +165,7 @@ class LupbookParsons(lupbook_filter.LupbookComponent):
 
                                 # Iterate by fragment
                                 for frag in group:
-                                    self._gen_frag_block(frag, fid, gid)
+                                    self._gen_frag_block(frag, "m-2 mb-0", fid, gid)
                                     fid += 1
 
                 with div(cls = "col"):
