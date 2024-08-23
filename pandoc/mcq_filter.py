@@ -47,7 +47,8 @@ class LupbookMCQ(lupbook_filter.LupbookComponent):
         with div(cls = "card-body px-3 pt-0 pb-2 m-0"):
             for i, choice in enumerate(self.conf["choices"]):
                 with div(cls = "form-check"):
-                    label(self._index_to_label(i))
+                    span(self._index_to_label(i),
+                         cls = "badge text-bg-light fw-medium me-1")
                     input_(cls = "form-check-input",
                           type = self.form_type,
                           name = f"{self.prefix_id}-choice",
@@ -67,5 +68,6 @@ class LupbookMCQ(lupbook_filter.LupbookComponent):
                     choice["feedback"], output_format = 'html')
             with div(id = f"{self.prefix_id}-feedback-{i}",
                      cls = "d-flex align-items-center mcq-feedback-item m-1 p-2 border-start border-5 d-none"):
-                span(self._index_to_label(i), cls="badge bg-secondary me-2 p-1")
+                span(self._index_to_label(i),
+                     cls="badge text-bg-light fw-medium me-1 p-1")
                 div(raw(formatted_text))
