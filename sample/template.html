@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" lang="$lang$" xml:lang="$lang$"$if(dir)$ dir="$dir$"$endif$>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="$lang$" xml:lang="$lang$"$if(dir)$ dir="$dir$"$endif$ data-bs-theme="light">
 <head>
   <meta charset="utf-8" />
   <meta name="generator" content="pandoc" />
@@ -47,6 +47,7 @@ $endif$
   <script src="$lbdir$/modules/mcq.js"></script>
   <script src="$lbdir$/modules/parsons.js"></script>
   <script src="$lbdir$/modules/hparsons.js"></script>
+  <script src="$lbdir$/modules/theme.js"></script>
 
   <link rel="stylesheet" href="$lbdir$/modules/lupbook.css"/>
   <link rel="stylesheet" href="$lbdir$/modules/fib.css"/>
@@ -112,6 +113,15 @@ $main-toc$
                 <i class="bi bi-terminal"></i>
                 <span class="ms-2">Show terminal</span>
               </button>
+            </li>
+          </ul>
+          <ul class="navbar-nav justify-content-end flex-grow-1 pe-3">
+            <li class="nav-item">
+              <label class="ps-0 form-check form-switch d-flex align-items-center">
+                <i class="bi bi-sun"></i>
+                <input id="theme-toggler" class="form-check-input ms-2 border border-primary rounded-pill shadow-none" type="checkbox" data-size="large">
+                <i class="bi bi-moon ms-2"></i>
+              </label>
             </li>
           </ul>
         </div>
